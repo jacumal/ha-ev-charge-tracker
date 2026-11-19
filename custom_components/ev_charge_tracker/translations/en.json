@@ -95,5 +95,12 @@
     "error": {
       "invalid_schedule": "The schedule is incomplete or contains overlapping periods. Check the times, weekdays and prices."
     }
+  },
+  "entity": {
+    "button": {
+      "manual_finalize": {
+        "name": "Finalize latest charge"
+      }
+    }
   }
 }
