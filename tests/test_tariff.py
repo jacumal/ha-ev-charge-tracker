@@ -2,6 +2,7 @@
 
 import unittest
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from custom_components.ev_charge_tracker.tariff import (
     active_period,
@@ -69,6 +70,27 @@ class TariffTests(unittest.TestCase):
             active_period(datetime(2026, 11, 20, 2, 0), periods)["name"],
             "Noche",
         )
+
+    def test_detects_overlapping_periods(self):
+        overlapping = [
+            {"name": "A", "start": "00:00", "end": "12:00", "price": 0.1},
+            {"name": "B", "start": "11:00", "end": "24:00", "price": 0.2},
+        ]
+        self.assertTrue(any("solapados" in error for error in validate_periods(overlapping)))
+
+    def test_dst_spring_forward_uses_real_elapsed_time(self):
+        madrid = ZoneInfo("Europe/Madrid")
+        periods = [
+            {"name": "Único", "start": "00:00", "end": "24:00", "price": 0.1}
+        ]
+        result = allocate_energy_by_time(
+            datetime(2026, 3, 29, 1, 30, tzinfo=madrid),
+            datetime(2026, 3, 29, 3, 30, tzinfo=madrid),
+            2.0,
+            periods,
+        )
+        self.assertAlmostEqual(result["energy_kwh"], 2.0)
+        self.assertAlmostEqual(result["cost"], 0.2)
 
 
 if __name__ == "__main__":
