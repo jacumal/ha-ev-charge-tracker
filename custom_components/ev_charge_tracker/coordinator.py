@@ -156,13 +156,17 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             state = self.hass.states.get(entity_id)
             unit = (state.attributes.get("unit_of_measurement") or "").lower() if state else ""
             value = _number(raw_value)
-            if value is not None and value >= 0:
+            if value is not None and value >= 0 and unit in ("kwh", "wh"):
                 if unit == "wh":
                     value /= 1000
                 previous = session.get("energy_kwh")
                 if previous is None or value >= previous:
                     session["energy_kwh"] = round(value, 4)
                     session["energy_valid"] = True
+            elif value is not None:
+                self.data["diagnostic"] = (
+                    f"Unidad de energía no compatible: {unit or 'sin unidad'}"
+                )
 
         if self.config.get(CONF_SOC_ENTITY) == entity_id:
             value = _number(raw_value)
