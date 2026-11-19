@@ -47,10 +47,10 @@
   "options": {
     "step": {
       "init": {
-        "title": "Horario de tarifa eléctrica",
-        "description": "Configura uno, dos o tres periodos horarios. Se utiliza la hora local de Home Assistant y se comprueba que no haya huecos ni solapamientos.",
+        "title": "Ajustes del perfil",
+        "description": "Elige qué parte del perfil quieres modificar. Los cambios de sensores no eliminan las sesiones guardadas.",
         "data": {
-          "tariff_period_count": "Número de periodos tarifarios"
+          "section": "Sección que quieres editar"
         }
       },
       "periods": {
@@ -90,6 +90,26 @@
           "period_3_price": "Precio de cada kWh asignado a este periodo. Introduce un valor no negativo en €/kWh.",
           "period_3_days": "Selecciona los días de la semana en los que se aplica este tramo. El horario semanal completo no debe tener huecos ni solapamientos."
         }
+      },
+      "profile": {
+        "title": "Sensores y comportamiento",
+        "description": "Modifica las entidades asociadas al vehículo y al cargador, el tipo de contador, el precio y el criterio de cierre. El histórico se conserva.",
+        "data": {
+          "charging_entity": "Estado de carga activo (binary_sensor)",
+          "energy_entity": "Energía entregada (kWh/Wh)",
+          "energy_mode": "Tipo de contador de energía",
+          "soc_entity": "Porcentaje de batería (SOC, opcional)",
+          "odometer_entity": "Odómetro (opcional)",
+          "odometer_unit": "Unidad del odómetro",
+          "price_mode": "Origen del precio eléctrico",
+          "price_per_kwh": "Precio fijo por kWh",
+          "price_entity": "Sensor de precio (€/kWh)",
+          "finalization": "Cuándo consolidar una carga"
+        }
+      },
+      "tariffs": {
+        "title": "Horario de tarifa eléctrica",
+        "description": "Configura uno, dos o tres periodos horarios. Se utiliza la hora local de Home Assistant y se comprueba que no haya huecos ni solapamientos."
       }
     },
     "error": {
