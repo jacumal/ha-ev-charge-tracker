@@ -12,6 +12,8 @@ from typing import Any
 
 def _parse_time(value: str) -> time:
     """Parse an HH:MM schedule boundary."""
+    if value == "24:00":
+        return time(0, 0)
     return time.fromisoformat(value)
 
 
@@ -104,20 +106,24 @@ def allocate_energy_by_time(
         raise ValueError("Intervalo o energía no válidos.")
 
     seconds_by_period: dict[str, float] = {}
-    cursor = start
-    while cursor < end:
-        next_minute = (cursor.replace(second=0, microsecond=0) + timedelta(minutes=1))
-        boundary = min(next_minute, end)
-        period = active_period(cursor, periods)
+    # Walk the real timeline in UTC so DST changes do not create or lose elapsed time.
+    aware = start.tzinfo is not None and end.tzinfo is not None
+    cursor = start.astimezone(__import__("datetime").timezone.utc) if aware else start
+    finish = end.astimezone(__import__("datetime").timezone.utc) if aware else end
+    while cursor < finish:
+        next_minute = cursor.replace(second=0, microsecond=0) + timedelta(minutes=1)
+        boundary = min(next_minute, finish)
+        local_cursor = cursor.astimezone(start.tzinfo) if aware else cursor
+        period = active_period(local_cursor, periods)
         if period is None:
-            raise ValueError(f"No hay tarifa configurada para {cursor.isoformat()}")
+            raise ValueError(f"No hay tarifa configurada para {local_cursor.isoformat()}")
         key = str(period.get("name", "Periodo"))
         seconds_by_period[key] = seconds_by_period.get(key, 0.0) + (
             boundary - cursor
         ).total_seconds()
         cursor = boundary
 
-    total_seconds = (end - start).total_seconds()
+    total_seconds = (finish - (start.astimezone(__import__("datetime").timezone.utc) if aware else start)).total_seconds()
     breakdown = []
     total_cost = 0.0
     allocated = 0.0
