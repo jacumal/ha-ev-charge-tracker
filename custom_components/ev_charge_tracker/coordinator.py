@@ -26,6 +26,7 @@ from .const import (
     DOMAIN,
     FINALIZE_IMMEDIATE,
     FINALIZE_ODOMETER,
+    FINALIZE_MANUAL,
     MAX_HISTORY,
     PRICE_MODE_SENSOR,
     STORAGE_VERSION,
@@ -334,6 +335,9 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             else:
                 self.data["diagnostic"] = "Carga detenida; falta una lectura válida de energía"
             return
+        if strategy == FINALIZE_MANUAL:
+            self.data["diagnostic"] = "Carga pendiente de confirmación manual"
+            return
         if strategy == FINALIZE_ODOMETER:
             current = self._read_odometer()
             start = session.get("odometer_start_km")
@@ -383,6 +387,16 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         self.data["session"] = None
         self.data["status"] = "idle"
         self.data["diagnostic"] = "Última carga consolidada"
+
+    async def async_manual_finalize(self) -> bool:
+        """Finalize a stopped session after explicit user confirmation."""
+        session = self.data.get("session")
+        if session is None or session.get("ended_at") is None or not session.get("energy_valid"):
+            return False
+        self._finalize()
+        self.async_set_updated_data(self.data)
+        await self._async_save()
+        return True
 
     async def _async_save(self) -> None:
         """Persist state and history."""
