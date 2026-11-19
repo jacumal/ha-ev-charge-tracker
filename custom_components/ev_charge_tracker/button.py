@@ -5,7 +5,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import CONF_VEHICLE_NAME, DOMAIN
+from .const import CONF_FINALIZATION, CONF_VEHICLE_NAME, DOMAIN, FINALIZE_MANUAL
 
 
 async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities) -> None:
@@ -34,7 +34,8 @@ class EVChargeFinalizeButton(CoordinatorEntity, ButtonEntity):
     def available(self):
         session = self.coordinator.data.get("session")
         return bool(
-            session
+            self.coordinator.config.get(CONF_FINALIZATION) == FINALIZE_MANUAL
+            and session
             and session.get("ended_at")
             and session.get("energy_valid")
         )
