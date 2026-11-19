@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import voluptuous as vol
 from voluptuous import All, Coerce, Range
+from voluptuous import All, Coerce, Range
 
 from homeassistant import config_entries
 from homeassistant.core import callback
