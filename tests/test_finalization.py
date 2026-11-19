@@ -28,6 +28,7 @@ class SessionFinalizationTests(unittest.TestCase):
             "cost_complete": True,
             "tariff_breakdown": {},
             "soc_max": 80.0,
+            "soc_last": 77.0,
             "soc_end": None,
         }
         coordinator = self.make_coordinator(session)
@@ -39,7 +40,7 @@ class SessionFinalizationTests(unittest.TestCase):
         self.assertEqual(len(coordinator.data["history"]), 1)
         self.assertEqual(coordinator.data["latest"]["energy_kwh"], 12.5)
         self.assertEqual(coordinator.data["latest"]["cost"], 2.5)
-        self.assertEqual(coordinator.data["latest"]["soc_end"], 80.0)
+        self.assertEqual(coordinator.data["latest"]["soc_end"], 77.0)
         self.assertEqual(
             coordinator.data["latest"]["session_id"],
             "2026-11-19T10:00:00+00:00",
