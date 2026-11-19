@@ -29,6 +29,7 @@ class SessionFinalizationTests(unittest.TestCase):
             "tariff_breakdown": {},
             "soc_max": 80.0,
             "soc_last": 77.0,
+            "soc_last_at": "2026-11-19T10:59:00+00:00",
             "soc_end": None,
         }
         coordinator = self.make_coordinator(session)
@@ -45,6 +46,23 @@ class SessionFinalizationTests(unittest.TestCase):
             coordinator.data["latest"]["session_id"],
             "2026-11-19T10:00:00+00:00",
         )
+
+    def test_stale_final_soc_is_not_saved(self):
+        coordinator = self.make_coordinator({
+            "started_at": "2026-11-19T10:00:00+00:00",
+            "ended_at": "2026-11-19T11:00:00+00:00",
+            "energy_kwh": 3.0,
+            "energy_valid": True,
+            "price_per_kwh": 0.1,
+            "cost_complete": True,
+            "tariff_breakdown": {},
+            "soc_last": 84.0,
+            "soc_last_at": "2026-11-19T10:40:00+00:00",
+        })
+
+        coordinator._finalize()
+
+        self.assertIsNone(coordinator.data["latest"]["soc_end"])
 
     def test_repeated_finalize_does_not_duplicate_history(self):
         coordinator = self.make_coordinator({
