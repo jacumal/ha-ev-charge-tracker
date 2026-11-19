@@ -29,6 +29,7 @@ async def async_setup_entry(
             EVChargeCostSensor(coordinator, entry),
             EVChargeSocStartSensor(coordinator, entry),
             EVChargeSocEndSensor(coordinator, entry),
+            EVChargeSocIncreaseSensor(coordinator, entry),
             EVChargeDurationSensor(coordinator, entry),
             EVChargeHistorySensor(coordinator, entry),
         ]
@@ -127,6 +128,24 @@ class EVChargeSocEndSensor(EVChargeBaseSensor):
         return record.get("soc_end") if record else None
 
 
+
+class EVChargeSocIncreaseSensor(EVChargeBaseSensor):
+    """SOC percentage-point increase during the charge."""
+
+    _attr_native_unit_of_measurement = "pp"
+    _attr_suggested_display_precision = 1
+
+    def __init__(self, coordinator, entry):
+        super().__init__(coordinator, entry, "soc_increase", "Aumento de batería", "mdi:battery-plus")
+
+    @property
+    def native_value(self):
+        record = self.coordinator.data.get("session") or self.coordinator.data.get("latest")
+        if not record or record.get("soc_start") is None or record.get("soc_end") is None:
+            return None
+        return round(record["soc_end"] - record["soc_start"], 1)
+
+
 class EVChargeDurationSensor(EVChargeBaseSensor):
     """Duration of latest/current charge in minutes."""
 
@@ -158,4 +177,13 @@ class EVChargeHistorySensor(EVChargeBaseSensor):
 
     @property
     def extra_state_attributes(self):
-        return {"sessions": self.coordinator.data.get("history", [])}
+        current = self.coordinator.data.get("session")
+        latest = self.coordinator.data.get("latest")
+        return {
+            "sessions": self.coordinator.data.get("history", []),
+            "current_session": current,
+            "latest_session": latest,
+            "diagnostic": self.coordinator.data.get("diagnostic"),
+            "tariff_breakdown": (current or latest or {}).get("tariff_breakdown", {}),
+            "tariff_estimated": (current or latest or {}).get("tariff_estimated", False),
+        }
