@@ -36,7 +36,8 @@
     },
     "error": {
       "name_required": "Enter a vehicle name and charger name.",
-      "price_sensor_required": "Select a price sensor to use automatic pricing."
+      "price_sensor_required": "Select a price sensor to use automatic pricing.",
+      "odometer_required": "Select an odometer sensor or choose a different finalization method."
     },
     "abort": {
       "already_configured": "This vehicle and charger profile is already configured.",
