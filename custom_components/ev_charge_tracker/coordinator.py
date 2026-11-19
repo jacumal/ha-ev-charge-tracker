@@ -118,7 +118,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
     def _start_session(self) -> None:
         """Start a session with only valid available baselines."""
         now = datetime.now(timezone.utc).isoformat()
-        soc = self._read_number(CONF_SOC_ENTITY)
+        soc = self._read_soc()
         odo = self._read_odometer()
         self.data["session"] = {
             "started_at": now,
@@ -169,8 +169,10 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                 )
 
         if self.config.get(CONF_SOC_ENTITY) == entity_id:
+            state = self.hass.states.get(entity_id)
+            unit = (state.attributes.get("unit_of_measurement") or "").lower() if state else ""
             value = _number(raw_value)
-            if value is not None and 0 < value <= 100:
+            if unit == "%" and value is not None and 0 < value <= 100:
                 previous = session.get("soc_max")
                 if previous is None or value > previous:
                     session["soc_max"] = value
@@ -184,6 +186,15 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         entity_id = self.config.get(config_key)
         state = self.hass.states.get(entity_id) if entity_id else None
         return _number(state.state) if state else None
+
+    def _read_soc(self) -> float | None:
+        """Read SOC only when the source explicitly reports percent."""
+        entity_id = self.config.get(CONF_SOC_ENTITY)
+        state = self.hass.states.get(entity_id) if entity_id else None
+        if state is None or (state.attributes.get("unit_of_measurement") or "").strip() != "%":
+            return None
+        value = _number(state.state)
+        return value if value is not None and 0 < value <= 100 else None
 
     def _read_odometer(self) -> float | None:
         value = self._read_number(CONF_ODOMETER_ENTITY)
