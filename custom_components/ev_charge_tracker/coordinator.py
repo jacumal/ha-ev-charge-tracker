@@ -104,10 +104,14 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             await self._async_save()
 
     async def _async_update_data(self):
-        """Expose current state; source updates are event-driven."""
+        """Expose current state and retry eligible session finalization."""
         charging = self.hass.states.get(self.config[CONF_CHARGING_ENTITY])
         if charging is None:
             raise UpdateFailed("No se encuentra la entidad de estado de carga")
+        previous_session = self.data.get("session")
+        self._try_finalize()
+        if previous_session is not None and self.data.get("session") is None:
+            await self._async_save()
         return self.data
 
     @callback
@@ -344,10 +348,23 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             return
         strategy = self.config.get(CONF_FINALIZATION, FINALIZE_ODOMETER)
         if strategy == FINALIZE_IMMEDIATE:
+            # Keep the session open briefly after OFF: some chargers publish their
+            # final energy counter (and the vehicle its final SOC) asynchronously.
+            ended_at = datetime.fromisoformat(session["ended_at"])
+            elapsed = (dt_util.utcnow() - ended_at).total_seconds()
+            if elapsed < 60:
+                self.data["diagnostic"] = (
+                    "Carga detenida; esperando lecturas finales "
+                    f"({max(0, int(60 - elapsed))} s)"
+                )
+                return
             if session.get("energy_valid"):
                 self._finalize()
             else:
-                self.data["diagnostic"] = "Carga detenida; falta una lectura válida de energía"
+                self.data["diagnostic"] = (
+                    "Carga detenida; no se recibió una lectura válida de energía "
+                    "durante el margen de consolidación"
+                )
             return
         if strategy == FINALIZE_MANUAL:
             self.data["diagnostic"] = "Carga pendiente de confirmación manual"
