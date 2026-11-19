@@ -56,7 +56,7 @@ At least one energy source is required to calculate session energy:
 | Preferred | Session energy | Session-scoped delivered energy | Wh, kWh |
 | Alternative | Cumulative energy | Meter total; session energy is calculated from start/end deltas | Wh, kWh |
 
-The configuration must explicitly identify the selected energy mode. The implementation must handle counter resets, rollover, unavailable readings, stale readings, and Home Assistant restarts. It must not subtract values from unrelated sessions or silently accept a negative delta.
+The configuration must explicitly identify the selected energy mode. The current prototype supports session counters and cumulative lifetime counters by storing the reading at session start as the baseline and accumulating only subsequent positive deltas. A decrease during a session establishes a new baseline and is diagnosed; it is never treated as negative energy. Unavailable readings are ignored. Rollover detection, advanced stale-reading validation, and full restart/recovery tests remain open. The integration must not subtract values from unrelated sessions or silently accept a negative delta.
 
 ### 3.3 Vehicle inputs
 
