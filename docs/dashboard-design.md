@@ -1,19 +1,25 @@
-# Lovelace dashboard design
+# Integrated Lovelace card design
 
-**Status:** design brief; the final YAML will be implemented after the integration's entity model is stable.
+**Status:** design brief; implementation follows the integration's entity model.
+
+## Packaging decision
+
+The Lovelace card is part of this integration's repository and distribution. It is not a separate project and must not require users to install Bubble Card.
+
+The frontend card will be a custom JavaScript module bundled with the integration (for example, under `custom_components/ev_charge_tracker/frontend/`). The integration will expose the module as a static frontend resource. The setup/documentation should explain any Home Assistant resource registration step that cannot safely be automated for the user's Lovelace storage mode.
+
+The card's visual language should take inspiration from Bubble Card and Apple design, but its implementation and assets are owned by this project. The integration's backend must remain fully functional if the user chooses not to use the card.
 
 ## Visual direction
 
-Use Bubble Card components with an Apple-inspired interface:
 - Calm, minimal visual hierarchy.
-- Rounded cards and pill-shaped indicators.
+- Rounded surfaces and pill-shaped indicators.
 - Clear typography and readable numeric values.
 - Restrained accent colour for battery/energy status.
-- Dark and light theme support.
-- Responsive layout, designed mobile-first but useful on desktop.
+- Dark and light theme support, following Home Assistant theme variables where possible.
+- Responsive layout, mobile-first but useful on desktop.
 - Avoid excessive borders, gradients, decorative icons, and dense tables.
-
-Bubble Card is a frontend custom-card dependency for the example dashboard only. The integration itself must work without Bubble Card or any other custom Lovelace card.
+- Accessible contrast, labels and keyboard/focus behavior.
 
 ## Main view: vehicle / charging profile
 
@@ -33,7 +39,7 @@ Show these values prominently:
 7. Energy delivered (kWh).
 8. Cost.
 
-Use circular progress/ring indicators for start and end SOC where supported by the chosen frontend components. A missing value must display as unavailable/pending, not 0%.
+Use circular progress/ring indicators for start and end SOC. A missing value must display as unavailable/pending, not 0%.
 
 ### Charge history
 Display newest completed charge first. Every item must show:
@@ -42,9 +48,9 @@ Display newest completed charge first. Every item must show:
 - Energy delivered (kWh).
 - Cost.
 
-The history should be backed by persistent session records exposed by the integration, not by a manually maintained Lovelace helper or a list of current sensor states. Provide a detailed view or expandable section for timestamps and duration.
+The history must be backed by persistent session records, not by manually maintained Lovelace helpers or a list of current sensor states. Provide a detailed/expandable view for timestamps and duration. Handle an empty history gracefully.
 
-## Example from the project owner
+## Reference supplied by the project owner
 
 The supplied screenshot is the visual/content reference for the initial card. It shows a dark interface with:
 - A “CARGAS / Última carga” heading.
@@ -52,12 +58,20 @@ The supplied screenshot is the visual/content reference for the initial card. It
 - Battery increase.
 - Duration and start/end dates.
 - Cost and delivered energy.
-- Historical charge rows with SOC range, kWh and cost.
+- Historical charge rows with SOC range, kWh, and cost.
 
-The first implementation should preserve this information hierarchy while improving responsive behavior and ensuring that long dates and values do not get clipped.
+Preserve this information hierarchy while improving responsive behavior and ensuring long dates and values are not clipped.
 
 ## Entity contract for the card
 
-Before producing the final copy/paste YAML, the integration must settle stable entity IDs and attributes. The card should use entities created for a configured vehicle/profile and document how to replace the example IDs. Prefer a compact set of well-defined entities plus a history entity with structured session attributes or a dedicated history view.
+Before producing the final card implementation, settle stable entity IDs and attributes. The card must bind to entities created for a configured vehicle/profile. Avoid guessed or hard-coded entity IDs across installations.
 
-Do not publish a Lovelace example that refers to guessed or not-yet-implemented entity IDs. Keep this design brief until the entity model is implemented and tested.
+Prefer a compact set of well-defined integration entities plus a structured history source. The card should support selecting the vehicle/profile it displays and explain configuration errors clearly.
+
+## Installation and updates
+
+- The card JavaScript is distributed with the integration.
+- Document how the integration registers/exposes the card as a Lovelace resource.
+- If manual resource registration is required for a particular Lovelace mode, provide the exact URL and steps.
+- The card should update alongside the integration through HACS/manual integration updates; users should not need a second repository or separate Bubble Card installation.
+- Keep the backend independent of the frontend card.
