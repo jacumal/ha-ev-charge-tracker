@@ -391,7 +391,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
     async def async_manual_finalize(self) -> bool:
         """Finalize a stopped session after explicit user confirmation."""
         session = self.data.get("session")
-        if session is None or session.get("ended_at") is None or not session.get("energy_valid"):
+        if session is None or session.get("ended_at") is None:
             return False
         self._finalize()
         self.async_set_updated_data(self.data)
