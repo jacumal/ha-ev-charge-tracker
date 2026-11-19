@@ -34,6 +34,8 @@ from .const import (
     PRICE_MODE_SENSOR,
     CONF_TARIFF_PERIODS,
     CONF_TARIFF_COUNT,
+    CONF_UNIT_ENERGY, CONF_UNIT_DISTANCE, CONF_UNIT_POWER, CONF_UNIT_VOLTAGE,
+    CONF_UNIT_CURRENT, CONF_UNIT_TEMPERATURE, CONF_UNIT_CONSUMPTION, CONF_CURRENCY,
 )
 
 
@@ -156,13 +158,16 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             if user_input["section"] == "profile":
                 return await self.async_step_profile()
-            return await self.async_step_tariffs()
+            if user_input["section"] == "tariffs":
+                return await self.async_step_tariffs()
+            return await self.async_step_units()
         schema = vol.Schema({
             vol.Required("section", default="profile"): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[
                         {"value": "profile", "label": "Sensores y comportamiento"},
                         {"value": "tariffs", "label": "Tarifas eléctricas"},
+                        {"value": "units", "label": "Unidades y moneda"},
                     ],
                     mode=selector.SelectSelectorMode.DROPDOWN,
                 )
@@ -242,6 +247,51 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             ),
         })
         return self.async_show_form(step_id="profile", data_schema=schema, errors=errors)
+
+
+    async def async_step_units(self, user_input=None):
+        """Configure display units and currency independently of source units."""
+        current = {**self.config_entry.data, **self.config_entry.options}
+        if user_input is not None:
+            currency = user_input[CONF_CURRENCY].strip().upper()
+            if len(currency) != 3 or not currency.isalpha() or not currency.isascii():
+                return self.async_show_form(
+                    step_id="units", data_schema=self._units_schema(current),
+                    errors={"base": "invalid_currency"},
+                )
+            user_input[CONF_CURRENCY] = currency
+            return self.async_create_entry(
+                title="", data={**self.config_entry.options, **user_input}
+            )
+        return self.async_show_form(step_id="units", data_schema=self._units_schema(current))
+
+    def _units_schema(self, current):
+        """Build the international unit preference selector."""
+        def choices(values):
+            return selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[{"value": value, "label": label} for value, label in values],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            )
+        return vol.Schema({
+            vol.Required(CONF_UNIT_ENERGY, default=current.get(CONF_UNIT_ENERGY, "kWh")): choices([
+                ("Wh", "Wh"), ("kWh", "kWh"), ("MWh", "MWh")]),
+            vol.Required(CONF_UNIT_DISTANCE, default=current.get(CONF_UNIT_DISTANCE, "km")): choices([
+                ("m", "m"), ("km", "km"), ("mi", "mi"), ("ft", "ft")]),
+            vol.Required(CONF_UNIT_POWER, default=current.get(CONF_UNIT_POWER, "kW")): choices([
+                ("W", "W"), ("kW", "kW"), ("MW", "MW")]),
+            vol.Required(CONF_UNIT_VOLTAGE, default=current.get(CONF_UNIT_VOLTAGE, "V")): choices([
+                ("mV", "mV"), ("V", "V"), ("kV", "kV")]),
+            vol.Required(CONF_UNIT_CURRENT, default=current.get(CONF_UNIT_CURRENT, "A")): choices([
+                ("mA", "mA"), ("A", "A"), ("kA", "kA")]),
+            vol.Required(CONF_UNIT_TEMPERATURE, default=current.get(CONF_UNIT_TEMPERATURE, "°C")): choices([
+                ("°C", "°C"), ("°F", "°F"), ("K", "K")]),
+            vol.Required(CONF_UNIT_CONSUMPTION, default=current.get(CONF_UNIT_CONSUMPTION, "kWh/100km")): choices([
+                ("kWh/100km", "kWh/100 km"), ("Wh/km", "Wh/km"),
+                ("km/kWh", "km/kWh"), ("mi/kWh", "mi/kWh"), ("kWh/100mi", "kWh/100 mi")]),
+            vol.Required(CONF_CURRENCY, default=current.get(CONF_CURRENCY, "EUR")): str,
+        })
 
     async def async_step_tariffs(self, user_input=None):
         """Choose the number of tariff periods."""
