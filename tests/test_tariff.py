@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 
 from custom_components.ev_charge_tracker.tariff import (
     active_period,
+    default_periods,
     allocate_energy_by_time,
     validate_periods,
 )
@@ -103,6 +104,21 @@ class TariffTests(unittest.TestCase):
         )
         self.assertAlmostEqual(result["energy_kwh"], 2.0)
         self.assertAlmostEqual(result["cost"], 0.2)
+ 
+    def test_default_schedules_cover_the_full_week(self):
+        for count in (1, 2, 3):
+            with self.subTest(period_count=count):
+                periods = default_periods(count)
+                self.assertEqual(len(periods), count)
+                self.assertEqual(validate_periods(periods), [])
+
+    def test_default_schedule_rejects_invalid_count(self):
+        with self.assertRaises(ValueError):
+            default_periods(4)
+
+    def test_default_schedule_rejects_non_finite_price(self):
+        with self.assertRaises(ValueError):
+            default_periods(1, float("inf"))
 
 
 if __name__ == "__main__":
