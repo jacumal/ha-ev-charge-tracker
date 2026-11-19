@@ -50,11 +50,16 @@ The first development increment is intentionally limited to one charging profile
 - Required charging-state `binary_sensor` (`on` / `off`).
 - Required session-energy `sensor` with an explicit Wh or kWh unit.
 - Optional SOC and odometer sensors.
-- Initial pricing configuration currently supports a manual fixed price or a price sensor. A standalone time-of-use tariff engine has been added, but it is not yet connected to session accounting or the graphical setup.
+- Initial pricing configuration currently supports a manual fixed price or a price sensor. The session coordinator now contains an initial sampled-energy tariff allocation path and stores a per-period breakdown. The graphical tariff schedule editor is not yet connected, so tariff schedules cannot yet be configured through the UI.
 - Immediate or odometer-increase finalization.
 - Persistent session state and up to 500 history records.
 
 Power-based detection, cumulative meter deltas, manual finalization, editable options, advanced freshness validation, and the bundled Lovelace card are not implemented yet. Do not install this development version in a production instance or use it to record real charging sessions. A testable alpha will be announced only after syntax checks, Home Assistant validation, and a controlled test plan are complete.
 
 
-Time-of-use tariff engine development has started. The standalone engine supports one to three periods, weekday selection, overnight boundaries, schedule validation, and estimated allocation of energy deltas across tariff periods. Integration into the config flow and live session accounting remains in progress. See the functional specification for the target behavior.
+The tariff engine supports one to three periods, weekday selection, overnight boundaries, schedule validation, and estimated allocation of sampled energy deltas. The coordinator now calls this engine when tariff periods are present in the profile configuration and persists the resulting per-period breakdown. The config flow does not yet expose the schedule editor, and this path has not yet passed the automated validation run. See the functional specification for the target behavior.
+
+
+## Automated validation
+
+A GitHub Actions workflow now installs Home Assistant and pytest, compiles the integration, and runs the unit tests on pushes and pull requests. The first runs are in progress; do not treat the code as validated until the workflow reports success.
