@@ -442,7 +442,10 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                     datetime.fromisoformat(ended_at)
                     - datetime.fromisoformat(soc_last_at)
                 ).total_seconds()
-                if 0 <= soc_age <= 600:
+                # Allow a delayed vehicle update during the post-charge grace
+                # period, but reject readings that are more than 10 minutes
+                # away from the actual charging stop in either direction.
+                if abs(soc_age) <= 600:
                     soc_end = session.get("soc_last")
             except (TypeError, ValueError):
                 pass
