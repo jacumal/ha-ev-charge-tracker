@@ -11,8 +11,11 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import EVChargeConfigEntry
-from .const import CONF_VEHICLE_NAME, DOMAIN
+from .const import (
+    CONF_VEHICLE_NAME, DOMAIN, CONF_UNIT_ENERGY, CONF_CURRENCY,
+)
 from .coordinator import EVChargeCoordinator
+from .units import convert_unit
 
 
 async def async_setup_entry(
@@ -69,28 +72,31 @@ class EVChargeStatusSensor(EVChargeBaseSensor):
 class EVChargeEnergySensor(EVChargeBaseSensor):
     """Energy delivered by the latest/current session."""
 
-    _attr_native_unit_of_measurement = "kWh"
     _attr_suggested_display_precision = 2
 
     def __init__(self, coordinator, entry):
         super().__init__(coordinator, entry, "energy", "Energía de la carga", "mdi:lightning-bolt")
+        self._unit = coordinator.config.get(CONF_UNIT_ENERGY, "kWh")
+        self._attr_native_unit_of_measurement = self._unit
 
     @property
     def native_value(self):
         session = self.coordinator.data.get("session")
         latest = self.coordinator.data.get("latest")
         record = session or latest
-        return record.get("energy_kwh") if record else None
+        if not record or record.get("energy_kwh") is None:
+            return None
+        return convert_unit(record["energy_kwh"], "energy", "kWh", self._unit)
 
 
 class EVChargeCostSensor(EVChargeBaseSensor):
     """Cost of latest/current session."""
 
-    _attr_native_unit_of_measurement = "€"
     _attr_suggested_display_precision = 2
 
     def __init__(self, coordinator, entry):
-        super().__init__(coordinator, entry, "cost", "Coste de la carga", "mdi:currency-eur")
+        super().__init__(coordinator, entry, "cost", "Coste de la carga", "mdi:cash")
+        self._attr_native_unit_of_measurement = coordinator.config.get(CONF_CURRENCY, "EUR")
 
     @property
     def native_value(self):
