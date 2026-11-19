@@ -16,6 +16,7 @@ from .tariff import allocate_energy_by_time, validate_periods
 from .const import (
     CONF_CHARGING_ENTITY,
     CONF_ENERGY_ENTITY,
+    CONF_ENERGY_MODE,
     CONF_FINALIZATION,
     CONF_ODOMETER_ENTITY,
     CONF_ODOMETER_UNIT,
@@ -24,6 +25,7 @@ from .const import (
     CONF_PRICE_MODE,
     CONF_SOC_ENTITY,
     DOMAIN,
+    ENERGY_MODE_SESSION,
     FINALIZE_IMMEDIATE,
     FINALIZE_ODOMETER,
     FINALIZE_MANUAL,
@@ -145,14 +147,16 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         now = datetime.now(timezone.utc).isoformat()
         soc = self._read_soc()
         odo = self._read_odometer()
+        energy_baseline = self._read_energy_kwh()
         self.data["session"] = {
             "started_at": now,
             "ended_at": None,
             "soc_start": soc if soc is not None and 0 < soc <= 100 else None,
             "soc_max": soc if soc is not None and 0 < soc <= 100 else None,
             "soc_end": None,
-            "energy_kwh": None,
+            "energy_kwh": 0.0,
             "energy_valid": False,
+            "energy_baseline_kwh": energy_baseline,
             "odometer_start_km": odo,
             "odometer_end_km": None,
             "price_per_kwh": self._read_session_price(),
@@ -163,15 +167,11 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             "status": "charging",
             "tariff_breakdown": {},
             "tariff_estimated": False,
-            "last_energy_sample_kwh": 0.0,
-            "last_energy_sample_at": now,
+            "last_energy_sample_kwh": energy_baseline,
+            "last_energy_sample_at": now if energy_baseline is not None else None,
         }
         self.data["status"] = "charging"
         self.data["diagnostic"] = "Sesión iniciada"
-        energy_entity = self.config[CONF_ENERGY_ENTITY]
-        energy_state = self.hass.states.get(energy_entity)
-        if energy_state is not None:
-            self._capture_measurements(energy_entity, energy_state.state)
 
     def _stop_session(self) -> None:
         """Mark session ended; do not finalize until configured criteria pass."""
@@ -185,22 +185,18 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         """Update energy, SOC maximum and odometer readings."""
         session = self.data["session"]
         if entity_id == self.config[CONF_ENERGY_ENTITY]:
-            state = self.hass.states.get(entity_id)
-            unit = (state.attributes.get("unit_of_measurement") or "").lower() if state else ""
-            value = _number(raw_value)
-            if value is not None and value >= 0 and unit in ("kwh", "wh"):
-                if unit == "wh":
-                    value /= 1000
+            value = self._read_energy_kwh()
+            if value is not None:
                 previous = session.get("last_energy_sample_kwh")
                 now = dt_util.utcnow()
                 previous_at = session.get("last_energy_sample_at")
                 if previous is None:
-                    # Defensive recovery for sessions created by an older prototype.
-                    session["last_energy_sample_kwh"] = 0.0
-                    session["last_energy_sample_at"] = session.get("started_at")
-                    previous = 0.0
-                    previous_at = session.get("last_energy_sample_at")
-                if value >= previous:
+                    # First valid sample establishes a baseline; it is never counted retroactively.
+                    session["last_energy_sample_kwh"] = value
+                    session["last_energy_sample_at"] = now.isoformat()
+                    session["energy_baseline_kwh"] = value
+                    self.data["diagnostic"] = "Referencia inicial de energía establecida"
+                elif value >= previous:
                     delta = value - previous
                     if delta > 0 and previous_at:
                         self._allocate_tariff_delta(
@@ -211,16 +207,20 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                     )
                     session["last_energy_sample_kwh"] = value
                     session["last_energy_sample_at"] = now.isoformat()
-                    session["energy_valid"] = True
+                    if delta > 0:
+                        session["energy_valid"] = True
                 else:
-                    # A counter reset is a new baseline, not negative energy.
+                    # A reset/rollover is a new baseline, never negative delivered energy.
                     session["last_energy_sample_kwh"] = value
                     session["last_energy_sample_at"] = now.isoformat()
                     self.data["diagnostic"] = "Contador reiniciado; nueva referencia establecida"
-            elif value is not None:
-                self.data["diagnostic"] = (
-                    f"Unidad de energía no compatible: {unit or 'sin unidad'}"
-                )
+            else:
+                state = self.hass.states.get(entity_id)
+                if state is not None and state.state not in ("unknown", "unavailable"):
+                    unit = (state.attributes.get("unit_of_measurement") or "").lower()
+                    self.data["diagnostic"] = (
+                        f"Unidad de energía no compatible: {unit or 'sin unidad'}"
+                    )
 
         if self.config.get(CONF_SOC_ENTITY) == entity_id:
             state = self.hass.states.get(entity_id)
@@ -282,6 +282,22 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             })
             bucket["energy_kwh"] += item["energy_kwh"]
             bucket["cost"] += item["cost"]
+
+    def _read_energy_kwh(self) -> float | None:
+        """Read the configured energy counter and normalize Wh/kWh to kWh."""
+        entity_id = self.config.get(CONF_ENERGY_ENTITY)
+        state = self.hass.states.get(entity_id) if entity_id else None
+        if state is None:
+            return None
+        value = _number(state.state)
+        unit = (state.attributes.get("unit_of_measurement") or "").strip().lower()
+        if value is None or value < 0:
+            return None
+        if unit == "wh":
+            return value / 1000
+        if unit == "kwh":
+            return value
+        return None
 
     def _read_number(self, config_key: str) -> float | None:
         entity_id = self.config.get(config_key)
