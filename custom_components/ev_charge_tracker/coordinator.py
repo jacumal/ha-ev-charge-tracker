@@ -182,6 +182,8 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             "ended_at": None,
             "soc_start": soc if soc is not None and 0 < soc <= 100 else None,
             "soc_max": soc if soc is not None and 0 < soc <= 100 else None,
+            "soc_last": None,
+            "soc_last_at": None,
             "soc_end": None,
             "energy_kwh": 0.0,
             "energy_valid": False,
@@ -272,6 +274,8 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             unit = (state.attributes.get("unit_of_measurement") or "").lower() if state else ""
             value = _number(raw_value)
             if unit == "%" and value is not None and 0 < value <= 100:
+                session["soc_last"] = value
+                session["soc_last_at"] = dt_util.utcnow().isoformat()
                 previous = session.get("soc_max")
                 if previous is None or value > previous:
                     session["soc_max"] = value
@@ -425,8 +429,9 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         session = self.data.get("session")
         if session is None:
             return
-        if session.get("soc_max") is not None:
-            session["soc_end"] = session["soc_max"]
+        # The final SOC is the last fresh reading observed during the session,
+        # not the maximum: a vehicle can report a corrected/lower value later.
+        session["soc_end"] = session.get("soc_last")
         price = session.get("price_per_kwh")
         energy = session.get("energy_kwh")
         buckets = session.get("tariff_breakdown") or {}
