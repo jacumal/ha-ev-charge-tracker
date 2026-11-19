@@ -28,6 +28,7 @@ from .const import (
     ENERGY_MODE_SESSION,
     FINALIZE_IMMEDIATE,
     FINALIZE_ODOMETER,
+    FINALIZE_MANUAL,
     PRICE_MODE_MANUAL,
     PRICE_MODE_SENSOR,
     CONF_TARIFF_PERIODS,
@@ -119,6 +120,7 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         options=[
                             {"value": FINALIZE_ODOMETER, "label": "Cuando aumente el odómetro"},
                             {"value": FINALIZE_IMMEDIATE, "label": "Al terminar la carga"},
+                            {"value": FINALIZE_MANUAL, "label": "Confirmación manual desde un botón"},
                         ],
                         mode=selector.SelectSelectorMode.DROPDOWN,
                     )
