@@ -78,6 +78,18 @@ class TariffTests(unittest.TestCase):
         ]
         self.assertTrue(any("solapados" in error for error in validate_periods(overlapping)))
 
+    def test_rejects_non_finite_price(self):
+        invalid = [
+            {"name": "Único", "start": "00:00", "end": "24:00", "price": float("nan")}
+        ]
+        self.assertTrue(any("finito" in error for error in validate_periods(invalid)))
+
+    def test_rejects_empty_period_name(self):
+        invalid = [
+            {"name": " ", "start": "00:00", "end": "24:00", "price": 0.1}
+        ]
+        self.assertTrue(any("nombre" in error for error in validate_periods(invalid)))
+
     def test_dst_spring_forward_uses_real_elapsed_time(self):
         madrid = ZoneInfo("Europe/Madrid")
         periods = [
