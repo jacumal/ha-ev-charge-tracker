@@ -109,20 +109,3 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 "odometer_help": "sensor en km o mi. Necesario para finalizar usando el criterio de aumento del odómetro.",
             },
         )
-
-    @staticmethod
-    @callback
-    def async_get_options_flow(config_entry):
-        """Return the options flow."""
-        return EVChargeTrackerOptionsFlow(config_entry)
-
-
-class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
-    """Options flow placeholder for future re-mapping."""
-
-    def __init__(self, config_entry):
-        self.config_entry = config_entry
-
-    async def async_step_init(self, user_input=None):
-        """Keep options flow available; mappings are edited in a future step."""
-        return self.async_abort(reason="options_not_available_yet")
