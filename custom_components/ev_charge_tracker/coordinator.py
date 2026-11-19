@@ -16,6 +16,7 @@ from .tariff import allocate_energy_by_time, validate_periods
 from .const import (
     CONF_CHARGING_ENTITY,
     CONF_ENERGY_ENTITY,
+    CONF_ENERGY_MODE,
     CONF_FINALIZATION,
     CONF_ODOMETER_ENTITY,
     CONF_ODOMETER_UNIT,
@@ -24,6 +25,7 @@ from .const import (
     CONF_PRICE_MODE,
     CONF_SOC_ENTITY,
     DOMAIN,
+    ENERGY_MODE_CUMULATIVE,
     FINALIZE_IMMEDIATE,
     FINALIZE_ODOMETER,
     FINALIZE_MANUAL,
@@ -149,7 +151,12 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         now = datetime.now(timezone.utc).isoformat()
         soc = self._read_soc()
         odo = self._read_odometer()
-        energy_baseline = self._read_energy_kwh()
+        energy_reading = self._read_energy_kwh()
+        energy_baseline = (
+            energy_reading
+            if self.config.get(CONF_ENERGY_MODE) == ENERGY_MODE_CUMULATIVE
+            else 0.0
+        )
         self.data["session"] = {
             "started_at": now,
             "ended_at": None,
@@ -174,6 +181,23 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         }
         self.data["status"] = "charging"
         self.data["diagnostic"] = "Sesión iniciada"
+        if (
+            self.config.get(CONF_ENERGY_MODE) != ENERGY_MODE_CUMULATIVE
+            and energy_reading is not None
+        ):
+            self._capture_measurements(
+                self.config[CONF_ENERGY_ENTITY],
+                str(energy_reading * 1000 if self._energy_unit_is_wh() else energy_reading),
+            )
+
+    def _energy_unit_is_wh(self) -> bool:
+        """Return whether the configured energy sensor reports Wh."""
+        entity_id = self.config.get(CONF_ENERGY_ENTITY)
+        state = self.hass.states.get(entity_id) if entity_id else None
+        return bool(
+            state
+            and (state.attributes.get("unit_of_measurement") or "").strip().lower() == "wh"
+        )
 
     def _stop_session(self) -> None:
         """Mark session ended; do not finalize until configured criteria pass."""
