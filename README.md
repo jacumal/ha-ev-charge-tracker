@@ -29,13 +29,13 @@ Track charging sessions, delivered energy, battery state of charge (SOC), mileag
 - Duration, electricity cost, history and diagnostics.
 - Multiple vehicles, chargers and charging profiles.
 - Guided graphical sensor setup with explanations, unit validation and examples.
-- A Bubble Card / Apple-inspired Lovelace dashboard example showing latest charge and persistent history.
+- An integrated custom Lovelace card, bundled with the integration and styled with Bubble Card / Apple-inspired design principles. No separate Bubble Card installation is required.
 
 ## Development
 
 The first reference setup is a Leapmotor C10 with a V2C charger. It is a test environment only; the core design must remain generic.
 
-The Lovelace example will use Bubble Card as an optional frontend dependency. The integration itself will not depend on custom dashboard cards.
+The Lovelace card will be included in this same integration repository and distributed with it. The integration backend will also work without the card.
 
 Contributions, feature requests and bug reports are welcome. The architecture and sensor contract are still being defined, so interfaces may change before the first release.
 
