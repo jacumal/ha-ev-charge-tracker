@@ -125,10 +125,35 @@
         "data": {
           "tariff_period_count": "Number of tariff periods"
         }
+      },
+      "units": {
+        "title": "Units and currency",
+        "description": "Choose display units. Source readings are explicitly converted; calculations use canonical units internally. Currency is not converted using exchange rates.",
+        "data": {
+          "unit_energy": "Energy display unit",
+          "unit_distance": "Distance display unit",
+          "unit_power": "Power display unit",
+          "unit_voltage": "Voltage display unit",
+          "unit_current": "Current display unit",
+          "unit_temperature": "Temperature display unit",
+          "unit_consumption": "Consumption display unit",
+          "currency": "Currency (ISO 4217 code)"
+        },
+        "data_description": {
+          "unit_energy": "Energy display unit; calculations remain in kWh.",
+          "unit_distance": "Distance display unit; internal distance is normalized to km.",
+          "unit_power": "Power display unit.",
+          "unit_voltage": "Voltage display unit.",
+          "unit_current": "Current display unit.",
+          "unit_temperature": "Temperature display unit.",
+          "unit_consumption": "Vehicle consumption display format.",
+          "currency": "Three-letter ISO 4217 currency code (EUR, USD, GBP, JPY...). No FX conversion is applied."
+        }
       }
     },
     "error": {
-      "invalid_schedule": "The schedule is incomplete or contains overlapping periods. Check the times, weekdays and prices."
+      "invalid_schedule": "The schedule is incomplete or contains overlapping periods. Check the times, weekdays and prices.",
+      "invalid_currency": "Enter a three-letter currency code, for example EUR or USD."
     }
   },
   "entity": {
