@@ -43,5 +43,57 @@
       "already_configured": "Este perfil de vehículo y cargador ya está configurado.",
       "options_not_available_yet": "La edición de sensores estará disponible en una próxima versión."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Horario de tarifa eléctrica",
+        "description": "Configura uno, dos o tres periodos horarios. Se utiliza la hora local de Home Assistant y se comprueba que no haya huecos ni solapamientos.",
+        "data": {
+          "tariff_period_count": "Número de periodos tarifarios"
+        }
+      },
+      "periods": {
+        "title": "Editar periodos tarifarios",
+        "description": "Indica nombre, hora de inicio y fin, días y precio para cada periodo. Usa 00:00 para medianoche; también se admite 24:00 como hora final. Entre todos los periodos deben cubrir toda la semana sin solapamientos.",
+        "data": {
+          "period_1_name": "Nombre del periodo 1",
+          "period_1_start": "Hora de inicio del periodo 1",
+          "period_1_end": "Hora de fin del periodo 1",
+          "period_1_price": "Precio del periodo 1 (€/kWh)",
+          "period_1_days": "Días del periodo 1",
+          "period_2_name": "Nombre del periodo 2",
+          "period_2_start": "Hora de inicio del periodo 2",
+          "period_2_end": "Hora de fin del periodo 2",
+          "period_2_price": "Precio del periodo 2 (€/kWh)",
+          "period_2_days": "Días del periodo 2",
+          "period_3_name": "Nombre del periodo 3",
+          "period_3_start": "Hora de inicio del periodo 3",
+          "period_3_end": "Hora de fin del periodo 3",
+          "period_3_price": "Precio del periodo 3 (€/kWh)",
+          "period_3_days": "Días del periodo 3"
+        },
+        "data_description": {
+          "period_1_name": "Nombre breve que aparecerá en el desglose del coste de la sesión.",
+          "period_1_start": "Hora local en formato HH:MM. El inicio está incluido.",
+          "period_1_end": "Hora local en formato HH:MM. El final no está incluido; usa 00:00 o 24:00 para medianoche.",
+          "period_1_price": "Precio de cada kWh asignado a este periodo. Introduce un valor no negativo en €/kWh.",
+          "period_1_days": "Selecciona los días de la semana en los que se aplica este tramo. El horario semanal completo no debe tener huecos ni solapamientos.",
+          "period_2_name": "Nombre breve que aparecerá en el desglose del coste de la sesión.",
+          "period_2_start": "Hora local en formato HH:MM. El inicio está incluido.",
+          "period_2_end": "Hora local en formato HH:MM. El final no está incluido; usa 00:00 o 24:00 para medianoche.",
+          "period_2_price": "Precio de cada kWh asignado a este periodo. Introduce un valor no negativo en €/kWh.",
+          "period_2_days": "Selecciona los días de la semana en los que se aplica este tramo. El horario semanal completo no debe tener huecos ni solapamientos.",
+          "period_3_name": "Nombre breve que aparecerá en el desglose del coste de la sesión.",
+          "period_3_start": "Hora local en formato HH:MM. El inicio está incluido.",
+          "period_3_end": "Hora local en formato HH:MM. El final no está incluido; usa 00:00 o 24:00 para medianoche.",
+          "period_3_price": "Precio de cada kWh asignado a este periodo. Introduce un valor no negativo en €/kWh.",
+          "period_3_days": "Selecciona los días de la semana en los que se aplica este tramo. El horario semanal completo no debe tener huecos ni solapamientos."
+        }
+      }
+    },
+    "error": {
+      "invalid_schedule": "El horario está incompleto o contiene periodos solapados. Revisa las horas, los días y los precios."
+    }
   }
 }
