@@ -4,7 +4,7 @@ Universal EV charging session tracker for Home Assistant.
 
 Track charging sessions, delivered energy, battery state of charge (SOC), mileage, costs and history across multiple electric vehicles and chargers. The integration is designed to work with existing Home Assistant entities, independently of vehicle and charger brands.
 
-**Project status:** early design / specification stage. No installable integration is available yet.
+**Project status:** early development (`0.1.0-dev`). The first integration skeleton is being implemented; it is not ready for installation or real charging tests yet.
 
 ## Design principles
 
@@ -22,8 +22,8 @@ Track charging sessions, delivered energy, battery state of charge (SOC), mileag
 
 ## Planned capabilities
 
-- Charging session detection using charging state, power, or energy changes.
-- Session energy from a session counter or cumulative meter.
+- Initial prototype: charging session detection using a selected `binary_sensor`.
+- Initial prototype: session energy from a session-scoped sensor in Wh or kWh.
 - SOC start, maximum and final values.
 - Optional odometer-based or manual session finalization.
 - Duration, electricity cost, history and diagnostics.
@@ -42,3 +42,16 @@ Contributions, feature requests and bug reports are welcome. The architecture an
 ## License
 
 MIT (planned; license file to be added before the first public release).
+
+
+## Current prototype scope
+
+The first development increment is intentionally limited to one charging profile per config entry:
+- Required charging-state `binary_sensor` (`on` / `off`).
+- Required session-energy `sensor` with an explicit Wh or kWh unit.
+- Optional SOC and odometer sensors.
+- Fixed electricity price per kWh.
+- Immediate or odometer-increase finalization.
+- Persistent session state and up to 500 history records.
+
+Power-based detection, cumulative meter deltas, manual finalization, editable options, advanced freshness validation, and the bundled Lovelace card are not implemented yet. Do not install this development version in a production instance or use it to record real charging sessions. A testable alpha will be announced only after syntax checks, Home Assistant validation, and a controlled test plan are complete.
