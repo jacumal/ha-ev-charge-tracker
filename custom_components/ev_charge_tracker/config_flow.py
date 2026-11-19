@@ -195,6 +195,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                 return self.async_create_entry(
                     title="", data={CONF_TARIFF_PERIODS: periods}
                 )
+            existing = periods
             return self.async_show_form(
                 step_id="periods",
                 data_schema=self._period_schema(existing),
