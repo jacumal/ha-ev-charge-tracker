@@ -105,6 +105,20 @@ class EVChargeCostSensor(EVChargeBaseSensor):
         record = session or latest
         return record.get("cost") if record else None
 
+    @property
+    def extra_state_attributes(self):
+        record = self.coordinator.data.get("session") or self.coordinator.data.get("latest") or {}
+        return {
+            "cost_status": record.get("cost_status", "pending"),
+            "known_cost": record.get("known_cost"),
+            "currency": record.get("currency", self.coordinator.config.get(CONF_CURRENCY, "EUR")),
+            "priced_energy_kwh": record.get("priced_energy_kwh", 0.0),
+            "unpriced_energy_kwh": record.get("unpriced_energy_kwh", 0.0),
+            "cost_complete": record.get("cost_complete", False),
+            "tariff_breakdown": record.get("tariff_breakdown", {}),
+            "tariff_estimated": record.get("tariff_estimated", False),
+        }
+
 
 class EVChargeSocStartSensor(EVChargeBaseSensor):
     """SOC at session start."""
