@@ -34,3 +34,13 @@ UPDATE_INTERVAL = timedelta(seconds=15)
 
 DEFAULT_PRICE = 0.0
 MAX_HISTORY = 500
+
+# User-selected display units. Internal calculations remain canonical.
+CONF_UNIT_ENERGY = "unit_energy"
+CONF_UNIT_DISTANCE = "unit_distance"
+CONF_UNIT_POWER = "unit_power"
+CONF_UNIT_VOLTAGE = "unit_voltage"
+CONF_UNIT_CURRENT = "unit_current"
+CONF_UNIT_TEMPERATURE = "unit_temperature"
+CONF_UNIT_CONSUMPTION = "unit_consumption"
+CONF_CURRENCY = "currency"
