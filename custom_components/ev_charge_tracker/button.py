@@ -37,7 +37,6 @@ class EVChargeFinalizeButton(CoordinatorEntity, ButtonEntity):
             self.coordinator.config.get(CONF_FINALIZATION) == FINALIZE_MANUAL
             and session
             and session.get("ended_at")
-            and session.get("energy_valid")
         )
 
     async def async_press(self) -> None:
