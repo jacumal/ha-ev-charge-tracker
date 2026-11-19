@@ -246,3 +246,60 @@ The electricity price must be configurable per charging profile using either:
 The configuration UI must clearly explain the expected unit and provide examples. The initial implementation accepts explicit €/kWh-style units (for example `€/kWh` or `EUR/kWh`); it must not infer the unit from the sensor name or numeric value.
 
 At the beginning of each charging session, snapshot the current valid price and store it in that session record. Later changes to the manual setting or source sensor must not alter the cost of an already-started or completed session. If the sensor is unavailable, non-numeric, or has an unsupported unit at session start, preserve the energy data but leave the session cost unknown and expose a diagnostic; do not substitute zero.
+
+
+## 15. Time-of-use electricity tariffs (one, two or three periods)
+
+The pricing engine must support time-of-use schedules rather than assuming one country's tariff structure.
+
+### User configuration
+
+For each charging profile, the user can select one of these pricing models:
+
+- **Single period:** one price applies all day, every day.
+- **Two periods:** two configurable time bands, each with its own price and applicable days.
+- **Three periods:** three configurable time bands, each with its own price and applicable days.
+
+The user must also be able to choose:
+- A built-in tariff preset when one is available (identified by country/market and tariff name).
+- A fully custom schedule, independent of country.
+- The Home Assistant local time zone as the default schedule time zone, with the schedule evaluated using that zone (including daylight-saving transitions).
+
+A preset is only a starting configuration. The user must be able to inspect and edit its periods, prices, weekdays, weekends, and any special-day rules supported by the selected preset. Do not assume that all countries use the same number of periods or the same clock boundaries.
+
+### Period definition
+
+Each period contains:
+- Display name (for example, Peak / Shoulder / Off-peak).
+- Start and end local time.
+- Applicable weekdays (Monday–Sunday).
+- Price per kWh, or an optional selected price sensor for that period.
+- Optional effective date range / special-day calendar in a later extension.
+
+Schedules must support periods that cross midnight and schedules whose boundaries differ by weekday or weekend. Validation must detect gaps, overlaps, invalid times, and missing prices. A single-period tariff is the default fallback when the user does not need time bands.
+
+### Cost accounting
+
+The integration must store timestamped energy increments during an active session and apply the price period that was active when each increment was measured. The cost is the sum of the energy attributed to each period multiplied by that period's price. Each session record must retain a breakdown by period as well as the total cost.
+
+If an energy reading interval crosses a tariff boundary, the implementation must:
+1. Prefer a power sensor and integrate measured power over time when a suitable power input is configured.
+2. Otherwise split the energy delta across the boundary using a documented time-proportional estimate and mark the cost breakdown as estimated.
+3. Never silently attribute the entire delta to the period at the end of the interval.
+
+If readings are missing, stale, reset, or unavailable, retain the known energy and cost segments, mark the affected portion as incomplete, and do not fabricate a price or cost.
+
+### Configuration and presentation
+
+The graphical setup must explain the selected tariff preset, period count, each time band, applicable days, price source, and time zone. Users must be able to edit the schedule later without deleting session history.
+
+The latest-charge summary and historical entries must show total cost. A session detail view should additionally show the energy and cost attributed to each tariff period, and whether any amount is estimated.
+
+### Initial implementation boundary
+
+The first testable alpha may implement:
+- Single-period manual price.
+- Single-period price sensor.
+- Custom two- or three-period time schedules with manually entered prices.
+
+Country-specific preset libraries, special public-holiday calendars, and per-period price sensors can follow after the basic schedule engine and tests are stable. The data model must be designed now so these additions do not require rewriting historical sessions.
