@@ -17,11 +17,14 @@ from .const import (
     CONF_ODOMETER_ENTITY,
     CONF_ODOMETER_UNIT,
     CONF_PRICE,
+    CONF_PRICE_ENTITY,
+    CONF_PRICE_MODE,
     CONF_SOC_ENTITY,
     DOMAIN,
     FINALIZE_IMMEDIATE,
     FINALIZE_ODOMETER,
     MAX_HISTORY,
+    PRICE_MODE_SENSOR,
     STORAGE_VERSION,
     UPDATE_INTERVAL,
 )
@@ -71,7 +74,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             self.config[CONF_CHARGING_ENTITY],
             self.config[CONF_ENERGY_ENTITY],
         ]
-        for key in (CONF_SOC_ENTITY, CONF_ODOMETER_ENTITY):
+        for key in (CONF_SOC_ENTITY, CONF_ODOMETER_ENTITY, CONF_PRICE_ENTITY):
             if self.config.get(key):
                 entities.append(self.config[key])
         self._unsub.append(
@@ -130,7 +133,8 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             "energy_valid": False,
             "odometer_start_km": odo,
             "odometer_end_km": None,
-            "price_per_kwh": float(self.config.get(CONF_PRICE, 0.0)),
+            "price_per_kwh": self._read_session_price(),
+            "price_source": self.config.get(CONF_PRICE_MODE, "manual"),
             "cost": None,
             "status": "charging",
         }
@@ -196,6 +200,21 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         value = _number(state.state)
         return value if value is not None and 0 < value <= 100 else None
 
+    def _read_session_price(self) -> float | None:
+        """Snapshot the configured electricity price at session start."""
+        if self.config.get(CONF_PRICE_MODE) == PRICE_MODE_SENSOR:
+            entity_id = self.config.get(CONF_PRICE_ENTITY)
+            state = self.hass.states.get(entity_id) if entity_id else None
+            if state is None:
+                return None
+            unit = (state.attributes.get("unit_of_measurement") or "").strip().lower()
+            if unit not in ("€/kwh", "eur/kwh", "eur / kwh"):
+                return None
+            value = _number(state.state)
+            return value if value is not None and value >= 0 else None
+        value = _number(str(self.config.get(CONF_PRICE, 0.0)))
+        return value if value is not None and value >= 0 else None
+
     def _read_odometer(self) -> float | None:
         value = self._read_number(CONF_ODOMETER_ENTITY)
         if value is None:
@@ -236,9 +255,13 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             return
         if session.get("soc_max") is not None:
             session["soc_end"] = session["soc_max"]
-        price = session.get("price_per_kwh", 0.0)
+        price = session.get("price_per_kwh")
         energy = session.get("energy_kwh")
-        session["cost"] = round(energy * price, 2) if energy is not None else None
+        session["cost"] = (
+            round(energy * price, 2)
+            if energy is not None and price is not None
+            else None
+        )
         session["status"] = "completed"
         session["completed_at"] = datetime.now(timezone.utc).isoformat()
         record = dict(session)
