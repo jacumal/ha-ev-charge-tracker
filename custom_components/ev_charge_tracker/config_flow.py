@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import voluptuous as vol
+from voluptuous import All, Coerce, Range
 
 from homeassistant import config_entries
 from homeassistant.core import callback
@@ -22,7 +23,6 @@ from .const import (
     DOMAIN,
     ENERGY_MODE_SESSION,
     FINALIZE_IMMEDIATE,
-    FINALIZE_MANUAL,
     FINALIZE_ODOMETER,
 )
 
@@ -41,6 +41,8 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             charger_name = user_input[CONF_CHARGER_NAME].strip()
             if not vehicle_name or not charger_name:
                 errors["base"] = "name_required"
+            elif user_input[CONF_FINALIZATION] == FINALIZE_ODOMETER and not user_input.get(CONF_ODOMETER_ENTITY):
+                errors["base"] = "odometer_required"
             else:
                 await self.async_set_unique_id(
                     f"{vehicle_name.lower()}_{charger_name.lower()}"
@@ -84,13 +86,12 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         mode=selector.SelectSelectorMode.DROPDOWN,
                     )
                 ),
-                vol.Optional(CONF_PRICE, default=0.0): vol.Coerce(float),
+                vol.Optional(CONF_PRICE, default=0.0): All(Coerce(float), Range(min=0)),
                 vol.Required(CONF_FINALIZATION, default=FINALIZE_ODOMETER): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=[
                             {"value": FINALIZE_ODOMETER, "label": "Cuando aumente el odómetro"},
                             {"value": FINALIZE_IMMEDIATE, "label": "Al terminar la carga"},
-                            {"value": FINALIZE_MANUAL, "label": "Confirmación manual (próximamente)"},
                         ],
                         mode=selector.SelectSelectorMode.DROPDOWN,
                     )
