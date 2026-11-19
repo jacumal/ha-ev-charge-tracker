@@ -22,6 +22,7 @@ CONF_TARIFF_COUNT = "tariff_period_count"
 CONF_TARIFF_ENABLED = "tariff_enabled"
 
 ENERGY_MODE_SESSION = "session"
+ENERGY_MODE_CUMULATIVE = "cumulative"
 PRICE_MODE_MANUAL = "manual"
 PRICE_MODE_SENSOR = "sensor"
 FINALIZE_ODOMETER = "odometer"
