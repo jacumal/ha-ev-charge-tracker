@@ -68,6 +68,23 @@ def _energy_delta(previous: float | None, current: float) -> float | None:
         return None
     return current - previous
 
+def _normalize_odometer(value: float | None, sensor_unit: str, configured_unit: str = "km") -> float | None:
+    """Normalize odometer readings to km, preferring an explicit HA unit.
+
+    The configured unit is a fallback for sensors that do not publish a unit.
+    """
+    if value is None or value < 0:
+        return None
+    unit = (sensor_unit or "").strip().lower()
+    if unit in ("km", "kilometer", "kilometers", "kilometre", "kilometres"):
+        return value
+    if unit in ("mi", "mile", "miles"):
+        return value * 1.609344
+    fallback = (configured_unit or "km").strip().lower()
+    if fallback == "mi":
+        return value * 1.609344
+    return value
+
 
 class EVChargeCoordinator(DataUpdateCoordinator):
     """Track one configured vehicle/charger profile."""
@@ -382,11 +399,9 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         if value is None:
             return None
         state = self.hass.states.get(self.config[CONF_ODOMETER_ENTITY])
-        unit = (state.attributes.get("unit_of_measurement") or "").lower()
+        unit = state.attributes.get("unit_of_measurement") or ""
         configured = self.config.get(CONF_ODOMETER_UNIT, "km")
-        if unit in ("mi", "mile", "miles") or configured == "mi":
-            return value * 1.609344
-        return value
+        return _normalize_odometer(value, unit, configured)
 
     def _try_finalize(self) -> None:
         """Finalize once, using the configured strategy."""
