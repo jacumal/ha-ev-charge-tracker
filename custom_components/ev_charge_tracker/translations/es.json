@@ -95,5 +95,12 @@
     "error": {
       "invalid_schedule": "El horario está incompleto o contiene periodos solapados. Revisa las horas, los días y los precios."
     }
+  },
+  "entity": {
+    "button": {
+      "manual_finalize": {
+        "name": "Consolidar última carga"
+      }
+    }
   }
 }
