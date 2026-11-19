@@ -7,6 +7,7 @@ The helpers are deliberately independent from Home Assistant so they can be unit
 from __future__ import annotations
 
 from datetime import datetime, time, timedelta, timezone
+import math
 from typing import Any
 
 
@@ -52,7 +53,9 @@ def validate_periods(periods: list[dict[str, Any]]) -> list[str]:
     if not 1 <= len(periods) <= 3:
         return ["Debe haber entre uno y tres periodos."]
 
-    names = [str(period.get("name", "Periodo")) for period in periods]
+    names = [str(period.get("name", "")).strip() for period in periods]
+    if any(not name for name in names):
+        errors.append("Todos los periodos deben tener un nombre.")
     if len(set(names)) != len(names):
         errors.append("Cada periodo debe tener un nombre distinto.")
 
@@ -64,7 +67,9 @@ def validate_periods(periods: list[dict[str, Any]]) -> list[str]:
             errors.append(f"Periodo {index}: horario no válido.")
         try:
             price = float(period["price"])
-            if price < 0:
+            if not math.isfinite(price):
+                errors.append(f"Periodo {index}: el precio debe ser un número finito.")
+            elif price < 0:
                 errors.append(f"Periodo {index}: el precio no puede ser negativo.")
         except (KeyError, TypeError, ValueError):
             errors.append(f"Periodo {index}: falta un precio numérico.")
@@ -163,8 +168,8 @@ def default_periods(count: int, price: float = 0.11) -> list[dict[str, Any]]:
     """Return editable starter schedules for one, two or three periods."""
     if count not in (1, 2, 3):
         raise ValueError("El número de periodos debe ser 1, 2 o 3.")
-    if price < 0:
-        raise ValueError("El precio no puede ser negativo.")
+    if not math.isfinite(price) or price < 0:
+        raise ValueError("El precio debe ser un número finito no negativo.")
     if count == 1:
         return [{"name": "Único", "start": "00:00", "end": "00:00",
                  "price": price, "days": list(range(7))}]
