@@ -12,6 +12,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .tariff import allocate_energy_by_time, validate_periods
+from .units import convert_unit, normalize_currency_code
 
 from .const import (
     CONF_CHARGING_ENTITY,
@@ -31,6 +32,7 @@ from .const import (
     FINALIZE_MANUAL,
     MAX_HISTORY,
     PRICE_MODE_SENSOR,
+    CONF_CURRENCY,
     STORAGE_VERSION,
     UPDATE_INTERVAL,
 )
@@ -52,14 +54,12 @@ def _number(value: str | None) -> float | None:
 def _normalize_energy(value: str | float | None, unit: str) -> float | None:
     """Normalize a valid Wh/kWh sensor reading to kWh."""
     number = _number(str(value)) if value is not None else None
-    normalized_unit = (unit or "").strip().lower()
     if number is None or number < 0:
         return None
-    if normalized_unit == "wh":
-        return number / 1000
-    if normalized_unit == "kwh":
-        return number
-    return None
+    try:
+        return convert_unit(number, "energy", unit, "kWh")
+    except ValueError:
+        return None
 
 
 def _energy_delta(previous: float | None, current: float) -> float | None:
@@ -75,15 +75,16 @@ def _normalize_odometer(value: float | None, sensor_unit: str, configured_unit: 
     """
     if value is None or value < 0:
         return None
-    unit = (sensor_unit or "").strip().lower()
-    if unit in ("km", "kilometer", "kilometers", "kilometre", "kilometres"):
-        return value
-    if unit in ("mi", "mile", "miles"):
-        return value * 1.609344
-    fallback = (configured_unit or "km").strip().lower()
-    if fallback == "mi":
-        return value * 1.609344
-    return value
+    unit = (sensor_unit or "").strip()
+    if unit:
+        try:
+            return convert_unit(value, "distance", unit, "km")
+        except ValueError:
+            return None
+    try:
+        return convert_unit(value, "distance", configured_unit or "km", "km")
+    except ValueError:
+        return None
 
 
 class EVChargeCoordinator(DataUpdateCoordinator):
@@ -209,6 +210,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             "odometer_end_km": None,
             "price_per_kwh": self._read_session_price(),
             "price_source": self.config.get(CONF_PRICE_MODE, "manual"),
+            "currency": self._currency_code(),
             "cost": None,
             "cost_complete": bool(self.config.get("tariff_periods")) or self._read_session_price() is not None,
             "unpriced_energy_kwh": 0.0,
@@ -377,6 +379,13 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         value = _number(state.state)
         return value if value is not None and 0 < value <= 100 else None
 
+    def _currency_code(self) -> str:
+        """Return the profile's three-letter currency code."""
+        try:
+            return normalize_currency_code(self.config.get(CONF_CURRENCY, "EUR"))
+        except ValueError:
+            return "EUR"
+
     def _read_session_price(self) -> float | None:
         """Snapshot the configured electricity price at session start."""
         if self.config.get(CONF_PRICE_MODE) == PRICE_MODE_SENSOR:
@@ -387,7 +396,11 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             unit = "".join(
                 (state.attributes.get("unit_of_measurement") or "").lower().split()
             )
-            if unit not in ("€/kwh", "eur/kwh", "eurkwh-1"):
+            currency = self._currency_code()
+            accepted_units = {f"{currency.lower()}/kwh", f"{currency.lower()}kwh-1"}
+            if currency == "EUR":
+                accepted_units.update(("€/kwh", "eur/kwh", "eurkwh-1"))
+            if unit not in accepted_units:
                 return None
             value = _number(state.state)
             return value if value is not None and value >= 0 else None
