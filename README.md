@@ -50,16 +50,16 @@ The first development increment is intentionally limited to one charging profile
 - Required charging-state `binary_sensor` (`on` / `off`).
 - Required session-energy `sensor` with an explicit Wh or kWh unit.
 - Optional SOC and odometer sensors.
-- Initial pricing configuration currently supports a manual fixed price or a price sensor. The session coordinator now contains an initial sampled-energy tariff allocation path and stores a per-period breakdown. The graphical tariff schedule editor is not yet connected, so tariff schedules cannot yet be configured through the UI.
+- Initial pricing configuration currently supports a manual fixed price or a price sensor. The session coordinator now contains an initial sampled-energy tariff allocation path and stores a per-period breakdown. A graphical options flow now lets users configure one, two or three custom periods, weekdays, local start/end times and €/kWh prices; schedules are validated for weekly gaps and overlaps.
 - Immediate or odometer-increase finalization.
 - Persistent session state and up to 500 history records.
 
-Power-based detection, cumulative meter deltas, manual finalization, editable options, advanced freshness validation, and the bundled Lovelace card are not implemented yet. Do not install this development version in a production instance or use it to record real charging sessions. A testable alpha will be announced only after syntax checks, Home Assistant validation, and a controlled test plan are complete.
+Power-based detection, cumulative meter deltas, advanced freshness validation, country-specific tariff presets, per-period price sensors, and the bundled Lovelace card are not implemented yet. Manual finalization is available through a dedicated button entity when selected in the profile. Do not install this development version in a production instance or use it to record real charging sessions. A testable alpha will be announced only after syntax checks, Home Assistant validation, and a controlled test plan are complete.
 
 
-The tariff engine supports one to three periods, weekday selection, overnight boundaries, schedule validation, and estimated allocation of sampled energy deltas. The coordinator now calls this engine when tariff periods are present in the profile configuration and persists the resulting per-period breakdown. The config flow does not yet expose the schedule editor, and this path has not yet passed the automated validation run. See the functional specification for the target behavior.
+The tariff engine supports one to three periods, weekday selection, overnight boundaries, schedule validation, and estimated allocation of sampled energy deltas. The coordinator now calls this engine when tariff periods are present in the profile configuration and persists the resulting per-period breakdown. The schedule editor is available from the profile options. Its end-to-end behavior still requires controlled Home Assistant testing. See the functional specification for the target behavior.
 
 
 ## Automated validation
 
-A GitHub Actions workflow now installs Home Assistant and pytest, compiles the integration, and runs the unit tests on pushes and pull requests. The first runs are in progress; do not treat the code as validated until the workflow reports success.
+A GitHub Actions workflow now installs Home Assistant and pytest, compiles the integration, and runs the unit tests on pushes and pull requests. Recent workflow runs have passed compilation, translation checks, module import smoke tests and tariff unit tests. This does not replace an end-to-end test in a real Home Assistant instance.
