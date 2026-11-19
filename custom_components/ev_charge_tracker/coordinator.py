@@ -139,6 +139,8 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             "price_per_kwh": self._read_session_price(),
             "price_source": self.config.get(CONF_PRICE_MODE, "manual"),
             "cost": None,
+            "cost_complete": bool(self.config.get("tariff_periods")) or self._read_session_price() is not None,
+            "unpriced_energy_kwh": 0.0,
             "status": "charging",
             "tariff_breakdown": {},
             "tariff_estimated": False,
@@ -178,6 +180,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                     session["last_energy_sample_kwh"] = 0.0
                     session["last_energy_sample_at"] = session.get("started_at")
                     previous = 0.0
+                    previous_at = session.get("last_energy_sample_at")
                 if value >= previous:
                     delta = value - previous
                     if delta > 0 and previous_at:
@@ -226,8 +229,17 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                 )
                 bucket["energy_kwh"] += energy_delta
                 bucket["cost"] += energy_delta * price
+            else:
+                session["cost_complete"] = False
+                session["unpriced_energy_kwh"] = round(
+                    session.get("unpriced_energy_kwh", 0.0) + energy_delta, 6
+                )
             return
         if validate_periods(periods):
+            session["cost_complete"] = False
+            session["unpriced_energy_kwh"] = round(
+                session.get("unpriced_energy_kwh", 0.0) + energy_delta, 6
+            )
             self.data["diagnostic"] = "Tarifas no válidas: tramo no contabilizado"
             return
         try:
@@ -236,6 +248,10 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                 energy_delta, periods
             )
         except ValueError as err:
+            session["cost_complete"] = False
+            session["unpriced_energy_kwh"] = round(
+                session.get("unpriced_energy_kwh", 0.0) + energy_delta, 6
+            )
             self.data["diagnostic"] = str(err)
             return
         session["tariff_estimated"] = True
@@ -321,7 +337,11 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         energy = session.get("energy_kwh")
         buckets = session.get("tariff_breakdown") or {}
         if buckets:
-            session["cost"] = round(sum(item["cost"] for item in buckets.values()), 2)
+            session["cost"] = (
+                round(sum(item["cost"] for item in buckets.values()), 2)
+                if session.get("cost_complete", True)
+                else None
+            )
             session["tariff_breakdown"] = {
                 name: {
                     **item,
@@ -333,7 +353,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         else:
             session["cost"] = (
                 round(energy * price, 2)
-                if energy is not None and price is not None
+                if energy is not None and price is not None and session.get("cost_complete", True)
                 else None
             )
         session["status"] = "completed"
