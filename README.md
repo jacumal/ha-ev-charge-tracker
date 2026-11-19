@@ -50,11 +50,11 @@ The first development increment is intentionally limited to one charging profile
 - Required charging-state `binary_sensor` (`on` / `off`).
 - Required session-energy `sensor` with an explicit Wh or kWh unit.
 - Optional SOC and odometer sensors.
-- Electricity pricing with one, two or three configurable time-of-use periods, manual prices or Home Assistant price sensors, and per-session cost breakdown.
+- Initial pricing configuration currently supports a manual fixed price or a price sensor. A standalone time-of-use tariff engine has been added, but it is not yet connected to session accounting or the graphical setup.
 - Immediate or odometer-increase finalization.
 - Persistent session state and up to 500 history records.
 
 Power-based detection, cumulative meter deltas, manual finalization, editable options, advanced freshness validation, and the bundled Lovelace card are not implemented yet. Do not install this development version in a production instance or use it to record real charging sessions. A testable alpha will be announced only after syntax checks, Home Assistant validation, and a controlled test plan are complete.
 
 
-Time-of-use tariffs are part of the planned design. The initial alpha is expected to start with a fixed single-period price; configurable two/three-period schedules will be added after the core session tracker is validated. See the functional specification for the target behavior.
+Time-of-use tariff engine development has started. The standalone engine supports one to three periods, weekday selection, overnight boundaries, schedule validation, and estimated allocation of energy deltas across tariff periods. Integration into the config flow and live session accounting remains in progress. See the functional specification for the target behavior.
