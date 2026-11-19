@@ -84,6 +84,24 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             async_track_state_change_event(self.hass, entities, self._handle_state_change)
         )
 
+        # Reconcile the persisted session with the real charging state after restart.
+        charging_state = self.hass.states.get(self.config[CONF_CHARGING_ENTITY])
+        if charging_state is not None and charging_state.state not in ("unknown", "unavailable"):
+            if charging_state.state == "on":
+                if self.data.get("session") is None:
+                    self._start_session()
+                    self.data["diagnostic"] = "Carga detectada al iniciar Home Assistant"
+                else:
+                    self.data["session"]["status"] = "charging"
+                    self.data["session"]["ended_at"] = None
+                    self.data["status"] = "charging"
+                    self.data["diagnostic"] = "Sesión recuperada tras reiniciar Home Assistant"
+            elif charging_state.state == "off" and self.data.get("session") is not None:
+                if self.data["session"].get("ended_at") is None:
+                    self._stop_session()
+                self._try_finalize()
+            await self._async_save()
+
     async def _async_update_data(self):
         """Expose current state; source updates are event-driven."""
         charging = self.hass.states.get(self.config[CONF_CHARGING_ENTITY])
