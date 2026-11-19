@@ -367,8 +367,10 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             state = self.hass.states.get(entity_id) if entity_id else None
             if state is None:
                 return None
-            unit = (state.attributes.get("unit_of_measurement") or "").strip().lower()
-            if unit not in ("€/kwh", "eur/kwh", "eur / kwh"):
+            unit = "".join(
+                (state.attributes.get("unit_of_measurement") or "").lower().split()
+            )
+            if unit not in ("€/kwh", "eur/kwh", "eurkwh-1"):
                 return None
             value = _number(state.state)
             return value if value is not None and value >= 0 else None
@@ -429,9 +431,22 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         session = self.data.get("session")
         if session is None:
             return
-        # The final SOC is the last fresh reading observed during the session,
-        # not the maximum: a vehicle can report a corrected/lower value later.
-        session["soc_end"] = session.get("soc_last")
+        # Keep the last SOC only if it was refreshed close to charge completion.
+        # A parked/sleeping vehicle can otherwise leave a plausible stale value.
+        soc_last_at = session.get("soc_last_at")
+        ended_at = session.get("ended_at")
+        soc_end = None
+        if soc_last_at and ended_at:
+            try:
+                soc_age = (
+                    datetime.fromisoformat(ended_at)
+                    - datetime.fromisoformat(soc_last_at)
+                ).total_seconds()
+                if 0 <= soc_age <= 600:
+                    soc_end = session.get("soc_last")
+            except (TypeError, ValueError):
+                pass
+        session["soc_end"] = soc_end
         price = session.get("price_per_kwh")
         energy = session.get("energy_kwh")
         buckets = session.get("tariff_breakdown") or {}
