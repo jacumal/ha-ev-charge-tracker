@@ -33,7 +33,12 @@ jobs:
               step = data["config"]["step"]["user"]
               assert set(step["data"]) == base_fields, f"{path}: field labels differ"
               assert set(step["data_description"]) == base_descriptions, f"{path}: field descriptions differ"
+              assert data.get("options", {}).keys() == base.get("options", {}).keys(), f"{path}: options steps differ"
           PY
+      - name: Import integration modules
+        env:
+          PYTHONPATH: .
+        run: python -c "from custom_components.ev_charge_tracker import config_flow, coordinator, button, sensor"
       - name: Run unit tests
         env:
           PYTHONPATH: .
