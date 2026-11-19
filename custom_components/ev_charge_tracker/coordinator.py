@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from homeassistant.util import dt as dt_util
 import logging
 
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+
+from .tariff import allocate_energy_by_time, validate_periods
 
 from .const import (
     CONF_CHARGING_ENTITY,
@@ -137,6 +140,10 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             "price_source": self.config.get(CONF_PRICE_MODE, "manual"),
             "cost": None,
             "status": "charging",
+            "tariff_breakdown": {},
+            "tariff_estimated": False,
+            "last_energy_sample_kwh": None,
+            "last_energy_sample_at": None,
         }
         self.data["status"] = "charging"
         self.data["diagnostic"] = "Sesión iniciada"
