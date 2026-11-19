@@ -303,3 +303,10 @@ The first testable alpha may implement:
 - Custom two- or three-period time schedules with manually entered prices.
 
 Country-specific preset libraries, special public-holiday calendars, and per-period price sensors can follow after the basic schedule engine and tests are stable. The data model must be designed now so these additions do not require rewriting historical sessions.
+
+
+## 16. Tariff schedule configuration defaults
+
+The setup flow should ask for the number of periods (1, 2 or 3) and generate an editable starter schedule. Starter boundaries are examples only and must never be presented as a country's official tariff unless the user explicitly selects a verified country/tariff preset. The user must be able to change each period's name, start/end times, applicable weekdays and price.
+
+A one-period schedule covers the full day. Two- and three-period starter schedules are convenience templates, not assumptions about Spanish or any other market. The active schedule is interpreted in Home Assistant's configured timezone.
