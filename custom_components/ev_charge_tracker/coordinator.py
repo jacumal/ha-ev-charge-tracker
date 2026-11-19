@@ -16,7 +16,6 @@ from .tariff import allocate_energy_by_time, validate_periods
 from .const import (
     CONF_CHARGING_ENTITY,
     CONF_ENERGY_ENTITY,
-    CONF_ENERGY_MODE,
     CONF_FINALIZATION,
     CONF_ODOMETER_ENTITY,
     CONF_ODOMETER_UNIT,
@@ -25,7 +24,6 @@ from .const import (
     CONF_PRICE_MODE,
     CONF_SOC_ENTITY,
     DOMAIN,
-    ENERGY_MODE_SESSION,
     FINALIZE_IMMEDIATE,
     FINALIZE_ODOMETER,
     FINALIZE_MANUAL,
