@@ -3,7 +3,7 @@
 from datetime import timedelta
 
 DOMAIN = "ev_charge_tracker"
-PLATFORMS = ["sensor"]
+PLATFORMS = ["sensor", "button"]
 
 CONF_VEHICLE_NAME = "vehicle_name"
 CONF_CHARGER_NAME = "charger_name"
