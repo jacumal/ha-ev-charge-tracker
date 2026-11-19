@@ -126,7 +126,8 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             "soc_start": soc if soc is not None and 0 < soc <= 100 else None,
             "soc_max": soc if soc is not None and 0 < soc <= 100 else None,
             "soc_end": None,
-            "energy_kwh": 0.0,
+            "energy_kwh": None,
+            "energy_valid": False,
             "odometer_start_km": odo,
             "odometer_end_km": None,
             "price_per_kwh": float(self.config.get(CONF_PRICE, 0.0)),
@@ -135,6 +136,10 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         }
         self.data["status"] = "charging"
         self.data["diagnostic"] = "Sesión iniciada"
+        energy_entity = self.config[CONF_ENERGY_ENTITY]
+        energy_state = self.hass.states.get(energy_entity)
+        if energy_state is not None:
+            self._capture_measurements(energy_entity, energy_state.state)
 
     def _stop_session(self) -> None:
         """Mark session ended; do not finalize until configured criteria pass."""
@@ -154,8 +159,10 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             if value is not None and value >= 0:
                 if unit == "wh":
                     value /= 1000
-                if value >= session.get("energy_kwh", 0):
+                previous = session.get("energy_kwh")
+                if previous is None or value >= previous:
                     session["energy_kwh"] = round(value, 4)
+                    session["energy_valid"] = True
 
         if self.config.get(CONF_SOC_ENTITY) == entity_id:
             value = _number(raw_value)
@@ -192,24 +199,31 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             return
         strategy = self.config.get(CONF_FINALIZATION, FINALIZE_ODOMETER)
         if strategy == FINALIZE_IMMEDIATE:
-            self._finalize()
+            if session.get("energy_valid"):
+                self._finalize()
+            else:
+                self.data["diagnostic"] = "Carga detenida; falta una lectura válida de energía"
             return
         if strategy == FINALIZE_ODOMETER:
             current = self._read_odometer()
             start = session.get("odometer_start_km")
             if current is not None and start is not None and current > start:
-                session["odometer_end_km"] = current
-                self._finalize()
+                if session.get("energy_valid"):
+                    session["odometer_end_km"] = current
+                    self._finalize()
+                else:
+                    self.data["diagnostic"] = "Odómetro aumentado; falta una lectura válida de energía"
 
     def _finalize(self) -> None:
         """Commit an immutable summary to history."""
         session = self.data.get("session")
         if session is None:
             return
-        if session.get("soc_start") is not None and session.get("soc_max") is not None:
+        if session.get("soc_max") is not None:
             session["soc_end"] = session["soc_max"]
         price = session.get("price_per_kwh", 0.0)
-        session["cost"] = round(session["energy_kwh"] * price, 2)
+        energy = session.get("energy_kwh")
+        session["cost"] = round(energy * price, 2) if energy is not None else None
         session["status"] = "completed"
         session["completed_at"] = datetime.now(timezone.utc).isoformat()
         record = dict(session)
