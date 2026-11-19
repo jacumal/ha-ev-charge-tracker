@@ -146,12 +146,102 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
-    """Edit tariff periods without removing the profile or its history."""
+    """Edit profile mappings and tariff periods without losing session history."""
 
     def __init__(self):
         self._period_count = 1
 
     async def async_step_init(self, user_input=None):
+        """Choose which profile settings to edit."""
+        if user_input is not None:
+            if user_input["section"] == "profile":
+                return await self.async_step_profile()
+            return await self.async_step_tariffs()
+        schema = vol.Schema({
+            vol.Required("section", default="profile"): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": "profile", "label": "Sensores y comportamiento"},
+                        {"value": "tariffs", "label": "Tarifas eléctricas"},
+                    ],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            )
+        })
+        return self.async_show_form(step_id="init", data_schema=schema)
+
+    async def async_step_profile(self, user_input=None):
+        """Edit sensor mappings and session finalization settings."""
+        current = {**self.config_entry.data, **self.config_entry.options}
+        errors = {}
+        if user_input is not None:
+            if user_input[CONF_FINALIZATION] == FINALIZE_ODOMETER and not user_input.get(CONF_ODOMETER_ENTITY):
+                errors["base"] = "odometer_required"
+            elif user_input[CONF_PRICE_MODE] == PRICE_MODE_SENSOR and not user_input.get(CONF_PRICE_ENTITY):
+                errors["base"] = "price_sensor_required"
+            else:
+                # Options override the original config data. The storage key is
+                # tied to entry_id, so changing mappings never discards history.
+                return self.async_create_entry(title="", data=user_input)
+
+        schema = vol.Schema({
+            vol.Required(CONF_CHARGING_ENTITY, default=current[CONF_CHARGING_ENTITY]): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="binary_sensor")
+            ),
+            vol.Required(CONF_ENERGY_ENTITY, default=current[CONF_ENERGY_ENTITY]): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor")
+            ),
+            vol.Required(CONF_ENERGY_MODE, default=current.get(CONF_ENERGY_MODE, ENERGY_MODE_SESSION)): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": ENERGY_MODE_SESSION, "label": "Energía de sesión (se reinicia en cada carga)"},
+                        {"value": ENERGY_MODE_CUMULATIVE, "label": "Contador acumulativo"},
+                    ],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
+            vol.Optional(CONF_SOC_ENTITY, default=current.get(CONF_SOC_ENTITY)): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor")
+            ),
+            vol.Optional(CONF_ODOMETER_ENTITY, default=current.get(CONF_ODOMETER_ENTITY)): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor")
+            ),
+            vol.Required(CONF_ODOMETER_UNIT, default=current.get(CONF_ODOMETER_UNIT, "km")): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": "km", "label": "Kilómetros"},
+                        {"value": "mi", "label": "Millas"},
+                    ],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
+            vol.Required(CONF_PRICE_MODE, default=current.get(CONF_PRICE_MODE, PRICE_MODE_MANUAL)): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": PRICE_MODE_MANUAL, "label": "Precio manual fijo"},
+                        {"value": PRICE_MODE_SENSOR, "label": "Precio desde sensor"},
+                    ],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
+            vol.Optional(CONF_PRICE, default=current.get(CONF_PRICE, 0.11)): All(Coerce(float), Range(min=0)),
+            vol.Optional(CONF_PRICE_ENTITY, default=current.get(CONF_PRICE_ENTITY)): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor")
+            ),
+            vol.Required(CONF_FINALIZATION, default=current.get(CONF_FINALIZATION, FINALIZE_ODOMETER)): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": FINALIZE_ODOMETER, "label": "Cuando aumente el odómetro"},
+                        {"value": FINALIZE_IMMEDIATE, "label": "Al terminar la carga"},
+                        {"value": FINALIZE_MANUAL, "label": "Confirmación manual"},
+                    ],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
+        })
+        return self.async_show_form(step_id="profile", data_schema=schema, errors=errors)
+
+    async def async_step_tariffs(self, user_input=None):
         """Choose the number of tariff periods."""
         existing = self.config_entry.options.get(
             CONF_TARIFF_PERIODS, self.config_entry.data.get(CONF_TARIFF_PERIODS)
@@ -172,7 +262,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                 )
             )
         })
-        return self.async_show_form(step_id="init", data_schema=schema)
+        return self.async_show_form(step_id="tariffs", data_schema=schema)
 
     async def async_step_periods(self, user_input=None):
         """Configure names, times, weekdays and prices."""
