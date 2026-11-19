@@ -142,8 +142,8 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             "status": "charging",
             "tariff_breakdown": {},
             "tariff_estimated": False,
-            "last_energy_sample_kwh": None,
-            "last_energy_sample_at": None,
+            "last_energy_sample_kwh": 0.0,
+            "last_energy_sample_at": now,
         }
         self.data["status"] = "charging"
         self.data["diagnostic"] = "Sesión iniciada"
@@ -174,11 +174,11 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                 now = dt_util.utcnow()
                 previous_at = session.get("last_energy_sample_at")
                 if previous is None:
-                    session["last_energy_sample_kwh"] = value
-                    session["last_energy_sample_at"] = now.isoformat()
-                    session["energy_kwh"] = round(value, 4)
-                    session["energy_valid"] = True
-                elif value >= previous:
+                    # Defensive recovery for sessions created by an older prototype.
+                    session["last_energy_sample_kwh"] = 0.0
+                    session["last_energy_sample_at"] = session.get("started_at")
+                    previous = 0.0
+                if value >= previous:
                     delta = value - previous
                     if delta > 0 and previous_at:
                         self._allocate_tariff_delta(
