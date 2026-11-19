@@ -214,6 +214,8 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             "cost": None,
             "cost_complete": bool(self.config.get("tariff_periods")) or self._read_session_price() is not None,
             "unpriced_energy_kwh": 0.0,
+            "priced_energy_kwh": 0.0,
+            "known_cost": None,
             "status": "charging",
             "tariff_breakdown": {},
             "tariff_estimated": False,
@@ -316,6 +318,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                 )
                 bucket["energy_kwh"] += energy_delta
                 bucket["cost"] += energy_delta * price
+                session["priced_energy_kwh"] = round(session.get("priced_energy_kwh", 0.0) + energy_delta, 6)
             else:
                 session["cost_complete"] = False
                 session["unpriced_energy_kwh"] = round(
@@ -350,6 +353,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             })
             bucket["energy_kwh"] += item["energy_kwh"]
             bucket["cost"] += item["cost"]
+            session["priced_energy_kwh"] = round(session.get("priced_energy_kwh", 0.0) + item["energy_kwh"], 6)
 
     def _read_energy_kwh(self) -> float | None:
         """Read the configured energy counter and normalize Wh/kWh to kWh."""
@@ -481,12 +485,9 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         price = session.get("price_per_kwh")
         energy = session.get("energy_kwh")
         buckets = session.get("tariff_breakdown") or {}
+        known_cost = None
         if buckets:
-            session["cost"] = (
-                round(sum(item["cost"] for item in buckets.values()), 2)
-                if session.get("energy_valid") and session.get("cost_complete", True)
-                else None
-            )
+            known_cost = round(sum(item["cost"] for item in buckets.values()), 4)
             session["tariff_breakdown"] = {
                 name: {
                     **item,
@@ -495,12 +496,20 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                 }
                 for name, item in buckets.items()
             }
-        else:
-            session["cost"] = (
-                round(energy * price, 2)
-                if session.get("energy_valid") and energy is not None and price is not None and session.get("cost_complete", True)
-                else None
-            )
+        elif session.get("energy_valid") and energy is not None and price is not None:
+            known_cost = round(energy * price, 4)
+            session["priced_energy_kwh"] = energy
+        session["known_cost"] = known_cost
+        complete = bool(
+            session.get("cost_complete", True)
+            and session.get("energy_valid")
+            and energy is not None
+            and session.get("priced_energy_kwh", 0.0) >= energy - 0.0001
+        )
+        session["cost"] = round(known_cost, 2) if complete and known_cost is not None else None
+        session["cost_status"] = "complete" if complete else (
+            "partial" if known_cost is not None else "unknown"
+        )
         session["status"] = "completed"
         session["completed_at"] = datetime.now(timezone.utc).isoformat()
         record = dict(session)
