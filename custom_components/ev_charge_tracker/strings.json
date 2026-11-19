@@ -31,7 +31,8 @@
       }
     },
     "error": {
-      "name_required": "Introduce un nombre para el vehículo y el cargador."
+      "name_required": "Introduce un nombre para el vehículo y el cargador.",
+      "odometer_required": "Selecciona un sensor de odómetro o cambia el método de finalización."
     },
     "abort": {
       "already_configured": "Este perfil de vehículo y cargador ya está configurado.",
