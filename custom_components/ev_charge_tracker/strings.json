@@ -55,7 +55,7 @@
       },
       "periods": {
         "title": "Editar periodos tarifarios",
-        "description": "Indica nombre, hora de inicio y fin, días y precio para cada periodo. Usa 00:00 para medianoche; también se admite 24:00 como hora final. Entre todos los periodos deben cubrir toda la semana sin solapamientos.",
+        "description": "Indica nombre, hora de inicio y fin, días y precio para cada periodo. Usa 00:00 para medianoche; también se admite 24:00 como hora final. Entre todos los periodos deben cubrir toda la semana sin solapamientos.\n\nValidación: {schedule_error}",
         "data": {
           "period_1_name": "Nombre del periodo 1",
           "period_1_start": "Hora de inicio del periodo 1",
