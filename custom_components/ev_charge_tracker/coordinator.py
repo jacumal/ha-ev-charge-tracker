@@ -49,6 +49,26 @@ def _number(value: str | None) -> float | None:
     return result if result == result and abs(result) != float("inf") else None
 
 
+def _normalize_energy(value: str | float | None, unit: str) -> float | None:
+    """Normalize a valid Wh/kWh sensor reading to kWh."""
+    number = _number(str(value)) if value is not None else None
+    normalized_unit = (unit or "").strip().lower()
+    if number is None or number < 0:
+        return None
+    if normalized_unit == "wh":
+        return number / 1000
+    if normalized_unit == "kwh":
+        return number
+    return None
+
+
+def _energy_delta(previous: float | None, current: float) -> float | None:
+    """Return a non-negative counter increase; None signals a reset/new baseline."""
+    if previous is None or current < previous:
+        return None
+    return current - previous
+
+
 class EVChargeCoordinator(DataUpdateCoordinator):
     """Track one configured vehicle/charger profile."""
 
@@ -222,8 +242,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                     session["last_energy_sample_at"] = now.isoformat()
                     session["energy_baseline_kwh"] = value
                     self.data["diagnostic"] = "Referencia inicial de energía establecida"
-                elif value >= previous:
-                    delta = value - previous
+                elif (delta := _energy_delta(previous, value)) is not None:
                     if delta > 0 and previous_at:
                         self._allocate_tariff_delta(
                             session, datetime.fromisoformat(previous_at), now, delta
@@ -315,15 +334,8 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         state = self.hass.states.get(entity_id) if entity_id else None
         if state is None:
             return None
-        value = _number(state.state)
-        unit = (state.attributes.get("unit_of_measurement") or "").strip().lower()
-        if value is None or value < 0:
-            return None
-        if unit == "wh":
-            return value / 1000
-        if unit == "kwh":
-            return value
-        return None
+        unit = state.attributes.get("unit_of_measurement") or ""
+        return _normalize_energy(state.state, unit)
 
     def _read_number(self, config_key: str) -> float | None:
         entity_id = self.config.get(config_key)
