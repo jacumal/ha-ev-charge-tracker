@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Configure vehicle and charger",
-        "description": "Create a charging profile. Add more profiles for other vehicles and chargers. The energy sensor must represent energy delivered in the current session.",
+        "description": "Create a profile by assigning each Home Assistant entity its actual role. Read each field explanation: choosing a sensor with different semantics (for example power instead of energy) can produce incorrect sessions, consumption and costs.",
         "data": {
           "vehicle_name": "Vehicle name",
           "charger_name": "Charger name",
@@ -19,18 +19,18 @@
           "finalization": "When to finalize a charge"
         },
         "data_description": {
-          "vehicle_name": "Example: Electric car. Used to identify this device and its entities.",
-          "charger_name": "Example: Garage wallbox.",
-          "charging_entity": "A binary_sensor where on means charging and off means stopped. unknown/unavailable never mean charging finished.",
-          "energy_entity": "Energy delivered during the current session, in kWh or Wh. Do not select power or a cumulative meter in this first version.",
-          "energy_mode": "This initial version supports a session energy counter that resets for each new charge.",
-          "soc_entity": "Battery level in percent (0–100). Optional.",
-          "odometer_entity": "Total vehicle distance. Required for odometer-based finalization.",
-          "odometer_unit": "Unit used to normalize the odometer.",
-          "price_mode": "Choose a fixed manual price or a Home Assistant sensor.",
-          "price_per_kwh": "Used when manual mode is selected. Example: 0.11 €/kWh.",
-          "price_entity": "Numeric sensor whose state is the price in €/kWh. The value is snapshotted when charging starts.",
-          "finalization": "Odometer: wait until the vehicle moves. Immediate: finalize when charging stops. Manual is not available yet."
+          "vehicle_name": "Vehicle identifier, e.g. Leapmotor C10. Used for the integration device and generated entity names.",
+          "charger_name": "Charging point identifier, e.g. Garage wallbox. Each vehicle + charger combination is an independent profile.",
+          "charging_entity": "REQUIRED · Binary sensor that is ON while energy is flowing into the vehicle and OFF when charging stops. Do not select connectivity, availability or vehicle ignition. unknown/unavailable are ignored and never end a session. If the source logic is inverted, use a template binary sensor first.",
+          "energy_entity": "REQUIRED · Energy delivered, not instantaneous power. Must have kWh or Wh units. Example: 8.42 kWh. A W/kW power sensor is not interchangeable and will produce wrong totals. This version expects a session counter, not a lifetime cumulative meter.",
+          "energy_mode": "Select the meaning of the energy sensor. Only session energy is currently supported. A lifetime meter that never resets will produce incorrect session totals; do not select one yet.",
+          "soc_entity": "OPTIONAL · Vehicle battery percentage, unit % and value 0–100. The integration stores the reading available at start and the maximum observed during the session as the final reference. If the car sleeps or the sensor is unavailable/stale, SOC values may be missing or inaccurate. Energy and cost tracking still work without it.",
+          "odometer_entity": "OPTIONAL unless odometer finalization is selected · Total distance travelled, normally km or mi. Used to confirm that the vehicle has moved after charging. If it does not increase, the session remains pending. Do not select estimated range.",
+          "odometer_unit": "Actual unit reported by the odometer. Values are normalized internally to kilometres. Ensure this matches the source sensor.",
+          "price_mode": "Choose the electricity price source. The observed price is saved with each session so later tariff changes do not rewrite historical costs.",
+          "price_per_kwh": "Used only for a fixed manual price. Enter the price per kWh, currently expressed as €/kWh. Example: 0.18. Do not use a single average as an exact price if your tariff changes by time.",
+          "price_entity": "Used only for sensor pricing. Must be a numeric sensor whose state is the price per kWh and unit is €/kWh. Do not select bill total, contracted power or €/MWh. The value is snapshotted at session start; unavailable or incompatible units leave cost unknown. Price changes during one session are not yet reconstructed.",
+          "finalization": "Choose when to close and save a session. Odometer: waits for total distance to increase; requires a reliable odometer and may leave a session pending until the next trip. Immediate: closes when charging turns OFF; faster, but a delayed final energy update could be missed. unknown/unavailable never count as OFF."
         }
       }
     },
