@@ -312,6 +312,11 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         state = self.hass.states.get(entity_id) if entity_id else None
         if state is None or (state.attributes.get("unit_of_measurement") or "").strip() != "%":
             return None
+        # A sleeping vehicle can leave a plausible but obsolete SOC in HA.
+        # Do not snapshot it as the charge-start value after a long stale period.
+        age = (dt_util.utcnow() - state.last_updated).total_seconds()
+        if age > 600:
+            return None
         value = _number(state.state)
         return value if value is not None and 0 < value <= 100 else None
 
