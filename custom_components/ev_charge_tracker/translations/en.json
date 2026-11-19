@@ -13,7 +13,9 @@
           "soc_entity": "Battery SOC (sensor, optional)",
           "odometer_entity": "Odometer (sensor, optional)",
           "odometer_unit": "Odometer unit",
-          "price_per_kwh": "Electricity price per kWh",
+          "price_mode": "Electricity price source",
+          "price_per_kwh": "Manual price (€/kWh)",
+          "price_entity": "Price sensor (€/kWh)",
           "finalization": "When to finalize a charge"
         },
         "data_description": {
@@ -25,13 +27,16 @@
           "soc_entity": "Battery level in percent (0–100). Optional.",
           "odometer_entity": "Total vehicle distance. Required for odometer-based finalization.",
           "odometer_unit": "Unit used to normalize the odometer.",
-          "price_per_kwh": "Example: 0.11 means €0.11 per kWh.",
+          "price_mode": "Choose a fixed manual price or a Home Assistant sensor.",
+          "price_per_kwh": "Used when manual mode is selected. Example: 0.11 €/kWh.",
+          "price_entity": "Numeric sensor whose state is the price in €/kWh. The value is snapshotted when charging starts.",
           "finalization": "Odometer: wait until the vehicle moves. Immediate: finalize when charging stops. Manual is not available yet."
         }
       }
     },
     "error": {
-      "name_required": "Enter a vehicle name and charger name."
+      "name_required": "Enter a vehicle name and charger name.",
+      "price_sensor_required": "Select a price sensor to use automatic pricing."
     },
     "abort": {
       "already_configured": "This vehicle and charger profile is already configured.",
