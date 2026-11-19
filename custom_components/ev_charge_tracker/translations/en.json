@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure vehicle and charger",
+        "description": "Create a charging profile. Add more profiles for other vehicles and chargers. The energy sensor must represent energy delivered in the current session.",
+        "data": {
+          "vehicle_name": "Vehicle name",
+          "charger_name": "Charger name",
+          "charging_entity": "Charging state (binary_sensor)",
+          "energy_entity": "Session energy (sensor)",
+          "energy_mode": "Energy counter type",
+          "soc_entity": "Battery SOC (sensor, optional)",
+          "odometer_entity": "Odometer (sensor, optional)",
+          "odometer_unit": "Odometer unit",
+          "price_per_kwh": "Electricity price per kWh",
+          "finalization": "When to finalize a charge"
+        },
+        "data_description": {
+          "vehicle_name": "Example: Electric car. Used to identify this device and its entities.",
+          "charger_name": "Example: Garage wallbox.",
+          "charging_entity": "A binary_sensor where on means charging and off means stopped. unknown/unavailable never mean charging finished.",
+          "energy_entity": "Energy delivered during the current session, in kWh or Wh. Do not select power or a cumulative meter in this first version.",
+          "energy_mode": "This initial version supports a session energy counter that resets for each new charge.",
+          "soc_entity": "Battery level in percent (0–100). Optional.",
+          "odometer_entity": "Total vehicle distance. Required for odometer-based finalization.",
+          "odometer_unit": "Unit used to normalize the odometer.",
+          "price_per_kwh": "Example: 0.11 means €0.11 per kWh.",
+          "finalization": "Odometer: wait until the vehicle moves. Immediate: finalize when charging stops. Manual is not available yet."
+        }
+      }
+    },
+    "error": {
+      "name_required": "Enter a vehicle name and charger name."
+    },
+    "abort": {
+      "already_configured": "This vehicle and charger profile is already configured.",
+      "options_not_available_yet": "Sensor mapping can be edited in a future version."
+    }
+  }
+}
