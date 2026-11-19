@@ -146,3 +146,29 @@ def allocate_energy_by_time(
         "estimated": True,
         "breakdown": breakdown,
     }
+
+
+def default_periods(count: int, price: float = 0.11) -> list[dict[str, Any]]:
+    """Return editable starter schedules for one, two or three periods."""
+    if count not in (1, 2, 3):
+        raise ValueError("El número de periodos debe ser 1, 2 o 3.")
+    if price < 0:
+        raise ValueError("El precio no puede ser negativo.")
+    if count == 1:
+        return [{"name": "Único", "start": "00:00", "end": "00:00",
+                 "price": price, "days": list(range(7))}]
+    if count == 2:
+        return [
+            {"name": "Valle", "start": "00:00", "end": "08:00",
+             "price": price, "days": list(range(7))},
+            {"name": "Punta", "start": "08:00", "end": "00:00",
+             "price": price, "days": list(range(7))},
+        ]
+    return [
+        {"name": "Valle", "start": "00:00", "end": "08:00",
+         "price": price, "days": list(range(7))},
+        {"name": "Llano", "start": "08:00", "end": "18:00",
+         "price": price, "days": list(range(7))},
+        {"name": "Punta", "start": "18:00", "end": "00:00",
+         "price": price, "days": list(range(7))},
+    ]
