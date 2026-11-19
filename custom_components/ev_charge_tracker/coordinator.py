@@ -1,0 +1,231 @@
+"""Session coordinator and persistent state machine."""
+
+from __future__ import annotations
+
+from datetime import datetime, timezone
+import logging
+
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers.storage import Store
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+
+from .const import (
+    CONF_CHARGING_ENTITY,
+    CONF_ENERGY_ENTITY,
+    CONF_FINALIZATION,
+    CONF_ODOMETER_ENTITY,
+    CONF_ODOMETER_UNIT,
+    CONF_PRICE,
+    CONF_SOC_ENTITY,
+    DOMAIN,
+    FINALIZE_IMMEDIATE,
+    FINALIZE_ODOMETER,
+    MAX_HISTORY,
+    STORAGE_VERSION,
+    UPDATE_INTERVAL,
+)
+
+_LOGGER = logging.getLogger(__name__)
+
+
+def _number(value: str | None) -> float | None:
+    """Parse a finite numeric state."""
+    if value in (None, "", "unknown", "unavailable", "none"):
+        return None
+    try:
+        result = float(value)
+    except (TypeError, ValueError):
+        return None
+    return result if result == result and abs(result) != float("inf") else None
+
+
+class EVChargeCoordinator(DataUpdateCoordinator):
+    """Track one configured vehicle/charger profile."""
+
+    def __init__(self, hass: HomeAssistant, entry):
+        super().__init__(
+            hass,
+            _LOGGER,
+            name=f"{DOMAIN}_{entry.entry_id}",
+            update_interval=UPDATE_INTERVAL,
+        )
+        self.entry = entry
+        self.config = {**entry.data, **entry.options}
+        self.store = Store(hass, STORAGE_VERSION, f"{DOMAIN}_{entry.entry_id}")
+        self._unsub = []
+        self.data = {
+            "status": "idle",
+            "session": None,
+            "latest": None,
+            "history": [],
+            "diagnostic": "Esperando una nueva carga",
+        }
+
+    async def async_setup(self) -> None:
+        """Restore saved state and subscribe to source entities."""
+        saved = await self.store.async_load()
+        if isinstance(saved, dict):
+            self.data.update(saved)
+        entities = [
+            self.config[CONF_CHARGING_ENTITY],
+            self.config[CONF_ENERGY_ENTITY],
+        ]
+        for key in (CONF_SOC_ENTITY, CONF_ODOMETER_ENTITY):
+            if self.config.get(key):
+                entities.append(self.config[key])
+        self._unsub.append(
+            async_track_state_change_event(self.hass, entities, self._handle_state_change)
+        )
+
+    async def _async_update_data(self):
+        """Expose current state; source updates are event-driven."""
+        charging = self.hass.states.get(self.config[CONF_CHARGING_ENTITY])
+        if charging is None:
+            raise UpdateFailed("No se encuentra la entidad de estado de carga")
+        return self.data
+
+    @callback
+    def _handle_state_change(self, event) -> None:
+        """Process source changes without treating unavailable as off."""
+        entity_id = event.data["entity_id"]
+        new_state = event.data.get("new_state")
+        old_state = event.data.get("old_state")
+        if new_state is None or new_state.state in ("unknown", "unavailable"):
+            self.data["diagnostic"] = f"Lectura no disponible: {entity_id}"
+            self.async_set_updated_data(self.data)
+            self.hass.async_create_task(self._async_save())
+            return
+
+        if entity_id == self.config[CONF_CHARGING_ENTITY]:
+            if new_state.state == "on" and self.data.get("session") is None:
+                self._start_session()
+            elif (
+                new_state.state == "off"
+                and old_state is not None
+                and old_state.state == "on"
+                and self.data.get("session") is not None
+            ):
+                self._stop_session()
+
+        if self.data.get("session") is not None:
+            self._capture_measurements(entity_id, new_state.state)
+
+        self._try_finalize()
+        self.async_set_updated_data(self.data)
+        self.hass.async_create_task(self._async_save())
+
+    def _start_session(self) -> None:
+        """Start a session with only valid available baselines."""
+        now = datetime.now(timezone.utc).isoformat()
+        soc = self._read_number(CONF_SOC_ENTITY)
+        odo = self._read_odometer()
+        self.data["session"] = {
+            "started_at": now,
+            "ended_at": None,
+            "soc_start": soc if soc is not None and 0 < soc <= 100 else None,
+            "soc_max": soc if soc is not None and 0 < soc <= 100 else None,
+            "soc_end": None,
+            "energy_kwh": 0.0,
+            "odometer_start_km": odo,
+            "odometer_end_km": None,
+            "price_per_kwh": float(self.config.get(CONF_PRICE, 0.0)),
+            "cost": None,
+            "status": "charging",
+        }
+        self.data["status"] = "charging"
+        self.data["diagnostic"] = "Sesión iniciada"
+
+    def _stop_session(self) -> None:
+        """Mark session ended; do not finalize until configured criteria pass."""
+        session = self.data["session"]
+        session["ended_at"] = datetime.now(timezone.utc).isoformat()
+        session["status"] = "pending_finalization"
+        self.data["status"] = "pending_finalization"
+        self.data["diagnostic"] = "Carga terminada; pendiente de consolidación"
+
+    def _capture_measurements(self, entity_id: str, raw_value: str) -> None:
+        """Update energy, SOC maximum and odometer readings."""
+        session = self.data["session"]
+        if entity_id == self.config[CONF_ENERGY_ENTITY]:
+            state = self.hass.states.get(entity_id)
+            unit = (state.attributes.get("unit_of_measurement") or "").lower() if state else ""
+            value = _number(raw_value)
+            if value is not None and value >= 0:
+                if unit == "wh":
+                    value /= 1000
+                if value >= session.get("energy_kwh", 0):
+                    session["energy_kwh"] = round(value, 4)
+
+        if self.config.get(CONF_SOC_ENTITY) == entity_id:
+            value = _number(raw_value)
+            if value is not None and 0 < value <= 100:
+                previous = session.get("soc_max")
+                if previous is None or value > previous:
+                    session["soc_max"] = value
+
+        if self.config.get(CONF_ODOMETER_ENTITY) == entity_id:
+            value = self._read_odometer()
+            if value is not None:
+                session["odometer_last_km"] = value
+
+    def _read_number(self, config_key: str) -> float | None:
+        entity_id = self.config.get(config_key)
+        state = self.hass.states.get(entity_id) if entity_id else None
+        return _number(state.state) if state else None
+
+    def _read_odometer(self) -> float | None:
+        value = self._read_number(CONF_ODOMETER_ENTITY)
+        if value is None:
+            return None
+        state = self.hass.states.get(self.config[CONF_ODOMETER_ENTITY])
+        unit = (state.attributes.get("unit_of_measurement") or "").lower()
+        configured = self.config.get(CONF_ODOMETER_UNIT, "km")
+        if unit in ("mi", "mile", "miles") or configured == "mi":
+            return value * 1.609344
+        return value
+
+    def _try_finalize(self) -> None:
+        """Finalize once, using the configured strategy."""
+        session = self.data.get("session")
+        if session is None or session.get("ended_at") is None:
+            return
+        strategy = self.config.get(CONF_FINALIZATION, FINALIZE_ODOMETER)
+        if strategy == FINALIZE_IMMEDIATE:
+            self._finalize()
+            return
+        if strategy == FINALIZE_ODOMETER:
+            current = self._read_odometer()
+            start = session.get("odometer_start_km")
+            if current is not None and start is not None and current > start:
+                session["odometer_end_km"] = current
+                self._finalize()
+
+    def _finalize(self) -> None:
+        """Commit an immutable summary to history."""
+        session = self.data.get("session")
+        if session is None:
+            return
+        if session.get("soc_start") is not None and session.get("soc_max") is not None:
+            session["soc_end"] = session["soc_max"]
+        price = session.get("price_per_kwh", 0.0)
+        session["cost"] = round(session["energy_kwh"] * price, 2)
+        session["status"] = "completed"
+        session["completed_at"] = datetime.now(timezone.utc).isoformat()
+        record = dict(session)
+        record["session_id"] = record["started_at"]
+        self.data["latest"] = record
+        self.data["history"] = ([record] + self.data.get("history", []))[:MAX_HISTORY]
+        self.data["session"] = None
+        self.data["status"] = "idle"
+        self.data["diagnostic"] = "Última carga consolidada"
+
+    async def _async_save(self) -> None:
+        """Persist state and history."""
+        await self.store.async_save(self.data)
+
+    async def async_shutdown(self) -> None:
+        """Remove listeners and persist final state."""
+        for unsub in self._unsub:
+            unsub()
+        await self._async_save()
