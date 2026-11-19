@@ -125,10 +125,35 @@
         "data": {
           "tariff_period_count": "Número de periodos tarifarios"
         }
+      },
+      "units": {
+        "title": "Unidades y moneda",
+        "description": "Selecciona las unidades de presentación. Las lecturas de origen se convierten explícitamente; los cálculos internos usan unidades canónicas. La moneda no se convierte mediante tipos de cambio.",
+        "data": {
+          "unit_energy": "Energía",
+          "unit_distance": "Distancia",
+          "unit_power": "Potencia",
+          "unit_voltage": "Tensión",
+          "unit_current": "Intensidad",
+          "unit_temperature": "Temperatura",
+          "unit_consumption": "Consumo",
+          "currency": "Moneda (código ISO 4217)"
+        },
+        "data_description": {
+          "unit_energy": "Unidad en la que se mostrará la energía; internamente se calcula en kWh.",
+          "unit_distance": "Unidad de presentación de distancias; internamente se normalizan a km.",
+          "unit_power": "Unidad de presentación de potencia.",
+          "unit_voltage": "Unidad de presentación de tensión.",
+          "unit_current": "Unidad de presentación de intensidad.",
+          "unit_temperature": "Unidad de presentación de temperatura.",
+          "unit_consumption": "Formato de presentación del consumo del vehículo.",
+          "currency": "Código de moneda ISO 4217 de tres letras (EUR, USD, GBP, JPY...). No se aplican conversiones de divisa."
+        }
       }
     },
     "error": {
-      "invalid_schedule": "El horario está incompleto o contiene periodos solapados. Revisa las horas, los días y los precios."
+      "invalid_schedule": "El horario está incompleto o contiene periodos solapados. Revisa las horas, los días y los precios.",
+      "invalid_currency": "Introduce un código de moneda de tres letras, por ejemplo EUR o USD."
     }
   },
   "entity": {
