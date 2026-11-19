@@ -1,0 +1,41 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurar vehículo y cargador",
+        "description": "Crea un perfil de carga. Puedes añadir más perfiles para otros vehículos y cargadores. El sensor de energía debe representar la energía de la sesión actual.",
+        "data": {
+          "vehicle_name": "Nombre del vehículo",
+          "charger_name": "Nombre del cargador",
+          "charging_entity": "Estado de carga (binary_sensor)",
+          "energy_entity": "Energía de la sesión (sensor)",
+          "energy_mode": "Tipo de contador de energía",
+          "soc_entity": "Nivel de batería SOC (sensor, opcional)",
+          "odometer_entity": "Odómetro (sensor, opcional)",
+          "odometer_unit": "Unidad del odómetro",
+          "price_per_kwh": "Precio de electricidad por kWh",
+          "finalization": "Cuándo consolidar una carga"
+        },
+        "data_description": {
+          "vehicle_name": "Ejemplo: Leapmotor C10. Se utilizará para identificar el dispositivo y sus entidades.",
+          "charger_name": "Ejemplo: V2C Garaje. El cargador asociado a este perfil.",
+          "charging_entity": "Debe ser un binary_sensor: on significa cargando y off significa detenido. unknown/unavailable nunca se interpretan como fin.",
+          "energy_entity": "Sensor de energía entregada en la sesión actual. Se admiten kWh o Wh. Ejemplo: sensor.wallbox_session_energy = 12.45 kWh. No selecciones potencia (W/kW) ni un contador total acumulado en esta primera versión.",
+          "energy_mode": "Esta versión inicial admite energía acumulada por sesión que vuelve a cero al comenzar una nueva carga.",
+          "soc_entity": "Sensor de batería del vehículo en porcentaje (0–100). Ejemplo: sensor.ev_battery = 78 %. Si no se configura, la energía y el coste siguen funcionando.",
+          "odometer_entity": "Sensor de distancia total recorrida. Ejemplo: sensor.ev_odometer = 12540 km. Necesario si eliges consolidar al aumentar el odómetro.",
+          "odometer_unit": "Indica la unidad que quieres utilizar para normalizar el odómetro.",
+          "price_per_kwh": "Ejemplo: 0.11 significa 0,11 € por kWh. El precio se guarda como referencia de esta sesión.",
+          "finalization": "Por odómetro: espera a que el vehículo se mueva. Inmediata: consolida al terminar la carga. Manual aún no está disponible en esta versión."
+        }
+      }
+    },
+    "error": {
+      "name_required": "Introduce un nombre para el vehículo y el cargador."
+    },
+    "abort": {
+      "already_configured": "Este perfil de vehículo y cargador ya está configurado.",
+      "options_not_available_yet": "La edición de sensores estará disponible en una próxima versión."
+    }
+  }
+}
