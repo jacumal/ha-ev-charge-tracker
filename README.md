@@ -50,7 +50,7 @@ The first development increment is intentionally limited to one charging profile
 - Required charging-state `binary_sensor` (`on` / `off`).
 - Required session-energy `sensor` with an explicit Wh or kWh unit.
 - Optional SOC and odometer sensors.
-- Fixed electricity price per kWh.
+- Electricity price entered manually or read from a Home Assistant sensor, snapshotted per session.
 - Immediate or odometer-increase finalization.
 - Persistent session state and up to 500 history records.
 
