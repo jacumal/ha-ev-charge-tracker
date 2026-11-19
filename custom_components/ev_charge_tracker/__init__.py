@@ -9,7 +9,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .const import DOMAIN, PLATFORMS
 from .coordinator import EVChargeCoordinator
 
-type EVChargeConfigEntry = ConfigEntry[EVChargeCoordinator]
+EVChargeConfigEntry = ConfigEntry[EVChargeCoordinator]
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
