@@ -46,6 +46,16 @@ class TariffTests(unittest.TestCase):
         ]
         self.assertTrue(any("huecos" in error for error in validate_periods(broken)))
 
+    def test_full_day_period_accepts_24_hour_boundary(self):
+        periods = [
+            {"name": "Único", "start": "00:00", "end": "24:00", "price": 0.12}
+        ]
+        self.assertEqual(validate_periods(periods), [])
+        self.assertEqual(
+            active_period(datetime(2026, 11, 19, 23, 59), periods)["name"],
+            "Único",
+        )
+
     def test_overnight_period(self):
         periods = [
             {"name": "Noche", "start": "22:00", "end": "06:00", "price": 0.07},
