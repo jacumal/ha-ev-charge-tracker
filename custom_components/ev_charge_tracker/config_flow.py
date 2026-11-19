@@ -9,6 +9,8 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers import selector
 
+from .tariff import default_periods, validate_periods
+
 from .const import (
     CONF_CHARGER_NAME,
     CONF_CHARGING_ENTITY,
@@ -28,6 +30,8 @@ from .const import (
     FINALIZE_ODOMETER,
     PRICE_MODE_MANUAL,
     PRICE_MODE_SENSOR,
+    CONF_TARIFF_PERIODS,
+    CONF_TARIFF_COUNT,
 )
 
 
@@ -35,6 +39,11 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Configure one vehicle + charger profile."""
 
     VERSION = 1
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        return EVChargeTrackerOptionsFlow(config_entry)
 
     async def async_step_user(self, user_input=None):
         """Collect entity mappings for one charging profile."""
@@ -129,3 +138,98 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 "price_help": "Elige un precio manual fijo o un sensor numérico en €/kWh. Se guarda el precio observado al iniciar cada sesión para conservar el coste histórico.",
             },
         )
+
+
+
+class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
+    """Edit tariff periods without removing the profile or its history."""
+
+    def __init__(self, config_entry):
+        self.config_entry = config_entry
+        self._period_count = 1
+
+    async def async_step_init(self, user_input=None):
+        """Choose the number of tariff periods."""
+        existing = self.config_entry.options.get(
+            CONF_TARIFF_PERIODS, self.config_entry.data.get(CONF_TARIFF_PERIODS)
+        )
+        current_count = len(existing) if existing else 1
+        if user_input is not None:
+            self._period_count = int(user_input[CONF_TARIFF_COUNT])
+            return await self.async_step_periods()
+        schema = vol.Schema({
+            vol.Required(CONF_TARIFF_COUNT, default=current_count): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": 1, "label": "Un periodo (precio único)"},
+                        {"value": 2, "label": "Dos periodos"},
+                        {"value": 3, "label": "Tres periodos"},
+                    ],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            )
+        })
+        return self.async_show_form(step_id="init", data_schema=schema)
+
+    async def async_step_periods(self, user_input=None):
+        """Configure names, times, weekdays and prices."""
+        saved = self.config_entry.options.get(
+            CONF_TARIFF_PERIODS, self.config_entry.data.get(CONF_TARIFF_PERIODS)
+        ) or []
+        defaults = default_periods(self._period_count)
+        existing = (saved + defaults)[0:self._period_count]
+        if user_input is not None:
+            periods = []
+            for index in range(1, self._period_count + 1):
+                periods.append({
+                    "name": user_input[f"period_{index}_name"].strip(),
+                    "start": user_input[f"period_{index}_start"],
+                    "end": user_input[f"period_{index}_end"],
+                    "price": float(user_input[f"period_{index}_price"]),
+                    "days": user_input[f"period_{index}_days"],
+                })
+            errors = validate_periods(periods)
+            if not errors:
+                return self.async_create_entry(
+                    title="", data={CONF_TARIFF_PERIODS: periods}
+                )
+            return self.async_show_form(
+                step_id="periods",
+                data_schema=self._period_schema(existing),
+                errors={"base": "invalid_schedule"},
+                description_placeholders={"schedule_error": " ".join(errors)},
+            )
+        return self.async_show_form(
+            step_id="periods", data_schema=self._period_schema(existing)
+        )
+
+    def _period_schema(self, existing):
+        day_options = [
+            {"value": 0, "label": "Lunes"},
+            {"value": 1, "label": "Martes"},
+            {"value": 2, "label": "Miércoles"},
+            {"value": 3, "label": "Jueves"},
+            {"value": 4, "label": "Viernes"},
+            {"value": 5, "label": "Sábado"},
+            {"value": 6, "label": "Domingo"},
+        ]
+        schema = {}
+        for index in range(1, self._period_count + 1):
+            period = existing[index - 1]
+            schema[vol.Required(f"period_{index}_name", default=period["name"])] = str
+            schema[vol.Required(f"period_{index}_start", default=period["start"])] = str
+            schema[vol.Required(f"period_{index}_end", default=period["end"])] = str
+            schema[vol.Required(f"period_{index}_price", default=period["price"])] = All(
+                Coerce(float), Range(min=0)
+            )
+            schema[vol.Required(
+                f"period_{index}_days",
+                default=period.get("days", list(range(7))),
+            )] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=day_options,
+                    multiple=True,
+                    mode=selector.SelectSelectorMode.LIST,
+                )
+            )
+        return vol.Schema(schema)
