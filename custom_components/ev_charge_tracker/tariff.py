@@ -6,7 +6,7 @@ The helpers are deliberately independent from Home Assistant so they can be unit
 
 from __future__ import annotations
 
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, timedelta, timezone
 from typing import Any
 
 
@@ -102,14 +102,19 @@ def allocate_energy_by_time(
     This is an estimate when only energy-counter samples are available.
     A future power-integration path can provide a more accurate allocation.
     """
-    if end <= start or energy_kwh < 0:
+    aware = start.tzinfo is not None and end.tzinfo is not None
+    if aware:
+        timeline_start = start.astimezone(timezone.utc)
+        timeline_end = end.astimezone(timezone.utc)
+    else:
+        timeline_start, timeline_end = start, end
+    if timeline_end <= timeline_start or energy_kwh < 0:
         raise ValueError("Intervalo o energía no válidos.")
 
     seconds_by_period: dict[str, float] = {}
     # Walk the real timeline in UTC so DST changes do not create or lose elapsed time.
-    aware = start.tzinfo is not None and end.tzinfo is not None
-    cursor = start.astimezone(__import__("datetime").timezone.utc) if aware else start
-    finish = end.astimezone(__import__("datetime").timezone.utc) if aware else end
+    cursor = timeline_start
+    finish = timeline_end
     while cursor < finish:
         next_minute = cursor.replace(second=0, microsecond=0) + timedelta(minutes=1)
         boundary = min(next_minute, finish)
@@ -123,7 +128,7 @@ def allocate_energy_by_time(
         ).total_seconds()
         cursor = boundary
 
-    total_seconds = (finish - (start.astimezone(__import__("datetime").timezone.utc) if aware else start)).total_seconds()
+    total_seconds = (finish - timeline_start).total_seconds()
     breakdown = []
     total_cost = 0.0
     allocated = 0.0
