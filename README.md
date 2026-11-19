@@ -83,3 +83,21 @@ GBP, JPY or CAD). Prices and costs are stored in that selected currency; no
 foreign-exchange conversion is performed. A price sensor must declare a matching
 currency-per-kWh unit (for example USD/kWh when USD is selected). Existing
 historical records retain the currency saved with their session.
+
+### Charging cost quality
+
+Each session stores its currency, tariff breakdown, energy with a known price,
+and energy that could not be priced. The cost sensor exposes:
+
+- `cost`: the complete session cost only when all delivered energy is priced.
+- `known_cost`: the sum of cost segments that could be calculated, even if the
+  session is incomplete.
+- `cost_status`: `complete`, `partial`, or `unknown`.
+- `priced_energy_kwh` and `unpriced_energy_kwh`: energy coverage of the cost.
+- `tariff_breakdown` and `tariff_estimated`: period-level amounts and whether
+  time-proportional allocation was used.
+
+A partial amount is never presented as the complete session cost. Missing or
+invalid price data does not erase known priced segments and is never replaced
+with zero. Tariff periods currently use the profile's selected currency and
+manually entered per-kWh prices.
