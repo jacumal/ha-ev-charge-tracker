@@ -99,6 +99,36 @@ class SessionFinalizationTests(unittest.TestCase):
         self.assertEqual(len(coordinator.data["history"]), 1)
         self.assertIs(coordinator.data["latest"], first_record)
 
+    def test_partial_cost_keeps_known_amount_without_claiming_full_total(self):
+        coordinator = self.make_coordinator({
+            "started_at": "2026-11-19T10:00:00+00:00",
+            "ended_at": "2026-11-19T11:00:00+00:00",
+            "energy_kwh": 10.0,
+            "energy_valid": True,
+            "price_per_kwh": None,
+            "cost_complete": False,
+            "priced_energy_kwh": 5.0,
+            "unpriced_energy_kwh": 5.0,
+            "tariff_breakdown": {
+                "Known period": {
+                    "energy_kwh": 5.0,
+                    "cost": 0.5,
+                    "price_per_kwh": 0.1,
+                }
+            },
+            "currency": "EUR",
+        })
+
+        coordinator._finalize()
+
+        record = coordinator.data["latest"]
+        self.assertIsNone(record["cost"])
+        self.assertEqual(record["known_cost"], 0.5)
+        self.assertEqual(record["cost_status"], "partial")
+        self.assertEqual(record["priced_energy_kwh"], 5.0)
+        self.assertEqual(record["unpriced_energy_kwh"], 5.0)
+        self.assertEqual(record["currency"], "EUR")
+
     def test_missing_energy_is_not_fabricated_as_zero(self):
         coordinator = self.make_coordinator({
             "started_at": "2026-11-19T10:00:00+00:00",
