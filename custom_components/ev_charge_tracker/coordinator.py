@@ -433,7 +433,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         if buckets:
             session["cost"] = (
                 round(sum(item["cost"] for item in buckets.values()), 2)
-                if session.get("cost_complete", True)
+                if session.get("energy_valid") and session.get("cost_complete", True)
                 else None
             )
             session["tariff_breakdown"] = {
@@ -447,7 +447,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         else:
             session["cost"] = (
                 round(energy * price, 2)
-                if energy is not None and price is not None and session.get("cost_complete", True)
+                if session.get("energy_valid") and energy is not None and price is not None and session.get("cost_complete", True)
                 else None
             )
         session["status"] = "completed"
