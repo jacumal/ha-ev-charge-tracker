@@ -105,11 +105,26 @@
           "price_per_kwh": "Precio fijo por kWh",
           "price_entity": "Sensor de precio (€/kWh)",
           "finalization": "Cuándo consolidar una carga"
+        },
+        "data_description": {
+          "charging_entity": "Debe estar ON mientras carga y OFF al detenerse. unknown/unavailable no cierran sesiones.",
+          "energy_entity": "Sensor de energía entregada en Wh o kWh, no potencia.",
+          "energy_mode": "Indica si el contador se reinicia en cada carga o es acumulativo.",
+          "soc_entity": "Sensor opcional en porcentaje (0–100).",
+          "odometer_entity": "Necesario si se elige el cierre por odómetro.",
+          "odometer_unit": "Unidad de distancia publicada por el sensor.",
+          "price_mode": "Selecciona precio fijo o sensor de precio.",
+          "price_per_kwh": "Se usa con precio manual fijo, en €/kWh.",
+          "price_entity": "Sensor numérico en €/kWh.",
+          "finalization": "Elige cierre por odómetro, automático tras 60 segundos o manual."
         }
       },
       "tariffs": {
         "title": "Horario de tarifa eléctrica",
-        "description": "Configura uno, dos o tres periodos horarios. Se utiliza la hora local de Home Assistant y se comprueba que no haya huecos ni solapamientos."
+        "description": "Configura uno, dos o tres periodos horarios. Se utiliza la hora local de Home Assistant y se comprueba que no haya huecos ni solapamientos.",
+        "data": {
+          "tariff_period_count": "Número de periodos tarifarios"
+        }
       }
     },
     "error": {
