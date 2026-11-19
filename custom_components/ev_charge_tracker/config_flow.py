@@ -182,7 +182,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             else:
                 # Options override the original config data. The storage key is
                 # tied to entry_id, so changing mappings never discards history.
-                return self.async_create_entry(title="", data=user_input)
+                return self.async_create_entry(\n                    title="", data={**self.config_entry.options, **user_input}\n                )
 
         schema = vol.Schema({
             vol.Required(CONF_CHARGING_ENTITY, default=current[CONF_CHARGING_ENTITY]): selector.EntitySelector(
@@ -284,7 +284,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             errors = validate_periods(periods)
             if not errors:
                 return self.async_create_entry(
-                    title="", data={CONF_TARIFF_PERIODS: periods}
+                    title="", data={**self.config_entry.options, CONF_TARIFF_PERIODS: periods}
                 )
             existing = periods
             return self.async_show_form(
