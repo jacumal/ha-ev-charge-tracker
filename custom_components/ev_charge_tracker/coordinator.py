@@ -170,10 +170,31 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             if value is not None and value >= 0 and unit in ("kwh", "wh"):
                 if unit == "wh":
                     value /= 1000
-                previous = session.get("energy_kwh")
-                if previous is None or value >= previous:
+                previous = session.get("last_energy_sample_kwh")
+                now = dt_util.utcnow()
+                previous_at = session.get("last_energy_sample_at")
+                if previous is None:
+                    session["last_energy_sample_kwh"] = value
+                    session["last_energy_sample_at"] = now.isoformat()
                     session["energy_kwh"] = round(value, 4)
                     session["energy_valid"] = True
+                elif value >= previous:
+                    delta = value - previous
+                    if delta > 0 and previous_at:
+                        self._allocate_tariff_delta(
+                            session, datetime.fromisoformat(previous_at), now, delta
+                        )
+                    session["energy_kwh"] = round(
+                        (session.get("energy_kwh") or 0.0) + delta, 4
+                    )
+                    session["last_energy_sample_kwh"] = value
+                    session["last_energy_sample_at"] = now.isoformat()
+                    session["energy_valid"] = True
+                else:
+                    # A counter reset is a new baseline, not negative energy.
+                    session["last_energy_sample_kwh"] = value
+                    session["last_energy_sample_at"] = now.isoformat()
+                    self.data["diagnostic"] = "Contador reiniciado; nueva referencia establecida"
             elif value is not None:
                 self.data["diagnostic"] = (
                     f"Unidad de energía no compatible: {unit or 'sin unidad'}"
@@ -192,6 +213,40 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             value = self._read_odometer()
             if value is not None:
                 session["odometer_last_km"] = value
+
+
+    def _allocate_tariff_delta(self, session, start_utc, end_utc, energy_delta):
+        """Allocate a sampled energy increment across configured local tariff periods."""
+        periods = self.config.get("tariff_periods") or []
+        if not periods:
+            price = session.get("price_per_kwh")
+            if price is not None:
+                bucket = session.setdefault("tariff_breakdown", {}).setdefault(
+                    "Precio fijo", {"energy_kwh": 0.0, "cost": 0.0, "price_per_kwh": price}
+                )
+                bucket["energy_kwh"] += energy_delta
+                bucket["cost"] += energy_delta * price
+            return
+        if validate_periods(periods):
+            self.data["diagnostic"] = "Tarifas no válidas: tramo no contabilizado"
+            return
+        try:
+            allocation = allocate_energy_by_time(
+                dt_util.as_local(start_utc), dt_util.as_local(end_utc),
+                energy_delta, periods
+            )
+        except ValueError as err:
+            self.data["diagnostic"] = str(err)
+            return
+        session["tariff_estimated"] = True
+        buckets = session.setdefault("tariff_breakdown", {})
+        for item in allocation["breakdown"]:
+            bucket = buckets.setdefault(item["period"], {
+                "energy_kwh": 0.0, "cost": 0.0,
+                "price_per_kwh": item["price_per_kwh"]
+            })
+            bucket["energy_kwh"] += item["energy_kwh"]
+            bucket["cost"] += item["cost"]
 
     def _read_number(self, config_key: str) -> float | None:
         entity_id = self.config.get(config_key)
@@ -264,11 +319,23 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             session["soc_end"] = session["soc_max"]
         price = session.get("price_per_kwh")
         energy = session.get("energy_kwh")
-        session["cost"] = (
-            round(energy * price, 2)
-            if energy is not None and price is not None
-            else None
-        )
+        buckets = session.get("tariff_breakdown") or {}
+        if buckets:
+            session["cost"] = round(sum(item["cost"] for item in buckets.values()), 2)
+            session["tariff_breakdown"] = {
+                name: {
+                    **item,
+                    "energy_kwh": round(item["energy_kwh"], 4),
+                    "cost": round(item["cost"], 4),
+                }
+                for name, item in buckets.items()
+            }
+        else:
+            session["cost"] = (
+                round(energy * price, 2)
+                if energy is not None and price is not None
+                else None
+            )
         session["status"] = "completed"
         session["completed_at"] = datetime.now(timezone.utc).isoformat()
         record = dict(session)
