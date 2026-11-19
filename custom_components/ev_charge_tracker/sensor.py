@@ -111,6 +111,7 @@ class EVChargeCostSensor(EVChargeBaseSensor):
             return round(energy * price, 4)
         return record.get("known_cost")
 
+    @property
     def native_value(self):
         record = self._record()
         if not record:
