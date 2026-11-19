@@ -28,21 +28,18 @@ def active_period(
 
     for period in periods:
         days = period.get("days", list(range(7)))
-        if weekday not in days:
-            continue
-
         start = _parse_time(period["start"])
         end = _parse_time(period["end"])
 
-        if start == end:
+        if start == end and weekday in days:
             return period
-        if start < end and start <= current < end:
+        if start < end and weekday in days and start <= current < end:
             return period
-        if start > end and (current >= start or current < end):
-            # For the after-midnight part, the period belongs to the previous day.
-            if current < end and (weekday - 1) % 7 not in days:
-                continue
-            return period
+        if start > end:
+            if current >= start and weekday in days:
+                return period
+            if current < end and (weekday - 1) % 7 in days:
+                return period
 
     return None
 
@@ -52,6 +49,10 @@ def validate_periods(periods: list[dict[str, Any]]) -> list[str]:
     errors: list[str] = []
     if not 1 <= len(periods) <= 3:
         return ["Debe haber entre uno y tres periodos."]
+
+    names = [str(period.get("name", "Periodo")) for period in periods]
+    if len(set(names)) != len(names):
+        errors.append("Cada periodo debe tener un nombre distinto.")
 
     for index, period in enumerate(periods, start=1):
         try:
