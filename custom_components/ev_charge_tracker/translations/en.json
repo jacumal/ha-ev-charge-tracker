@@ -47,10 +47,10 @@
   "options": {
     "step": {
       "init": {
-        "title": "Electricity tariff schedule",
-        "description": "Configure one, two or three time-of-use periods. The schedule uses Home Assistant local time and is checked for gaps and overlaps.",
+        "title": "Profile settings",
+        "description": "Choose which profile settings to edit. Changing sensor mappings does not delete saved sessions.",
         "data": {
-          "tariff_period_count": "Number of tariff periods"
+          "section": "Settings section"
         }
       },
       "periods": {
@@ -90,6 +90,26 @@
           "period_3_price": "Electricity price for each kWh attributed to this period. Use a non-negative €/kWh value.",
           "period_3_days": "Select the weekdays on which this time band applies. The complete weekly schedule must have no gaps or overlaps."
         }
+      },
+      "profile": {
+        "title": "Sensors and behavior",
+        "description": "Change the entities mapped to the vehicle and charger, counter type, pricing and session finalization. Existing history is preserved.",
+        "data": {
+          "charging_entity": "Charging state (binary_sensor)",
+          "energy_entity": "Delivered energy (kWh/Wh)",
+          "energy_mode": "Energy counter type",
+          "soc_entity": "Battery state of charge (SOC, optional)",
+          "odometer_entity": "Odometer (optional)",
+          "odometer_unit": "Odometer unit",
+          "price_mode": "Electricity price source",
+          "price_per_kwh": "Fixed price per kWh",
+          "price_entity": "Price sensor (€/kWh)",
+          "finalization": "When to finalize a charge"
+        }
+      },
+      "tariffs": {
+        "title": "Electricity tariff schedule",
+        "description": "Configure one, two or three time-of-use periods. The schedule uses Home Assistant local time and is checked for gaps and overlaps."
       }
     },
     "error": {
