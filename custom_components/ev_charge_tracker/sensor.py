@@ -98,23 +98,59 @@ class EVChargeCostSensor(EVChargeBaseSensor):
         super().__init__(coordinator, entry, "cost", "Coste de la carga", "mdi:cash")
         self._attr_native_unit_of_measurement = coordinator.config.get(CONF_CURRENCY, "EUR")
 
-    @property
+    def _record(self):
+        return self.coordinator.data.get("session") or self.coordinator.data.get("latest") or {}
+
+    def _known_cost(self, record):
+        buckets = record.get("tariff_breakdown") or {}
+        if buckets:
+            return round(sum(item.get("cost", 0.0) for item in buckets.values()), 4)
+        energy = record.get("energy_kwh")
+        price = record.get("price_per_kwh")
+        if record.get("energy_valid") and energy is not None and price is not None:
+            return round(energy * price, 4)
+        return record.get("known_cost")
+
     def native_value(self):
-        session = self.coordinator.data.get("session")
-        latest = self.coordinator.data.get("latest")
-        record = session or latest
-        return record.get("cost") if record else None
+        record = self._record()
+        if not record:
+            return None
+        if record.get("status") == "completed":
+            return record.get("cost")
+        energy = record.get("energy_kwh")
+        complete = bool(
+            record.get("cost_complete", True)
+            and record.get("energy_valid")
+            and energy is not None
+            and record.get("priced_energy_kwh", 0.0) >= energy - 0.0001
+        )
+        known_cost = self._known_cost(record)
+        return round(known_cost, 2) if complete and known_cost is not None else None
 
     @property
     def extra_state_attributes(self):
-        record = self.coordinator.data.get("session") or self.coordinator.data.get("latest") or {}
+        record = self._record()
+        energy = record.get("energy_kwh")
+        complete = bool(
+            record.get("cost_complete", True)
+            and record.get("energy_valid")
+            and energy is not None
+            and record.get("priced_energy_kwh", 0.0) >= energy - 0.0001
+        )
+        known_cost = self._known_cost(record)
+        if record.get("status") == "completed":
+            cost_status = record.get("cost_status", "unknown")
+        elif known_cost is not None:
+            cost_status = "in_progress" if complete else "partial"
+        else:
+            cost_status = "unknown"
         return {
-            "cost_status": record.get("cost_status", "pending"),
-            "known_cost": record.get("known_cost"),
+            "cost_status": cost_status,
+            "known_cost": known_cost,
             "currency": record.get("currency", self.coordinator.config.get(CONF_CURRENCY, "EUR")),
             "priced_energy_kwh": record.get("priced_energy_kwh", 0.0),
             "unpriced_energy_kwh": record.get("unpriced_energy_kwh", 0.0),
-            "cost_complete": record.get("cost_complete", False),
+            "cost_complete": complete,
             "tariff_breakdown": record.get("tariff_breakdown", {}),
             "tariff_estimated": record.get("tariff_estimated", False),
         }
