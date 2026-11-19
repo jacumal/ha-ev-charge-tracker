@@ -44,7 +44,7 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
-        return EVChargeTrackerOptionsFlow(config_entry)
+        return EVChargeTrackerOptionsFlow()
 
     async def async_step_user(self, user_input=None):
         """Collect entity mappings for one charging profile."""
@@ -146,8 +146,7 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
     """Edit tariff periods without removing the profile or its history."""
 
-    def __init__(self, config_entry):
-        self.config_entry = config_entry
+    def __init__(self):
         self._period_count = 1
 
     async def async_step_init(self, user_input=None):
