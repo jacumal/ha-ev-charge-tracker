@@ -55,7 +55,7 @@
       },
       "periods": {
         "title": "Edit tariff periods",
-        "description": "Set a name, start/end time, weekdays and price for every period. Use 00:00 as midnight; 24:00 is also accepted as an end boundary. All periods together must cover the full week without overlaps.",
+        "description": "Set a name, start/end time, weekdays and price for every period. Use 00:00 as midnight; 24:00 is also accepted as an end boundary. All periods together must cover the full week without overlaps.\n\nValidation: {schedule_error}",
         "data": {
           "period_1_name": "Period 1 name",
           "period_1_start": "Period 1 start time",
