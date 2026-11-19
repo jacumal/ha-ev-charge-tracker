@@ -47,6 +47,23 @@ class SessionFinalizationTests(unittest.TestCase):
             "2026-11-19T10:00:00+00:00",
         )
 
+    def test_soc_reported_during_finalization_grace_is_saved(self):
+        coordinator = self.make_coordinator({
+            "started_at": "2026-11-19T10:00:00+00:00",
+            "ended_at": "2026-11-19T11:00:00+00:00",
+            "energy_kwh": 3.0,
+            "energy_valid": True,
+            "price_per_kwh": 0.1,
+            "cost_complete": True,
+            "tariff_breakdown": {},
+            "soc_last": 85.0,
+            "soc_last_at": "2026-11-19T11:02:00+00:00",
+        })
+
+        coordinator._finalize()
+
+        self.assertEqual(coordinator.data["latest"]["soc_end"], 85.0)
+
     def test_stale_final_soc_is_not_saved(self):
         coordinator = self.make_coordinator({
             "started_at": "2026-11-19T10:00:00+00:00",
