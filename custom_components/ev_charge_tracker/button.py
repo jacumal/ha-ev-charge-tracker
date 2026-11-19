@@ -17,7 +17,7 @@ class EVChargeFinalizeButton(CoordinatorEntity, ButtonEntity):
     """Allow the user to confirm a stopped session."""
 
     _attr_has_entity_name = True
-    _attr_name = "Consolidar última carga"
+    _attr_translation_key = "manual_finalize"
     _attr_icon = "mdi:check-circle-outline"
 
     def __init__(self, coordinator, entry):
