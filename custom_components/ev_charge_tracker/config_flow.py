@@ -1,0 +1,128 @@
+"""Config flow for EV Charge Tracker."""
+
+from __future__ import annotations
+
+import voluptuous as vol
+
+from homeassistant import config_entries
+from homeassistant.core import callback
+from homeassistant.helpers import selector
+
+from .const import (
+    CONF_CHARGER_NAME,
+    CONF_CHARGING_ENTITY,
+    CONF_ENERGY_ENTITY,
+    CONF_ENERGY_MODE,
+    CONF_FINALIZATION,
+    CONF_ODOMETER_ENTITY,
+    CONF_ODOMETER_UNIT,
+    CONF_PRICE,
+    CONF_SOC_ENTITY,
+    CONF_VEHICLE_NAME,
+    DOMAIN,
+    ENERGY_MODE_SESSION,
+    FINALIZE_IMMEDIATE,
+    FINALIZE_MANUAL,
+    FINALIZE_ODOMETER,
+)
+
+
+class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Configure one vehicle + charger profile."""
+
+    VERSION = 1
+
+    async def async_step_user(self, user_input=None):
+        """Collect entity mappings for one charging profile."""
+        errors = {}
+
+        if user_input is not None:
+            vehicle_name = user_input[CONF_VEHICLE_NAME].strip()
+            charger_name = user_input[CONF_CHARGER_NAME].strip()
+            if not vehicle_name or not charger_name:
+                errors["base"] = "name_required"
+            else:
+                await self.async_set_unique_id(
+                    f"{vehicle_name.lower()}_{charger_name.lower()}"
+                )
+                self._abort_if_unique_id_configured()
+                return self.async_create_entry(
+                    title=f"{vehicle_name} · {charger_name}",
+                    data=user_input,
+                )
+
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_VEHICLE_NAME): str,
+                vol.Required(CONF_CHARGER_NAME): str,
+                vol.Required(CONF_CHARGING_ENTITY): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="binary_sensor")
+                ),
+                vol.Required(CONF_ENERGY_ENTITY): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Required(CONF_ENERGY_MODE, default=ENERGY_MODE_SESSION): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            {"value": ENERGY_MODE_SESSION, "label": "Energía de la sesión (se reinicia en cada carga)"}
+                        ],
+                        mode=selector.SelectSelectorMode.DROPDOWN,
+                    )
+                ),
+                vol.Optional(CONF_SOC_ENTITY): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_ODOMETER_ENTITY): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_ODOMETER_UNIT, default="km"): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            {"value": "km", "label": "Kilómetros"},
+                            {"value": "mi", "label": "Millas"},
+                        ],
+                        mode=selector.SelectSelectorMode.DROPDOWN,
+                    )
+                ),
+                vol.Optional(CONF_PRICE, default=0.0): vol.Coerce(float),
+                vol.Required(CONF_FINALIZATION, default=FINALIZE_ODOMETER): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            {"value": FINALIZE_ODOMETER, "label": "Cuando aumente el odómetro"},
+                            {"value": FINALIZE_IMMEDIATE, "label": "Al terminar la carga"},
+                            {"value": FINALIZE_MANUAL, "label": "Confirmación manual (próximamente)"},
+                        ],
+                        mode=selector.SelectSelectorMode.DROPDOWN,
+                    )
+                ),
+            }
+        )
+
+        return self.async_show_form(
+            step_id="user",
+            data_schema=schema,
+            errors=errors,
+            description_placeholders={
+                "charging_help": "binary_sensor: on = cargando; off = no cargando. unknown/unavailable no finalizan una sesión.",
+                "energy_help": "sensor en kWh o Wh. Debe representar la energía entregada en la sesión actual.",
+                "soc_help": "sensor en %. Es opcional; si falta, los datos de batería quedarán pendientes.",
+                "odometer_help": "sensor en km o mi. Necesario para finalizar usando el criterio de aumento del odómetro.",
+            },
+        )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        """Return the options flow."""
+        return EVChargeTrackerOptionsFlow(config_entry)
+
+
+class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
+    """Options flow placeholder for future re-mapping."""
+
+    def __init__(self, config_entry):
+        self.config_entry = config_entry
+
+    async def async_step_init(self, user_input=None):
+        """Keep options flow available; mappings are edited in a future step."""
+        return self.async_abort(reason="options_not_available_yet")
