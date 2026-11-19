@@ -1,0 +1,47 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurar vehículo y cargador",
+        "description": "Crea un perfil asociando cada entidad de Home Assistant a su función. Lee la explicación de cada campo: elegir un sensor con otra semántica (por ejemplo potencia en vez de energía) puede producir sesiones, consumos o costes incorrectos.",
+        "data": {
+          "vehicle_name": "Nombre del vehículo",
+          "charger_name": "Nombre del cargador",
+          "charging_entity": "Estado de carga activo (binary_sensor)",
+          "energy_entity": "Sensor de energía entregada (kWh/Wh)",
+          "energy_mode": "Tipo de contador de energía",
+          "soc_entity": "Porcentaje de batería del vehículo (SOC, opcional)",
+          "odometer_entity": "Distancia total recorrida (odómetro, opcional)",
+          "odometer_unit": "Unidad del odómetro",
+          "price_mode": "Origen del precio eléctrico",
+          "price_per_kwh": "Precio fijo por kWh",
+          "price_entity": "Precio por kWh (sensor, opcional según origen)",
+          "finalization": "Cuándo consolidar una carga"
+        },
+        "data_description": {
+          "vehicle_name": "Nombre identificativo del vehículo. Ejemplo: Leapmotor C10. Se usará en el dispositivo y en los nombres de las entidades creadas por esta integración.",
+          "charger_name": "Nombre identificativo del punto de carga. Ejemplo: V2C Garaje. Cada combinación vehículo+cargador crea un perfil independiente.",
+          "charging_entity": "OBLIGATORIO · Sensor binario que indica si la carga está activa. Selecciona un binary_sensor que esté ON mientras fluye la carga y OFF cuando se detiene. No selecciones disponibilidad, conexión Wi-Fi ni estado del coche. unknown/unavailable se ignoran y no finalizan sesiones. Si la entidad invierte la lógica, esta versión no es compatible sin un sensor plantilla intermedio.",
+          "energy_entity": "OBLIGATORIO · Sensor de ENERGÍA entregada, no de potencia. Debe tener unidad kWh o Wh. Ejemplo: 8.42 kWh. La energía se utiliza para calcular el consumo y el coste. Un sensor en W/kW mide potencia instantánea y dará resultados incorrectos. La versión actual espera un contador de energía de la sesión que parte de cero o cuyo valor inicial sea la energía ya entregada en esa sesión; todavía no admite contadores acumulativos de toda la vida sin un sensor plantilla/delta.",
+          "energy_mode": "Selecciona la semántica del sensor de energía. En esta versión solo está disponible energía de sesión. El contador puede aumentar durante la carga y reiniciarse al terminar. Si seleccionas una entidad acumulativa que nunca se reinicia, el histórico contabilizará diferencias incorrectas; no la uses todavía.",
+          "soc_entity": "OPCIONAL · Sensor del porcentaje de batería del vehículo (unidad % y valor 0–100). Se guarda la lectura disponible al inicio y el máximo observado durante la sesión como referencia de final. Si el vehículo duerme, el sensor está unavailable o no actualiza, el inicio/final pueden quedar vacíos o no reflejar el SOC real. No afecta al cálculo de energía ni al coste.",
+          "odometer_entity": "OPCIONAL según el cierre · Sensor de distancia total recorrida, normalmente km o mi. Se usa para confirmar que el vehículo se ha movido después de cargar. Si eliges cierre por odómetro, es obligatorio y debe actualizarse tras el viaje; si no aumenta, la sesión quedará pendiente de consolidación. No selecciones un sensor de autonomía.",
+          "odometer_unit": "Unidad real que publica el sensor de odómetro. Se normaliza internamente a kilómetros. Si la unidad declarada por la entidad no coincide con tu selección, corrige la entidad o crea un sensor plantilla coherente.",
+          "price_mode": "Define de dónde sale el precio de la electricidad. El precio se guarda en cada sesión para que cambiar la tarifa en el futuro no modifique el coste histórico.",
+          "price_per_kwh": "Solo para precio manual fijo. Introduce el coste total por kWh en la moneda que corresponda, expresado por ahora como €/kWh. Ejemplo: 0.18. Si tu tarifa cambia por horas, no uses un precio medio como si fuera exacto: configura periodos horarios cuando esté disponible el editor de tarifas.",
+          "price_entity": "Solo para precio desde sensor. Debe ser un sensor numérico cuyo estado sea el precio por kWh y cuya unidad sea €/kWh (por ejemplo 0.18). No selecciones el coste acumulado de la factura, potencia contratada ni precio por MWh. Se toma una instantánea al inicio de la sesión; si el sensor está unavailable o la unidad no coincide, el coste puede quedar sin calcular. La lectura actual no reconstruye todavía cambios de precio dentro de una misma carga.",
+          "finalization": "Elige cuándo se cierra y se guarda una sesión. Por odómetro: espera a que la distancia total aumente; requiere odómetro fiable y puede dejar sesiones pendientes hasta el siguiente trayecto. Inmediata: cierra al pasar el estado de carga a OFF; es más rápida, pero si el contador de energía actualiza con retraso podría faltar el último incremento. unknown/unavailable nunca equivalen a OFF."
+        }
+      }
+    },
+    "error": {
+      "name_required": "Introduce un nombre para el vehículo y el cargador.",
+      "odometer_required": "Selecciona un sensor de odómetro o cambia el método de finalización.",
+      "price_sensor_required": "Selecciona un sensor de precio para utilizar el modo automático."
+    },
+    "abort": {
+      "already_configured": "Este perfil de vehículo y cargador ya está configurado.",
+      "options_not_available_yet": "La edición de sensores estará disponible en una próxima versión."
+    }
+  }
+}
