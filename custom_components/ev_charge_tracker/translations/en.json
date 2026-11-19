@@ -105,11 +105,26 @@
           "price_per_kwh": "Fixed price per kWh",
           "price_entity": "Price sensor (€/kWh)",
           "finalization": "When to finalize a charge"
+        },
+        "data_description": {
+          "charging_entity": "Must be ON while charging and OFF when stopped. unknown/unavailable never close a session.",
+          "energy_entity": "Delivered energy sensor in Wh or kWh, not power.",
+          "energy_mode": "Select whether the counter resets each charge or is cumulative.",
+          "soc_entity": "Optional percentage sensor (0–100).",
+          "odometer_entity": "Required when odometer-based finalization is selected.",
+          "odometer_unit": "Distance unit reported by the sensor.",
+          "price_mode": "Select a fixed price or a price sensor.",
+          "price_per_kwh": "Used with manual fixed pricing, in €/kWh.",
+          "price_entity": "Numeric sensor in €/kWh.",
+          "finalization": "Choose odometer, automatic after 60 seconds, or manual finalization."
         }
       },
       "tariffs": {
         "title": "Electricity tariff schedule",
-        "description": "Configure one, two or three time-of-use periods. The schedule uses Home Assistant local time and is checked for gaps and overlaps."
+        "description": "Configure one, two or three time-of-use periods. The schedule uses Home Assistant local time and is checked for gaps and overlaps.",
+        "data": {
+          "tariff_period_count": "Number of tariff periods"
+        }
       }
     },
     "error": {
