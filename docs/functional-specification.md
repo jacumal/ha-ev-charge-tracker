@@ -234,3 +234,15 @@ The graphical setup must explain every sensor field in plain language. For each 
 Examples should be generic and clearly marked as examples, not entity IDs the integration expects users to have. Include a visual sensor map or illustrated setup guide in the documentation. Explain the difference between session energy (resets for each charge) and a cumulative energy meter (keeps increasing and requires a baseline/delta).
 
 The config flow should validate the selected entity and unit where possible, show a human-readable error, and allow the user to test a sample reading before saving. Optional sensors can be skipped. Users must be able to review and change mappings later without deleting charge history.
+
+
+## 14. Electricity price source
+
+The electricity price must be configurable per charging profile using either:
+
+1. **Manual fixed value:** user enters a non-negative price in €/kWh.
+2. **Home Assistant sensor:** user selects a numeric `sensor` whose state represents €/kWh.
+
+The configuration UI must clearly explain the expected unit and provide examples. The initial implementation accepts explicit €/kWh-style units (for example `€/kWh` or `EUR/kWh`); it must not infer the unit from the sensor name or numeric value.
+
+At the beginning of each charging session, snapshot the current valid price and store it in that session record. Later changes to the manual setting or source sensor must not alter the cost of an already-started or completed session. If the sensor is unavailable, non-numeric, or has an unsupported unit at session start, preserve the energy data but leave the session cost unknown and expose a diagnostic; do not substitute zero.
