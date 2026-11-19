@@ -63,3 +63,23 @@ The tariff engine supports one to three periods, weekday selection, overnight bo
 ## Automated validation
 
 A GitHub Actions workflow now installs Home Assistant and pytest, compiles the integration, and runs the unit tests on pushes and pull requests. Recent workflow runs have passed compilation, translation checks, module import smoke tests and tariff unit tests. This does not replace an end-to-end test in a real Home Assistant instance.
+
+## International units and currency
+
+Unit preferences are configured from the profile options under **Units and currency**.
+The conversion registry supports energy (Wh, kWh, MWh and joules), power (W, kW,
+MW), distance (m, km, mi, ft, yd), voltage (mV, V, kV), current (mA, A, kA),
+temperature (°C, °F, K), and vehicle consumption (kWh/100 km, Wh/km, km/kWh,
+mi/kWh and kWh/100 mi). Unsupported or ambiguous source units are rejected rather
+than inferred from a sensor name or value.
+
+Calculations use canonical units internally (kWh, kW, km, V, A, °C and
+kWh/100 km). Energy and cost entities currently honor the selected display energy
+unit and currency. Other display preferences are available for the next sensor
+roles as those measurements are added.
+
+Currency is selected as a three-letter ISO 4217-style code (for example EUR, USD,
+GBP, JPY or CAD). Prices and costs are stored in that selected currency; no
+foreign-exchange conversion is performed. A price sensor must declare a matching
+currency-per-kWh unit (for example USD/kWh when USD is selected). Existing
+historical records retain the currency saved with their session.
