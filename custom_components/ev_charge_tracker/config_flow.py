@@ -26,6 +26,7 @@ from .const import (
     CONF_VEHICLE_NAME,
     DOMAIN,
     ENERGY_MODE_SESSION,
+    ENERGY_MODE_CUMULATIVE,
     FINALIZE_IMMEDIATE,
     FINALIZE_ODOMETER,
     FINALIZE_MANUAL,
@@ -82,7 +83,8 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_ENERGY_MODE, default=ENERGY_MODE_SESSION): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=[
-                            {"value": ENERGY_MODE_SESSION, "label": "Energía de la sesión (se reinicia en cada carga)"}
+                            {"value": ENERGY_MODE_SESSION, "label": "Energía de la sesión (se reinicia en cada carga)"},
+                            {"value": ENERGY_MODE_CUMULATIVE, "label": "Contador acumulativo (lectura total que nunca se reinicia)"}
                         ],
                         mode=selector.SelectSelectorMode.DROPDOWN,
                     )
