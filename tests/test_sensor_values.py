@@ -1,6 +1,9 @@
 """Additional regression tests for sensor value handling."""
 
 import unittest
+from types import SimpleNamespace
+
+from custom_components.ev_charge_tracker.sensor import EVChargeCostSensor
 
 from custom_components.ev_charge_tracker.coordinator import (
     _energy_delta,
@@ -42,6 +45,34 @@ class SensorValueTests(unittest.TestCase):
     def test_odometer_rejects_negative_and_missing_values(self):
         self.assertIsNone(_normalize_odometer(-1, "km"))
         self.assertIsNone(_normalize_odometer(None, "km"))
+
+    def test_live_cost_sensor_exposes_known_cost_during_charging(self):
+        sensor = object.__new__(EVChargeCostSensor)
+        sensor.coordinator = SimpleNamespace(
+            data={"session": {
+                "status": "charging", "energy_kwh": 10.0, "energy_valid": True,
+                "price_per_kwh": 0.2, "cost_complete": True,
+                "priced_energy_kwh": 10.0, "tariff_breakdown": {},
+            }, "latest": None},
+            config={"currency": "EUR"},
+        )
+        self.assertEqual(sensor.native_value, 2.0)
+        self.assertEqual(sensor.extra_state_attributes["cost_status"], "in_progress")
+
+    def test_live_partial_cost_is_not_reported_as_complete_total(self):
+        sensor = object.__new__(EVChargeCostSensor)
+        sensor.coordinator = SimpleNamespace(
+            data={"session": {
+                "status": "charging", "energy_kwh": 10.0, "energy_valid": True,
+                "cost_complete": False, "priced_energy_kwh": 5.0,
+                "unpriced_energy_kwh": 5.0,
+                "tariff_breakdown": {"Known": {"energy_kwh": 5.0, "cost": 0.5}},
+            }, "latest": None},
+            config={"currency": "EUR"},
+        )
+        self.assertIsNone(sensor.native_value)
+        self.assertEqual(sensor.extra_state_attributes["known_cost"], 0.5)
+        self.assertEqual(sensor.extra_state_attributes["cost_status"], "partial")
 
 
 if __name__ == "__main__":
