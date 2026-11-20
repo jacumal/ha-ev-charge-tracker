@@ -116,7 +116,8 @@ class EVChargeTrackerCard extends HTMLElement {
     const title = this.config.name || this.config.vehicle || "EV Charge Tracker";
     const start = this._date(record.started_at);
     const end = this._date(record.ended_at || record.completed_at);
-    const rows = Array.isArray(history) ? history.slice(0, Number(this.config.max_history || 8)) : [];
+    const maxHistory = Math.min(50, Math.max(1, Math.trunc(Number(this.config.max_history) || 8)));
+    const rows = Array.isArray(history) ? history.slice(0, maxHistory) : [];
 
     this.shadowRoot.innerHTML = `
       <style>
