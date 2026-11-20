@@ -273,7 +273,7 @@ Each period contains:
 - Display name (for example, Peak / Shoulder / Off-peak).
 - Start and end local time.
 - Applicable weekdays (Monday–Sunday).
-- Price per kWh, or an optional selected price sensor for that period.
+- A manual price per kWh, or an optional selected Home Assistant price sensor for that period.
 - Optional effective date range / special-day calendar in a later extension.
 
 Schedules must support periods that cross midnight and schedules whose boundaries differ by weekday or weekend. Validation must detect gaps, overlaps, invalid times, and missing prices. A single-period tariff is the default fallback when the user does not need time bands.
@@ -297,12 +297,14 @@ The latest-charge summary and historical entries must show total cost. A session
 
 ### Initial implementation boundary
 
-The first testable alpha may implement:
-- Single-period manual price.
-- Single-period price sensor.
-- Custom two- or three-period time schedules with manually entered prices.
+The first testable alpha implements:
+- Single-period manual price and single-period price sensor.
+- Custom two- or three-period schedules with an independent manual price or optional Home Assistant price sensor for each period.
+- Timestamped price history during a session. When a dynamic sensor changes, the new value applies from its observed timestamp onward.
+- If a dynamic price sensor is unavailable, invalid, or has an unsupported unit, the affected energy remains unpriced and is explicitly reported; a stale previous value is not silently reused.
+- Historical session breakdowns retain the energy and cost attributed to each price segment.
 
-Country-specific preset libraries, special public-holiday calendars, and per-period price sensors can follow after the basic schedule engine and tests are stable. The data model must be designed now so these additions do not require rewriting historical sessions.
+Country-specific preset libraries and special public-holiday calendars remain later extensions. The data model must preserve historical prices so future schedule changes do not rewrite completed sessions.
 
 
 ## 16. Tariff schedule configuration defaults
