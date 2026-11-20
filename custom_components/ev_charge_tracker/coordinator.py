@@ -731,5 +731,11 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         """Remove listeners and persist final state."""
         unsubscribers, self._unsub = self._unsub, []
         for unsub in unsubscribers:
-            unsub()
+            try:
+                unsub()
+            except ValueError:
+                # Home Assistant may already have removed the listener while
+                # unloading/reloading the config entry. Shutdown must remain
+                # idempotent and continue cleaning up the remaining listeners.
+                _LOGGER.debug("Listener was already removed during coordinator shutdown")
         await self._async_save()
