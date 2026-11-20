@@ -132,7 +132,7 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             {"value": PRICE_MODE_MANUAL, "label": "Precio manual fijo"},
                             {"value": PRICE_MODE_SENSOR, "label": "Precio desde sensor de Home Assistant"},
                         ],
-                        mode=selector.SelectSelectorMode.DROPDOWN,
+                        mode=selector.SelectSelectorMode.LIST,
                     )
                 ),
                 vol.Optional(CONF_PRICE, default=0.11): All(Coerce(float), Range(min=0)),
@@ -146,7 +146,7 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             {"value": FINALIZE_IMMEDIATE, "label": "Al terminar la carga"},
                             {"value": FINALIZE_MANUAL, "label": "Confirmación manual desde un botón"},
                         ],
-                        mode=selector.SelectSelectorMode.DROPDOWN,
+                        mode=selector.SelectSelectorMode.LIST,
                     )
                 ),
             }
@@ -251,7 +251,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                         {"value": PRICE_MODE_MANUAL, "label": "Precio manual fijo"},
                         {"value": PRICE_MODE_SENSOR, "label": "Precio desde sensor"},
                     ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    mode=selector.SelectSelectorMode.LIST,
                 )
             ),
             vol.Optional(CONF_PRICE, default=current.get(CONF_PRICE, 0.11)): All(Coerce(float), Range(min=0)),
@@ -265,7 +265,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                         {"value": FINALIZE_IMMEDIATE, "label": "Al terminar la carga"},
                         {"value": FINALIZE_MANUAL, "label": "Confirmación manual"},
                     ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    mode=selector.SelectSelectorMode.LIST,
                 )
             ),
         })
