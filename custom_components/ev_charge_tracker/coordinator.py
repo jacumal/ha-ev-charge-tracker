@@ -729,6 +729,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
 
     async def async_shutdown(self) -> None:
         """Remove listeners and persist final state."""
-        for unsub in self._unsub:
+        unsubscribers, self._unsub = self._unsub, []
+        for unsub in unsubscribers:
             unsub()
         await self._async_save()
