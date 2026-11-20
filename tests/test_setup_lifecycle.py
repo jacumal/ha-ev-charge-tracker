@@ -62,6 +62,21 @@ class ConfigEntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
         self.coordinator.async_shutdown.assert_not_awaited()
         self.entry.async_on_unload.assert_called_once()
 
+    async def test_coordinator_shutdown_unsubscribes_only_once(self):
+        from custom_components.ev_charge_tracker.coordinator import EVChargeCoordinator
+
+        coordinator = object.__new__(EVChargeCoordinator)
+        unsubscribe = Mock()
+        coordinator._unsub = [unsubscribe]
+        coordinator._async_save = AsyncMock()
+
+        await coordinator.async_shutdown()
+        await coordinator.async_shutdown()
+
+        unsubscribe.assert_called_once()
+        self.assertEqual(coordinator._unsub, [])
+        self.assertEqual(coordinator._async_save.await_count, 2)
+
 
 if __name__ == "__main__":
     unittest.main()
