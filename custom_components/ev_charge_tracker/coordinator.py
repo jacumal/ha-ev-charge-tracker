@@ -275,8 +275,10 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             "status": "charging",
             "tariff_breakdown": {},
             "tariff_estimated": False,
-            "last_energy_sample_kwh": energy_baseline,
-            "last_energy_sample_at": now if energy_baseline is not None else None,
+            # The session counter's first valid observation is its baseline.
+            # Never assume zero when the source was stale/unavailable at start.
+            "last_energy_sample_kwh": energy_reading,
+            "last_energy_sample_at": now if energy_reading is not None else None,
             "power_samples": [],
             "price_samples": [],
         }
