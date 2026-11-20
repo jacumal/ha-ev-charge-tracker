@@ -15,6 +15,7 @@ from .const import (
     CONF_CHARGER_NAME,
     CONF_CHARGING_ENTITY,
     CONF_ENERGY_ENTITY,
+    CONF_POWER_ENTITY,
     CONF_ENERGY_MODE,
     CONF_FINALIZATION,
     CONF_ODOMETER_ENTITY,
@@ -80,6 +81,9 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     selector.EntitySelectorConfig(domain="binary_sensor")
                 ),
                 vol.Required(CONF_ENERGY_ENTITY): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_POWER_ENTITY): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor")
                 ),
                 vol.Required(CONF_ENERGY_MODE, default=ENERGY_MODE_SESSION): selector.SelectSelector(
@@ -196,6 +200,9 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                 selector.EntitySelectorConfig(domain="binary_sensor")
             ),
             vol.Required(CONF_ENERGY_ENTITY, default=current[CONF_ENERGY_ENTITY]): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor")
+            ),
+            vol.Optional(CONF_POWER_ENTITY, default=current.get(CONF_POWER_ENTITY)): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor")
             ),
             vol.Required(CONF_ENERGY_MODE, default=current.get(CONF_ENERGY_MODE, ENERGY_MODE_SESSION)): selector.SelectSelector(
