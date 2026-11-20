@@ -85,8 +85,9 @@ class EVChargeTrackerCard extends HTMLElement {
     const charging = status === "charging";
     const energy = this._number(e.energy);
     const cost = this._number(e.cost);
-    const knownCost = Number(this._attr(e.cost, "known_cost", NaN));
-    const hasKnownCost = Number.isFinite(knownCost);
+    const rawKnownCost = this._attr(e.cost, "known_cost", null);
+    const knownCost = rawKnownCost === null || rawKnownCost === undefined ? null : Number(rawKnownCost);
+    const hasKnownCost = knownCost !== null && Number.isFinite(knownCost);
     const socStart = this._number(e.soc_start);
     const socEnd = this._number(e.soc_end);
     const increase = this._number(e.soc_increase);
