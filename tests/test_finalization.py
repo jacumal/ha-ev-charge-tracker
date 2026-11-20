@@ -152,10 +152,6 @@ class SessionFinalizationTests(unittest.TestCase):
         self.assertEqual(len(coordinator.data["history"]), 1)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class FinalizationStrategyTests(unittest.TestCase):
     def setUp(self):
         from datetime import datetime, timezone
@@ -214,7 +210,7 @@ class FinalizationStrategyTests(unittest.TestCase):
         from custom_components.ev_charge_tracker.const import CONF_FINALIZATION, FINALIZE_ODOMETER
         self.coordinator.config[CONF_FINALIZATION] = FINALIZE_ODOMETER
         old_state = SimpleNamespace(last_updated=self.stopped_at - timedelta(seconds=1))
-        self.coordinator.hass.states.get = lambda entity_id: old_state
+        self.coordinator.hass.states.get = lambda entity_id: (SimpleNamespace(state="off") if entity_id == "binary_sensor.charger" else old_state)
         self.coordinator._try_finalize()
         self.coordinator._finalize.assert_not_called()
 
@@ -223,7 +219,7 @@ class FinalizationStrategyTests(unittest.TestCase):
         from custom_components.ev_charge_tracker.const import CONF_FINALIZATION, FINALIZE_ODOMETER
         self.coordinator.config[CONF_FINALIZATION] = FINALIZE_ODOMETER
         fresh_state = SimpleNamespace(last_updated=self.stopped_at + timedelta(seconds=1))
-        self.coordinator.hass.states.get = lambda entity_id: fresh_state
+        self.coordinator.hass.states.get = lambda entity_id: (SimpleNamespace(state="off") if entity_id == "binary_sensor.charger" else fresh_state)
         self.coordinator._try_finalize()
         self.coordinator._finalize.assert_called_once()
 
@@ -237,3 +233,7 @@ class FinalizationStrategyTests(unittest.TestCase):
         self.coordinator._try_finalize()
         self.coordinator._finalize.assert_not_called()
         self.assertIn("falta una lectura válida de energía", self.coordinator.data["diagnostic"])
+
+
+if __name__ == "__main__":
+    unittest.main()
