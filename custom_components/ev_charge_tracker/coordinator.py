@@ -93,6 +93,19 @@ def _state_updated_at_or_after(state, moment: datetime) -> bool:
         moment = moment.replace(tzinfo=updated.tzinfo)
     return updated >= moment
 
+
+def _session_recovery_action(charging_state: str | None, session: dict | None) -> str:
+    """Classify a charger observation against the persisted session lifecycle."""
+    if charging_state not in ("on", "off"):
+        return "preserve"
+    if charging_state == "on":
+        if session is None:
+            return "start"
+        return "resume" if session.get("ended_at") is not None else "continue"
+    if session is not None and session.get("ended_at") is None:
+        return "stop"
+    return "idle"
+
 def _normalize_odometer(value: float | None, sensor_unit: str, configured_unit: str = "km") -> float | None:
     """Normalize odometer readings to km, preferring an explicit HA unit.
 
@@ -153,23 +166,25 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             async_track_state_change_event(self.hass, entities, self._handle_state_change)
         )
 
-        # Reconcile the persisted session with the real charging state after restart.
+        # Reconcile persisted state only when the charger reports a definitive state.
         had_restored_session = self.data.get("session") is not None
         charging_state = self.hass.states.get(self.config[CONF_CHARGING_ENTITY])
-        if charging_state is not None and charging_state.state not in ("unknown", "unavailable"):
-            if charging_state.state == "on":
-                if self.data.get("session") is None:
-                    self._start_session()
-                    self.data["diagnostic"] = "Carga detectada al iniciar Home Assistant"
-                else:
-                    self.data["session"]["status"] = "charging"
-                    self.data["session"]["ended_at"] = None
-                    self.data["status"] = "charging"
-                    self.data["diagnostic"] = "Sesión recuperada tras reiniciar Home Assistant"
-            elif charging_state.state == "off" and self.data.get("session") is not None:
-                if self.data["session"].get("ended_at") is None:
-                    self._stop_session()
-                self._try_finalize()
+        action = _session_recovery_action(
+            charging_state.state if charging_state is not None else None,
+            self.data.get("session"),
+        )
+        if action == "start":
+            self._start_session()
+            self.data["diagnostic"] = "Carga detectada al iniciar Home Assistant"
+        elif action == "resume":
+            self.data["session"]["status"] = "charging"
+            self.data["session"]["ended_at"] = None
+            self.data["status"] = "charging"
+            self.data["diagnostic"] = "Sesión recuperada tras reiniciar Home Assistant"
+        elif action == "stop":
+            self._stop_session()
+            self._try_finalize()
+        if action != "preserve":
             if had_restored_session and self.data.get("session") is not None:
                 # A restart is a new observation point: do not carry a pre-restart
                 # dynamic price forward if its source is now unavailable.
@@ -194,7 +209,6 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         """Process source changes without treating unavailable as off."""
         entity_id = event.data["entity_id"]
         new_state = event.data.get("new_state")
-        old_state = event.data.get("old_state")
         if new_state is None or new_state.state in ("unknown", "unavailable"):
             if self.data.get("session") is not None and self._is_tariff_price_entity(entity_id):
                 self._append_tariff_price_sample(entity_id, None)
@@ -204,24 +218,16 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             return
 
         if entity_id == self.config[CONF_CHARGING_ENTITY]:
-            if new_state.state == "on" and self.data.get("session") is None:
+            action = _session_recovery_action(new_state.state, self.data.get("session"))
+            if action == "start":
                 self._start_session()
-            elif (
-                new_state.state == "on"
-                and self.data.get("session") is not None
-                and self.data["session"].get("ended_at") is not None
-            ):
-                # A brief OFF/ON transition is a resumed session, not a reason
-                # to finalize while the charger is actively delivering energy.
+            elif action == "resume":
+                # A brief OFF/ON transition resumes the pending session.
                 self.data["session"]["ended_at"] = None
                 self.data["session"]["status"] = "charging"
                 self.data["status"] = "charging"
                 self.data["diagnostic"] = "Carga reanudada; se conserva la sesión"
-            elif (
-                new_state.state == "off"
-                and self.data.get("session") is not None
-                and self.data["session"].get("ended_at") is None
-            ):
+            elif action == "stop":
                 # Also reconcile unknown/unavailable -> OFF after a restart.
                 self._stop_session()
 
