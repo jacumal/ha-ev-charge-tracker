@@ -154,6 +154,7 @@ class EVChargeCostSensor(EVChargeBaseSensor):
             "cost_complete": complete,
             "tariff_breakdown": record.get("tariff_breakdown", {}),
             "tariff_estimated": record.get("tariff_estimated", False),
+            "tariff_allocation_method": record.get("tariff_allocation_method"),
         }
 
 
