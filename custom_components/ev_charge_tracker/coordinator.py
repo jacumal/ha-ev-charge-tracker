@@ -648,6 +648,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         # Raw telemetry is only needed while allocating the active session.
         # Keep the compact tariff result, not thousands of power samples, in history.
         session.pop("power_samples", None)
+        session.pop("price_samples", None)
         record = dict(session)
         record["session_id"] = record["started_at"]
         self.data["latest"] = record
