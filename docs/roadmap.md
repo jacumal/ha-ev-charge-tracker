@@ -37,11 +37,11 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [x] Weekly schedule validation, overnight periods and local-time handling.
 - [x] Allocation across tariff boundaries, preferring power samples and falling back to time-proportional estimation.
 - [x] Tests for tariff boundaries, daylight-saving behavior and stale/future power samples.
-- [x] Per-period Home Assistant price sensors with timestamped price changes and historical price-segment breakdown (implementation on feature branch; automated CI pending).
+- [x] Per-period Home Assistant price sensors with timestamped price changes and historical price-segment breakdown (implementation and automated CI passed on PR #2).
 - [ ] More complete counter reset/rollover and stale-energy validation.
 - [ ] Controlled end-to-end tests against known meter readings and bills.
 
-**Status: Implemented in code on the dynamic-pricing feature branch; CI and live Home Assistant validation pending.** End-to-end comparison against real meter readings and bills remains open.
+**Status: Implementation and automated CI complete (PR #2, run 124 passed).** Controlled validation in a real Home Assistant instance, plus end-to-end comparison against known meter readings and electricity bills, remain open; therefore the full category is not yet closed.
 
 ## 4. Sensors, statistics and history
 - [x] Current status, session energy, cost, SOC start/end/increase, duration and history sensors.
