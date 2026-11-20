@@ -209,26 +209,46 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     this.shadowRoot.innerHTML = `<style>
       .field{display:block;margin:12px 0} label{display:block;margin-bottom:5px;font-size:13px}
       input{box-sizing:border-box;width:100%;padding:9px;border:1px solid var(--divider-color);border-radius:8px;background:var(--card-background-color);color:var(--primary-text-color)}
+      ha-entity-picker{display:block;width:100%}
     </style><div>
-      <label class="field">Nombre visible<input id="name" value="${this._esc(this._config.name || "")}" placeholder="Leapmotor C10"></label>
-      ${fields.map(([key,label]) => `<label class="field">${label}<input data-key="${key}" value="${this._esc(this._config.entities?.[key] || "")}" placeholder="sensor...."></label>`).join("")}
+      <label class="field">Nombre visible<input id="name" value="${this._esc(this._config.name || "")}" placeholder="Mi vehículo"></label>
+      ${fields.map(([key,label]) => `<label class="field">${label}<ha-entity-picker data-key="${key}" allow-custom-entity value="${this._esc(this._config.entities?.[key] || "")}"></ha-entity-picker></label>`).join("")}
       <label class="field">Máximo de cargas históricas<input id="max_history" type="number" min="1" max="50" value="${this._config.max_history || 8}"></label>
     </div>`;
-    this.shadowRoot.querySelectorAll("input").forEach(input => input.addEventListener("change", () => {
-      const next = { ...this._config, name: this.shadowRoot.getElementById("name").value,
-        max_history: Number(this.shadowRoot.getElementById("max_history").value || 8),
-        entities: { ...(this._config.entities || {}) } };
-      this.shadowRoot.querySelectorAll("[data-key]").forEach(field => {
-        if (field.value.trim()) next.entities[field.dataset.key] = field.value.trim();
-        else delete next.entities[field.dataset.key];
+    this.shadowRoot.querySelectorAll("ha-entity-picker").forEach(picker => {
+      picker.hass = this._hass;
+      picker.value = this._config.entities?.[picker.dataset.key] || "";
+      picker.addEventListener("value-changed", event => {
+        this._updateConfig(picker.dataset.key, event.detail.value);
       });
-      this._config = next;
-      this.dispatchEvent(new CustomEvent("config-changed", { detail: { config: next }, bubbles: true, composed: true }));
+    });
+    this.shadowRoot.getElementById("name").addEventListener("change", () => this._updateConfig());
+    this.shadowRoot.getElementById("max_history").addEventListener("change", () => this._updateConfig());
+  }
+
+  _updateConfig(changedKey, changedValue) {
+    const next = {
+      ...this._config,
+      name: this.shadowRoot.getElementById("name").value.trim() || "EV Charge Tracker",
+      max_history: Math.min(50, Math.max(1, Number(this.shadowRoot.getElementById("max_history").value || 8))),
+      entities: { ...(this._config.entities || {}) },
+    };
+    if (changedKey) {
+      if (changedValue) next.entities[changedKey] = changedValue;
+      else delete next.entities[changedKey];
+    }
+    this._config = next;
+    this.dispatchEvent(new CustomEvent("config-changed", {
+      detail: { config: next }, bubbles: true, composed: true,
     }));
   }
-  _esc(value) { return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-}
 
+  _esc(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+}
 customElements.define("ev-charge-tracker-card", EVChargeTrackerCard);
 customElements.define("ev-charge-tracker-card-editor", EVChargeTrackerCardEditor);
 window.customCards = window.customCards || [];
