@@ -70,7 +70,7 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [x] Unit tests for tariff and power allocation.
 - [ ] Expand coverage for coordinator lifecycle, persistence, config flow and sensors.
 - [ ] Home Assistant integration validation and controlled real-instance test plan.
-- [ ] Correct README claims that still describe the initial skeleton and conflict with implemented functionality.
+- [x] Refresh README project status and link the implementation roadmap; broader README cleanup remains.
 - [ ] Complete HACS metadata, release packaging, license and versioning.
 - [ ] Alpha installation guide and known limitations.
 
