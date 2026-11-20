@@ -19,8 +19,9 @@ Track charging sessions, delivered energy, battery state of charge (SOC), mileag
 
 - [Functional specification and sensor contract](docs/functional-specification.md)
 - [Lovelace dashboard design](docs/dashboard-design.md)
+- [Development roadmap and acceptance gates](docs/roadmap.md)
 
-## Planned capabilities
+## Current development scope
 
 - Charging session detection using a selected `binary_sensor`, with explicit handling for `unknown` and `unavailable` states.
 - Session energy from either a session-scoped counter or a cumulative lifetime meter in Wh or kWh, using a start-of-session baseline.
@@ -35,7 +36,7 @@ Track charging sessions, delivered energy, battery state of charge (SOC), mileag
 
 The first reference setup is a Leapmotor C10 with a V2C charger. It is a test environment only; the core design must remain generic.
 
-The Lovelace card will be included in this same integration repository and distributed with it. The integration backend will also work without the card.
+The first Lovelace card implementation is included in this repository. It is still undergoing frontend validation; its presence does not mean the dashboard milestone is complete.
 
 Contributions, feature requests and bug reports are welcome. The architecture and sensor contract are still being defined, so interfaces may change before the first release.
 
@@ -54,7 +55,7 @@ The first development increment is intentionally limited to one charging profile
 - Immediate or odometer-increase finalization.
 - Persistent session state and up to 500 history records.
 
-Power-assisted tariff allocation, timestamped per-period price-sensor changes, session recovery hardening, and vehicle/charger identity indexing are implemented in the development branch. Daily/weekly/monthly summaries, the bundled Lovelace card, and full multi-profile UI selection are not yet complete. Manual finalization is available through a dedicated button entity when selected in the profile. Do not install this development version in a production instance or use it to record real charging sessions. A testable alpha will be announced only after syntax checks, Home Assistant validation, and a controlled test plan are complete.
+Power-assisted tariff allocation, timestamped per-period price-sensor changes, session recovery hardening, and read-only vehicle/charger identity indexing are implemented in the development branch. The Lovelace card is at first implementation stage; lifecycle validation, daily/weekly/monthly statistics, complete documentation/quality validation, and graphical multi-profile management remain outstanding. Manual finalization is available through a dedicated button entity when selected in the profile. Do not install this development version in a production instance or use it to record real charging sessions. A testable alpha will be announced only after syntax checks, Home Assistant validation, and a controlled test plan are complete.
 
 
 The tariff engine supports one to three periods, weekday selection, overnight boundaries, schedule validation, and estimated allocation of sampled energy deltas. The coordinator now calls this engine when tariff periods are present in the profile configuration and persists the resulting per-period breakdown. The schedule editor is available from the profile options. Its end-to-end behavior still requires controlled Home Assistant testing. See the functional specification for the target behavior.
@@ -140,7 +141,7 @@ The card does not depend on Bubble Card or any other frontend custom card. It di
 the current/latest session, SOC start/end and increase, duration, energy, cost,
 cost quality, tariff allocation quality, diagnostic text and persistent session history.
 Missing values remain shown as unavailable rather than being displayed as zero.
-The visual editor accepts the entity IDs for each semantic role.
+The current visual editor accepts entity IDs as text for each semantic role; entity-picker controls and full editor usability checks remain outstanding.
 
 ### Lovelace YAML example
 
