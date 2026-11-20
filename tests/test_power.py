@@ -47,6 +47,14 @@ class PowerAllocationTests(unittest.TestCase):
         self.assertEqual(result["method"], "time_fallback")
         self.assertAlmostEqual(sum(x["energy_kwh"] for x in result["breakdown"]), 10.0, places=5)
 
+    def test_stale_power_samples_fall_back_to_time_estimate(self):
+        start = datetime(2026, 11, 19, 7, 0, tzinfo=self.zone)
+        end = datetime(2026, 11, 19, 9, 0, tzinfo=self.zone)
+        samples = [{"at": start.isoformat(), "power_kw": 7.0}]
+        result = allocate_energy_by_power(start, end, 4.0, self.periods, samples)
+        self.assertEqual(result["method"], "time_fallback")
+        self.assertAlmostEqual(sum(x["energy_kwh"] for x in result["breakdown"]), 4.0, places=5)
+
     def test_zero_power_falls_back_without_losing_meter_energy(self):
         start = datetime(2026, 11, 19, 7, 0, tzinfo=self.zone)
         end = datetime(2026, 11, 19, 9, 0, tzinfo=self.zone)
