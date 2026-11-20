@@ -229,7 +229,11 @@ class FinalizationStrategyTests(unittest.TestCase):
         self.coordinator.config[CONF_FINALIZATION] = FINALIZE_ODOMETER
         self.coordinator.data["session"]["energy_valid"] = False
         fresh_state = SimpleNamespace(last_updated=self.stopped_at + timedelta(seconds=1))
-        self.coordinator.hass.states.get = lambda entity_id: fresh_state
+        self.coordinator.hass.states.get = lambda entity_id: (
+            SimpleNamespace(state="off")
+            if entity_id == "binary_sensor.charger"
+            else fresh_state
+        )
         self.coordinator._try_finalize()
         self.coordinator._finalize.assert_not_called()
         self.assertIn("falta una lectura válida de energía", self.coordinator.data["diagnostic"])
