@@ -310,3 +310,69 @@ Country-specific preset libraries, special public-holiday calendars, and per-per
 The setup flow should ask for the number of periods (1, 2 or 3) and generate an editable starter schedule. Starter boundaries are examples only and must never be presented as a country's official tariff unless the user explicitly selects a verified country/tariff preset. The user must be able to change each period's name, start/end times, applicable weekdays and price.
 
 A one-period schedule covers the full day. Two- and three-period starter schedules are convenience templates, not assumptions about Spanish or any other market. The active schedule is interpreted in Home Assistant's configured timezone.
+
+## 17. Battery care, parked monitoring and notifications
+
+This section records requirements extracted from transcript screenshots supplied by the project owner (approximately 09:36–15:06). These statements describe the video, not manufacturer-specific operating instructions, and must be verified before being presented as universal advice.
+
+### 17.1 Advice represented in the video
+
+The speaker recommends:
+- For routine use, generally keeping the battery between 20% and 80%.
+- If charging to 100%, using the vehicle soon afterwards rather than leaving it parked full for an extended period.
+- For prolonged parking, leaving the battery around 50–60%, with the speaker favoring approximately 60% to allow for passive vehicle consumption.
+- Considering parked auxiliary-system consumption ("vampire drain") and the possibility that some vehicles periodically use the traction battery to maintain the 12 V battery.
+- Where supported by the vehicle, considering a slow AC connection and a daily target around 50% as a way to support 12 V maintenance. This is vehicle-dependent and must not be a universal instruction.
+
+The speaker discusses LFP versus NMC behavior at high SOC. The integration must not infer battery chemistry from a vehicle model or apply a universal 100% charging rule.
+
+### 17.2 Parked SOC / vampire-drain monitoring
+
+The integration may optionally use a user-selected SOC sensor to observe battery percentage while the vehicle is not charging.
+
+Requirements:
+- Store timestamped, valid SOC observations independently of charging-session history.
+- Calculate observed SOC change over configurable parked windows. Initial windows: 24 hours and 7 days.
+- Express the primary measurement in percentage points per elapsed day; do not label it as kWh or infer energy loss without a valid usable-capacity value.
+- Ignore unavailable, non-numeric, out-of-range and stale readings. Preserve gaps rather than interpolating invented values.
+- Avoid interpreting a single BMS recalibration or SOC rounding step as confirmed drain; require a minimum elapsed observation window and configurable tolerance.
+- Expose sample timestamps, elapsed duration, sample count and data-quality state.
+- Provide a configurable alert threshold and cooldown. Do not repeatedly notify for the same ongoing condition.
+- Persist samples across Home Assistant restarts, with bounded retention.
+
+This measures observed SOC drift, not direct standby power. App polling, vehicle wake-ups, temperature, BMS recalibration and other loads can affect readings.
+
+### 17.3 Battery-care advice
+
+Advice must be informational and configurable:
+- Routine SOC range suggestion (video: 20–80%).
+- Prolonged-parking target suggestion (video: 50–60%, with approximately 60% favored by the speaker).
+- Reminder after a 100% charge to use the vehicle soon, if it remains parked.
+
+Before enabling chemistry-specific recommendations, verify the vehicle manufacturer's manual and battery-specific guidance. LFP/NMC selection must be explicit user configuration or reliable source data; it must never be guessed from the vehicle name.
+
+### 17.4 Optional 12 V battery monitoring
+
+Allow an optional user-selected sensor for 12 V battery voltage or SOC, if the vehicle exposes one. Validate its domain, unit, range and freshness. Thresholds must be configurable and alerts advisory. Do not assume that all EVs expose this sensor or share the same auxiliary-battery charging strategy.
+
+### 17.5 Notifications
+
+Optional, individually configurable notifications may cover:
+- Vehicle left parked at 100% beyond a configured grace period.
+- SOC below a configured low threshold.
+- Parked SOC loss above the configured rate threshold after a sufficient observation window.
+- Optional 12 V battery reading below a configured advisory threshold.
+- Unexpected charging interruption.
+
+Classify messages as information, warning or critical. Avoid duplicate notifications through cooldown/state tracking. These notifications do not replace vehicle, charger or installation protections.
+
+### 17.6 Safety boundaries and implementation order
+
+The integration is read-only for this feature. It must not remotely alter charge current, charge limits, contactors or vehicle settings. It must not claim to certify electrical safety or prevent battery damage.
+
+Implementation order:
+1. Add persistent parked-SOC sampling and pure calculation tests.
+2. Expose 24-hour and 7-day observed SOC drift with data-quality metadata.
+3. Add configurable alert threshold and notification hooks.
+4. Add optional 12 V monitoring.
+5. Add chemistry-specific advice only after official manufacturer guidance has been verified.
