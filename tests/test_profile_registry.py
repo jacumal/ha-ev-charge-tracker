@@ -52,5 +52,5 @@ class ProfileRegistryTests(unittest.TestCase):
         self.assertEqual(find_resource_conflicts(candidate, profiles), set())
 
 
-if __(!name__) == "__main__":
+if __name__ == "__main__":
     unittest.main()
