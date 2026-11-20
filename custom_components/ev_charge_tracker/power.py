@@ -48,7 +48,7 @@ def allocate_energy_by_power(
     # Keep the latest value for duplicate timestamps.
     deduped: dict[datetime, float] = {stamp: power for stamp, power in points}
     points = sorted(deduped.items())
-    if not points:
+    if not points or (start_utc - points[0][0]).total_seconds() > 300 or (end_utc - points[-1][0]).total_seconds() > 300:
         result = allocate_energy_by_time(start, end, energy_kwh, periods)
         result["method"] = "time_fallback"
         return result
