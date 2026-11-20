@@ -95,9 +95,11 @@ and energy that could not be priced. The cost sensor exposes:
 - `cost_status`: `complete`, `partial`, or `unknown`.
 - `priced_energy_kwh` and `unpriced_energy_kwh`: energy coverage of the cost.
 - `tariff_breakdown` and `tariff_estimated`: period-level amounts and whether
-  time-proportional allocation was used.
+  allocation is estimated.
+- `tariff_allocation_method`: `power` when a usable power profile was integrated,
+  or `time_fallback` when elapsed time was used instead.
 
 A partial amount is never presented as the complete session cost. Missing or
 invalid price data does not erase known priced segments and is never replaced
 with zero. Tariff periods currently use the profile's selected currency and
-manually entered per-kWh prices.
+manually entered per-kWh prices. Dynamic per-period price sensors remain planned.
