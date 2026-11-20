@@ -83,6 +83,27 @@ class ConfigEntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
         self.entry.async_on_unload.assert_called_once()
 
 
+    async def test_unload_entry_shuts_down_and_removes_profile(self):
+        self.hass.data[DOMAIN] = {"profile-1": self.coordinator}
+        result = await integration.async_unload_entry(self.hass, self.entry)
+
+        self.assertTrue(result)
+        self.hass.config_entries.async_unload_platforms.assert_awaited_once_with(
+            self.entry, integration.PLATFORMS
+        )
+        self.coordinator.async_shutdown.assert_awaited_once()
+        self.assertNotIn(self.entry.entry_id, self.hass.data[DOMAIN])
+
+    async def test_failed_platform_unload_keeps_coordinator_registered(self):
+        self.hass.data[DOMAIN] = {"profile-1": self.coordinator}
+        self.hass.config_entries.async_unload_platforms.return_value = False
+
+        result = await integration.async_unload_entry(self.hass, self.entry)
+
+        self.assertFalse(result)
+        self.coordinator.async_shutdown.assert_not_awaited()
+        self.assertIs(self.hass.data[DOMAIN][self.entry.entry_id], self.coordinator)
+
     async def test_restart_restores_pending_session_and_resumes_when_charger_is_on(self):
         from datetime import datetime, timezone
         import custom_components.ev_charge_tracker.coordinator as coordinator_module
