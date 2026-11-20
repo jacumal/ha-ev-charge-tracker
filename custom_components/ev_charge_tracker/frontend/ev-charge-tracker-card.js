@@ -85,6 +85,8 @@ class EVChargeTrackerCard extends HTMLElement {
     const charging = status === "charging";
     const energy = this._number(e.energy);
     const cost = this._number(e.cost);
+    const knownCost = Number(this._attr(e.cost, "known_cost", NaN));
+    const hasKnownCost = Number.isFinite(knownCost);
     const socStart = this._number(e.soc_start);
     const socEnd = this._number(e.soc_end);
     const increase = this._number(e.soc_increase);
@@ -160,7 +162,7 @@ class EVChargeTrackerCard extends HTMLElement {
               <div class="metric"><strong>${increase === null ? "—" : "+" + this._fmt(increase,1) + " pp"}</strong><span>Aumento batería</span></div>
               <div class="metric"><strong>${this._duration(duration)}</strong><span>Duración</span></div>
               <div class="metric"><strong>${energy === null ? "—" : this._fmt(energy,2) + " " + energyUnit}</strong><span>Energía</span></div>
-              <div class="metric"><strong>${cost === null ? "—" : this._fmt(cost,2) + " " + currency}</strong><span>Coste</span></div>
+              <div class="metric"><strong>${cost !== null ? this._fmt(cost,2) + " " + currency : (hasKnownCost ? this._fmt(knownCost,2) + " " + currency : "—")}</strong><span>${cost !== null ? "Coste total" : (hasKnownCost ? "Coste conocido · parcial" : "Coste")}</span></div>
               <div class="metric"><strong>${({ complete: "Completo", in_progress: "En curso", partial: "Parcial", unknown: "Sin datos" })[costStatus] || "Sin datos"}</strong><span>Estado del coste</span></div>
               <div class="metric"><strong>${tariffEstimated ? "Estimado" : "Medido"}</strong><span>Reparto tarifa</span></div>
             </div>
@@ -174,7 +176,7 @@ class EVChargeTrackerCard extends HTMLElement {
             <div class="row">
               <div><div class="row-date">${this._date(item.started_at)}</div><div class="row-sub">${item.soc_start == null ? "—" : this._fmt(item.soc_start,0)+"%"} → ${item.soc_end == null ? "—" : this._fmt(item.soc_end,0)+"%"}</div></div>
               <div class="row-value">${item.energy_kwh == null ? "—" : this._fmt(item.energy_kwh,2)+" kWh"}<small>Energía</small></div>
-              <div class="row-value">${item.cost == null ? "—" : this._fmt(item.cost,2)+" "+this._escape(item.currency || currency)}<small>Coste</small></div>
+              <div class="row-value">${item.cost != null ? this._fmt(item.cost,2)+" "+this._escape(item.currency || currency) : (item.known_cost != null ? this._fmt(item.known_cost,2)+" "+this._escape(item.currency || currency) : "—")}<small>${item.cost_status === "partial" ? "Coste parcial" : (item.cost_status === "unknown" ? "Sin coste" : "Coste")}</small></div>
             </div>`).join("") : '<div class="empty">Todavía no hay cargas consolidadas. Cuando termine la primera sesión aparecerá aquí.</div>'}
           ${diagnostic ? `<div class="diagnostic">${this._escape(diagnostic)}</div>` : ""}
         </div>
