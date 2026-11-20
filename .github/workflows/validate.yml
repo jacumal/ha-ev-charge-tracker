@@ -24,6 +24,8 @@ jobs:
           pip install homeassistant pytest
       - name: Compile Python files
         run: python -m compileall -q custom_components tests
+      - name: Validate Lovelace card JavaScript syntax
+        run: node --check custom_components/ev_charge_tracker/frontend/ev-charge-tracker-card.js
       - name: Validate translation files
         run: |
           python - <<'PY'
