@@ -29,7 +29,7 @@ Track charging sessions, delivered energy, battery state of charge (SOC), mileag
 - Duration, electricity cost, history and diagnostics.
 - Multiple vehicles, chargers and charging profiles.
 - Guided graphical sensor setup with explanations, unit validation and examples.
-- An integrated custom Lovelace card, bundled with the integration and styled with Bubble Card / Apple-inspired design principles. No separate Bubble Card installation is required.
+- An integrated custom Lovelace card, bundled with the integration. No separate Bubble Card installation is required.
 
 ## Development
 
@@ -116,3 +116,53 @@ Do not use the first test to record a real charging session. Install the integra
 Verify, in order: setup; start on ON; energy accumulation; no finalization on unknown/unavailable; stop on OFF; configured finalization behavior; restart recovery; and persisted history after restart. Compare calculated energy and cost with the known test values. Do not connect the test profile to the production charger until these checks pass.
 
 A live test on the user's Home Assistant installation still requires installing the branch and confirming its actual entity IDs and sensor units. CI success alone is not sufficient evidence of operational correctness.
+
+
+## Bundled Lovelace card
+
+The repository now includes the first functional version of the `EV Charge Tracker`
+custom card at `custom_components/ev_charge_tracker/frontend/ev-charge-tracker-card.js`.
+It is served by the integration at:
+
+```text
+/ev_charge_tracker/ev-charge-tracker-card.js
+```
+
+After installing/updating the integration and restarting Home Assistant:
+
+1. Open **Settings → Dashboards → Resources**.
+2. Add a JavaScript module resource with URL
+   `/ev_charge_tracker/ev-charge-tracker-card.js`.
+3. Add a **Manual** card to a dashboard and use the example below.
+4. Replace each entity ID with the matching entity created by your EV Charge Tracker profile.
+
+The card does not depend on Bubble Card or any other frontend custom card. It displays
+the current/latest session, SOC start/end and increase, duration, energy, cost,
+cost quality, tariff allocation quality, diagnostic text and persistent session history.
+Missing values remain shown as unavailable rather than being displayed as zero.
+The visual editor accepts the entity IDs for each semantic role.
+
+### Lovelace YAML example
+
+```yaml
+type: custom:ev-charge-tracker-card
+name: Mi vehículo
+max_history: 8
+entities:
+  status: sensor.mi_vehiculo_estado_de_carga
+  energy: sensor.mi_vehiculo_energia_de_la_carga
+  cost: sensor.mi_vehiculo_coste_de_la_carga
+  soc_start: sensor.mi_vehiculo_bateria_al_inicio
+  soc_end: sensor.mi_vehiculo_bateria_al_final
+  soc_increase: sensor.mi_vehiculo_aumento_de_bateria
+  duration: sensor.mi_vehiculo_duracion_de_la_carga
+  history: sensor.mi_vehiculo_historico_de_cargas
+```
+
+Entity IDs above are examples only. Use the IDs shown in **Settings → Devices & services
+→ EV Charge Tracker → your vehicle device**. The history sensor exposes the persistent
+`sessions` array plus `current_session`, `latest_session` and `diagnostic` attributes.
+
+The card is a first implementation and still requires browser rendering checks across
+Home Assistant themes and screen sizes before it can be considered validated for the
+real charging test.
