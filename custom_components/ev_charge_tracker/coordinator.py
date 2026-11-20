@@ -12,6 +12,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .tariff import allocate_energy_by_time, validate_periods
+from .power import allocate_energy_by_power
 from .units import convert_unit, normalize_currency_code
 
 from .const import (
@@ -23,6 +24,7 @@ from .const import (
     CONF_ODOMETER_UNIT,
     CONF_PRICE,
     CONF_PRICE_ENTITY,
+    CONF_POWER_ENTITY,
     CONF_PRICE_MODE,
     CONF_SOC_ENTITY,
     DOMAIN,
@@ -118,7 +120,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             self.config[CONF_CHARGING_ENTITY],
             self.config[CONF_ENERGY_ENTITY],
         ]
-        for key in (CONF_SOC_ENTITY, CONF_ODOMETER_ENTITY, CONF_PRICE_ENTITY):
+        for key in (CONF_SOC_ENTITY, CONF_ODOMETER_ENTITY, CONF_PRICE_ENTITY, CONF_POWER_ENTITY):
             if self.config.get(key):
                 entities.append(self.config[key])
         self._unsub.append(
@@ -221,9 +223,13 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             "tariff_estimated": False,
             "last_energy_sample_kwh": energy_baseline,
             "last_energy_sample_at": now if energy_baseline is not None else None,
+            "power_samples": [],
         }
         self.data["status"] = "charging"
         self.data["diagnostic"] = "Sesión iniciada"
+        initial_power = self._read_power_kw()
+        if initial_power is not None:
+            self.data["session"]["power_samples"].append({"at": now, "power_kw": initial_power})
         if (
             self.config.get(CONF_ENERGY_MODE) != ENERGY_MODE_CUMULATIVE
             and energy_reading is not None
@@ -253,6 +259,14 @@ class EVChargeCoordinator(DataUpdateCoordinator):
     def _capture_measurements(self, entity_id: str, raw_value: str) -> None:
         """Update energy, SOC maximum and odometer readings."""
         session = self.data["session"]
+        if self.config.get(CONF_POWER_ENTITY) == entity_id:
+            power = self._read_power_kw()
+            if power is not None:
+                samples = session.setdefault("power_samples", [])
+                samples.append({"at": dt_util.utcnow().isoformat(), "power_kw": power})
+                if len(samples) > 2000:
+                    session["power_samples"] = samples[-2000:]
+
         if entity_id == self.config[CONF_ENERGY_ENTITY]:
             value = self._read_energy_kwh()
             if value is not None:
@@ -333,10 +347,17 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             self.data["diagnostic"] = "Tarifas no válidas: tramo no contabilizado"
             return
         try:
-            allocation = allocate_energy_by_time(
-                dt_util.as_local(start_utc), dt_util.as_local(end_utc),
-                energy_delta, periods
-            )
+            start_local = dt_util.as_local(start_utc)
+            end_local = dt_util.as_local(end_utc)
+            power_samples = session.get("power_samples") or []
+            if self.config.get(CONF_POWER_ENTITY) and power_samples:
+                allocation = allocate_energy_by_power(
+                    start_local, end_local, energy_delta, periods, power_samples
+                )
+            else:
+                allocation = allocate_energy_by_time(
+                    start_local, end_local, energy_delta, periods
+                )
         except ValueError as err:
             session["cost_complete"] = False
             session["unpriced_energy_kwh"] = round(
@@ -345,6 +366,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             self.data["diagnostic"] = str(err)
             return
         session["tariff_estimated"] = True
+        session["tariff_allocation_method"] = allocation.get("method", "time")
         buckets = session.setdefault("tariff_breakdown", {})
         for item in allocation["breakdown"]:
             bucket = buckets.setdefault(item["period"], {
@@ -354,6 +376,21 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             bucket["energy_kwh"] += item["energy_kwh"]
             bucket["cost"] += item["cost"]
             session["priced_energy_kwh"] = round(session.get("priced_energy_kwh", 0.0) + item["energy_kwh"], 6)
+
+    def _read_power_kw(self) -> float | None:
+        """Read and normalize an optional instantaneous power sensor to kW."""
+        entity_id = self.config.get(CONF_POWER_ENTITY)
+        state = self.hass.states.get(entity_id) if entity_id else None
+        if state is None:
+            return None
+        value = _number(state.state)
+        if value is None or value < 0:
+            return None
+        unit = state.attributes.get("unit_of_measurement") or ""
+        try:
+            return convert_unit(value, "power", unit, "kW")
+        except ValueError:
+            return None
 
     def _read_energy_kwh(self) -> float | None:
         """Read the configured energy counter and normalize Wh/kWh to kWh."""
