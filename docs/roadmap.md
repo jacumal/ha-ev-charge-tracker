@@ -12,11 +12,13 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [x] Persistent coordinator storage and session/history data model.
 - [x] Charging-state transitions; unknown/unavailable are not treated as OFF.
 - [x] Initial session recovery/reconciliation after HA restart.
-- [ ] Complete recovery matrix for restart during every lifecycle state, duplicate prevention and stale readings.
-- [ ] Full lifecycle validation in a real HA instance.
+- [x] Explicit recovery transition matrix for ON/OFF/unknown/unavailable, including start, continue, resume, stop and preserve decisions.
+- [x] Prevent duplicate session start/finalization through guarded lifecycle transitions and single active-session ownership.
+- [x] Reject stale/future energy, SOC and odometer readings; require post-stop odometer observation for odometer-based finalization.
+- [ ] Full lifecycle validation in a real HA instance, including restart at each transition and persistence failure/recovery.
 - [ ] Multi-profile architecture and unambiguous simultaneous-session assignment.
 
-**Status: Partial.** Core exists; recovery edge cases and multi-profile behavior remain open.
+**Status: Partial.** Recovery guards and automated transition/freshness tests are implemented on PR #3; live Home Assistant restart validation and multi-profile behavior remain open.
 
 ## 2. Vehicles and chargers
 - [x] User-selected charging-state, energy, optional SOC, odometer, power and price entities.
