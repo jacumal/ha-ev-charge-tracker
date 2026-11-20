@@ -16,7 +16,8 @@
           "price_mode": "Origen del precio eléctrico",
           "price_per_kwh": "Precio fijo por kWh",
           "price_entity": "Precio por kWh (sensor, opcional según origen)",
-          "finalization": "Cuándo consolidar una carga"
+          "finalization": "Cuándo consolidar una carga",
+          "power_entity": "Potencia instantánea de carga (W/kW, opcional)"
         },
         "data_description": {
           "vehicle_name": "Nombre identificativo del vehículo. Ejemplo: Leapmotor C10. Se usará en el dispositivo y en los nombres de las entidades creadas por esta integración.",
@@ -30,7 +31,8 @@
           "price_mode": "Define de dónde sale el precio de la electricidad. El precio se guarda en cada sesión para que cambiar la tarifa en el futuro no modifique el coste histórico.",
           "price_per_kwh": "Solo para precio manual fijo. Introduce el coste total por kWh en la moneda que corresponda, expresado por ahora como €/kWh. Ejemplo: 0.18. Si tu tarifa cambia por horas, no uses un precio medio como si fuera exacto: configura periodos horarios cuando esté disponible el editor de tarifas.",
           "price_entity": "Solo para precio desde sensor. Debe ser un sensor numérico cuyo estado sea el precio por kWh y cuya unidad sea €/kWh (por ejemplo 0.18). No selecciones el coste acumulado de la factura, potencia contratada ni precio por MWh. Se toma una instantánea al inicio de la sesión; si el sensor está unavailable o la unidad no coincide, el coste puede quedar sin calcular. La lectura actual no reconstruye todavía cambios de precio dentro de una misma carga.",
-          "finalization": "Elige cuándo se cierra y se guarda una sesión. Por odómetro: espera a que la distancia total aumente. Inmediata: cierra al pasar el estado a OFF. Manual: deja la sesión pendiente hasta pulsar el botón «Consolidar última carga» después de comprobar los datos."
+          "finalization": "Elige cuándo se cierra y se guarda una sesión. Por odómetro: espera a que la distancia total aumente. Inmediata: cierra al pasar el estado a OFF. Manual: deja la sesión pendiente hasta pulsar el botón «Consolidar última carga» después de comprobar los datos.",
+          "power_entity": "Sensor opcional de potencia instantánea en W o kW. Mejora el reparto de energía entre periodos tarifarios; el contador de energía sigue siendo la referencia del total entregado. Si no está disponible, se utiliza el reparto temporal y se marca como estimación."
         }
       }
     },
@@ -104,7 +106,11 @@
           "price_mode": "Electricity price source",
           "price_per_kwh": "Fixed price per kWh",
           "price_entity": "Price sensor (€/kWh)",
-          "finalization": "When to finalize a charge"
+          "finalization": "When to finalize a charge",
+          "power_entity": "Potencia instantánea de carga (W/kW, opcional)"
+        },
+        "data_description": {
+          "power_entity": "Sensor opcional de potencia instantánea en W o kW. Mejora el reparto de energía entre periodos tarifarios; el contador de energía sigue siendo la referencia del total entregado. Si no está disponible, se utiliza el reparto temporal y se marca como estimación."
         }
       },
       "tariffs": {
