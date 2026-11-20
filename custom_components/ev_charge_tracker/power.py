@@ -48,7 +48,17 @@ def allocate_energy_by_power(
     # Keep the latest value for duplicate timestamps.
     deduped: dict[datetime, float] = {stamp: power for stamp, power in points}
     points = sorted(deduped.items())
-    if not points or (start_utc - points[0][0]).total_seconds() > 300 or (end_utc - points[-1][0]).total_seconds() > 300:
+    # Require telemetry close to both interval edges. Use absolute distance so
+    # a future-dated sample cannot incorrectly make an old edge look fresh.
+    start_distance = min(
+        (abs((stamp - start_utc).total_seconds()) for stamp, _ in points),
+        default=float("inf"),
+    )
+    end_distance = min(
+        (abs((stamp - end_utc).total_seconds()) for stamp, _ in points),
+        default=float("inf"),
+    )
+    if not points or start_distance > 300 or end_distance > 300:
         result = allocate_energy_by_time(start, end, energy_kwh, periods)
         result["method"] = "time_fallback"
         return result
