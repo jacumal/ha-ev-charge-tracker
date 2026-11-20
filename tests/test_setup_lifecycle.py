@@ -5,7 +5,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
 
 from custom_components.ev_charge_tracker import DOMAIN
-from custom_components.ev_charge_tracker import __init__ as integration
+import custom_components.ev_charge_tracker as integration
 
 
 class ConfigEntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
