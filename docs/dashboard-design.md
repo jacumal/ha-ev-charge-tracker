@@ -95,6 +95,7 @@ implementation is responsive and uses Home Assistant theme variables.
 Remaining acceptance checks before real charging:
 - Verify card registration and rendering in a real Home Assistant frontend.
 - Check dark/light themes, narrow mobile widths, long profile names and empty history.
+- Verify the visual editor's entity pickers populate and persist all eight mappings in the Lovelace editor.
 - Confirm current and completed session presentation against the coordinator's actual lifecycle states.
 - Confirm the history list and cost-quality labels with complete, partial and unknown cost records.
 - Verify resource loading after an integration update and restart.
