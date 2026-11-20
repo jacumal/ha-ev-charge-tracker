@@ -1,12 +1,12 @@
 # Integrated Lovelace card design
 
-**Status:** design brief; implementation follows the integration's entity model.
+**Status:** first functional implementation added at `custom_components/ev_charge_tracker/frontend/ev-charge-tracker-card.js`; browser and live Home Assistant validation still required.
 
 ## Packaging decision
 
 The Lovelace card is part of this integration's repository and distribution. It is not a separate project and must not require users to install Bubble Card.
 
-The frontend card will be a custom JavaScript module bundled with the integration (for example, under `custom_components/ev_charge_tracker/frontend/`). The integration will expose the module as a static frontend resource. The setup/documentation should explain any Home Assistant resource registration step that cannot safely be automated for the user's Lovelace storage mode.
+The frontend card is a custom JavaScript module bundled with the integration under `custom_components/ev_charge_tracker/frontend/`. The integration exposes it at `/ev_charge_tracker/ev-charge-tracker-card.js`. The resource must currently be added in Settings → Dashboards → Resources.
 
 The card's visual language should take inspiration from Bubble Card and Apple design, but its implementation and assets are owned by this project. The integration's backend must remain fully functional if the user chooses not to use the card.
 
@@ -64,7 +64,7 @@ Preserve this information hierarchy while improving responsive behavior and ensu
 
 ## Entity contract for the card
 
-Before producing the final card implementation, settle stable entity IDs and attributes. The card must bind to entities created for a configured vehicle/profile. Avoid guessed or hard-coded entity IDs across installations.
+The card receives entity IDs through its Lovelace configuration; it does not hard-code installation-specific IDs. Its visual editor accepts the eight semantic entity mappings. The history entity supplies persistent `sessions`, `current_session`, `latest_session` and `diagnostic` attributes.
 
 Prefer a compact set of well-defined integration entities plus a structured history source. The card should support selecting the vehicle/profile it displays and explain configuration errors clearly.
 
@@ -75,3 +75,26 @@ Prefer a compact set of well-defined integration entities plus a structured hist
 - If manual resource registration is required for a particular Lovelace mode, provide the exact URL and steps.
 - The card should update alongside the integration through HACS/manual integration updates; users should not need a second repository or separate Bubble Card installation.
 - Keep the backend independent of the frontend card.
+
+
+## Implemented card contract
+
+The first card implementation reads these entities:
+- `status`: current lifecycle state.
+- `energy`: current or latest session energy.
+- `cost`: current or latest session cost and cost-quality attributes.
+- `soc_start`, `soc_end`, `soc_increase`: battery summary.
+- `duration`: elapsed/current session duration.
+- `history`: persistent history sensor with session records in attributes.
+
+The card shows the current/latest charge, SOC rings, energy, cost, duration,
+timestamps, cost completeness, tariff-estimation state, diagnostics and recent
+history. It handles missing states without rendering them as zero. The initial
+implementation is responsive and uses Home Assistant theme variables.
+
+Remaining acceptance checks before real charging:
+- Verify card registration and rendering in a real Home Assistant frontend.
+- Check dark/light themes, narrow mobile widths, long profile names and empty history.
+- Confirm current and completed session presentation against the coordinator's actual lifecycle states.
+- Confirm the history list and cost-quality labels with complete, partial and unknown cost records.
+- Verify resource loading after an integration update and restart.
