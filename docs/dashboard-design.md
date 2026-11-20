@@ -89,13 +89,17 @@ The first card implementation reads these entities:
 
 The card shows the current/latest charge, SOC rings, energy, cost, duration,
 timestamps, cost completeness, tariff-estimation state, diagnostics and recent
-history. It handles missing states without rendering them as zero. The initial
-implementation is responsive and uses Home Assistant theme variables.
+history. Missing numeric values are not rendered as zero. A missing or
+unavailable status entity is explicitly labelled as unconfigured/unavailable;
+it must never be presented as an actual idle state. A non-estimated tariff is
+labelled "Precio aplicado", not "Medido", because the integration calculates
+cost from configured prices and energy rather than measuring a monetary value.
+The initial implementation is responsive and uses Home Assistant theme variables.
 
 Remaining acceptance checks before real charging:
 - Verify card registration and rendering in a real Home Assistant frontend.
 - Check dark/light themes, narrow mobile widths, long profile names and empty history.
 - Verify the visual editor's entity pickers populate and persist all eight mappings in the Lovelace editor.
-- Confirm current and completed session presentation against the coordinator's actual lifecycle states.
+- Confirm current and completed session presentation against the coordinator's actual lifecycle states, including missing, unknown and unavailable status entities.
 - Confirm the history list and cost-quality labels with complete, partial and unknown cost records.
 - Verify resource loading after an integration update and restart.
