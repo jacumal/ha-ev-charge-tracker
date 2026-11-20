@@ -108,7 +108,7 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             {"value": ENERGY_MODE_SESSION, "label": "Energía de la sesión (se reinicia en cada carga)"},
                             {"value": ENERGY_MODE_CUMULATIVE, "label": "Contador acumulativo (lectura total que nunca se reinicia)"}
                         ],
-                        mode=selector.SelectSelectorMode.DROPDOWN,
+                        mode=selector.SelectSelectorMode.LIST,
                     )
                 ),
                 vol.Optional(CONF_SOC_ENTITY): selector.EntitySelector(
@@ -123,7 +123,7 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             {"value": "km", "label": "Kilómetros"},
                             {"value": "mi", "label": "Millas"},
                         ],
-                        mode=selector.SelectSelectorMode.DROPDOWN,
+                        mode=selector.SelectSelectorMode.LIST,
                     )
                 ),
                 vol.Required(CONF_PRICE_MODE, default=PRICE_MODE_MANUAL): selector.SelectSelector(
@@ -189,7 +189,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                         {"value": "tariffs", "label": "Tarifas eléctricas"},
                         {"value": "units", "label": "Unidades y moneda"},
                     ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    mode=selector.SelectSelectorMode.LIST,
                 )
             )
         })
@@ -294,7 +294,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             return selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[{"value": value, "label": label} for value, label in values],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    mode=selector.SelectSelectorMode.LIST,
                 )
             )
         return vol.Schema({
@@ -425,7 +425,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                         {"value": "2", "label": "Dos periodos"},
                         {"value": "3", "label": "Tres periodos"},
                     ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    mode=selector.SelectSelectorMode.LIST,
                 )
             )
         })
