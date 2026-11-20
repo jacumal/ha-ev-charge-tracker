@@ -284,6 +284,14 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                         self._allocate_tariff_delta(
                             session, datetime.fromisoformat(previous_at), now, delta
                         )
+                        # Preserve only the latest sample as the next interval's
+                        # starting reference; the previous profile is now consumed.
+                        samples = session.get("power_samples", [])
+                        eligible = [
+                            item for item in samples
+                            if datetime.fromisoformat(item["at"]) <= now
+                        ]
+                        session["power_samples"] = eligible[-1:] if eligible else []
                     session["energy_kwh"] = round(
                         (session.get("energy_kwh") or 0.0) + delta, 4
                     )
