@@ -15,11 +15,11 @@ The project owner has set this order. Work must follow it; do not start real-sen
 ## Current evidence
 
 - The branch contains a first custom Lovelace card, static resource serving and a README example. No live Home Assistant browser validation has been recorded.
-- The card editor currently uses text inputs for entity IDs. Entity pickers and end-to-end editor validation are still needed.
+- The card editor now uses Home Assistant `ha-entity-picker` controls for all eight semantic entity mappings. End-to-end editor validation in a live HA frontend is still needed.
 - Coordinator recovery logic and unit tests exist for freshness, stale odometer observations, counter resets and the recovery decision matrix. This is not a substitute for lifecycle integration tests.
 - A read-only profile registry and conflict detection exist. The config flow does not yet provide complete reuse/selection or shared-charger arbitration.
 - No daily/weekly/monthly statistics implementation or statistics-specific tests have been found in the current development scope.
-- A JavaScript syntax check has been added to CI. A successful CI run for the final candidate has not yet been confirmed.
+- A JavaScript syntax check has been added to CI. The Lovelace editor now exposes native entity selectors; browser compatibility and persistence still need validation. A successful CI run for the final candidate has not yet been confirmed.
 
 ## Rules for the first real test
 
