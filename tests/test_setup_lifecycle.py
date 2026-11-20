@@ -50,6 +50,26 @@ class ConfigEntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaisesRegex(RuntimeError, "platform setup failed"):
                 await integration.async_setup_entry(self.hass, self.entry)
 
+        self.hass.config_entries.async_unload_platforms.assert_awaited_once_with(
+            self.entry, integration.PLATFORMS
+        )
+        self.coordinator.async_shutdown.assert_awaited_once()
+        self.assertNotIn(self.entry.entry_id, self.hass.data[DOMAIN])
+
+    async def test_platform_cleanup_failure_preserves_original_setup_error(self):
+        self.hass.config_entries.async_forward_entry_setups.side_effect = RuntimeError(
+            "platform setup failed"
+        )
+        self.hass.config_entries.async_unload_platforms.side_effect = RuntimeError(
+            "platform cleanup failed"
+        )
+        with patch.object(integration, "EVChargeCoordinator", return_value=self.coordinator):
+            with self.assertRaisesRegex(RuntimeError, "platform setup failed"):
+                await integration.async_setup_entry(self.hass, self.entry)
+
+        self.hass.config_entries.async_unload_platforms.assert_awaited_once_with(
+            self.entry, integration.PLATFORMS
+        )
         self.coordinator.async_shutdown.assert_awaited_once()
         self.assertNotIn(self.entry.entry_id, self.hass.data[DOMAIN])
 
