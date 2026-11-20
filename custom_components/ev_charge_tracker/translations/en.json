@@ -57,7 +57,7 @@
       },
       "periods": {
         "title": "Edit tariff periods",
-        "description": "Set a name, start/end time, weekdays and price for every period. Use 00:00 as midnight; 24:00 is also accepted as an end boundary. All periods together must cover the full week without overlaps.\n\nValidation: {schedule_error}",
+        "description": "Set a name, start/end time, weekdays and price for every period. Use 00:00 as midnight; 24:00 is also accepted as an end boundary. All periods together must cover the full week without overlaps.\n\nValidation: {schedule_error}\n\nFor each period, use a manual price or select a price sensor. Sensor changes are timestamped and applied to energy in the corresponding interval.",
         "data": {
           "period_1_name": "Period 1 name",
           "period_1_start": "Period 1 start time",
@@ -73,7 +73,10 @@
           "period_3_start": "Period 3 start time",
           "period_3_end": "Period 3 end time",
           "period_3_price": "Period 3 price (€/kWh)",
-          "period_3_days": "Days for period 3"
+          "period_3_days": "Days for period 3",
+          "period_1_price_entity": "Period 1 price sensor (optional)",
+          "period_2_price_entity": "Period 2 price sensor (optional)",
+          "period_3_price_entity": "Period 3 price sensor (optional)"
         },
         "data_description": {
           "period_1_name": "Short label shown in the session cost breakdown.",
@@ -90,7 +93,10 @@
           "period_3_start": "Local start time in HH:MM format. The start is inclusive.",
           "period_3_end": "Local end time in HH:MM format. The end is exclusive; use 00:00 or 24:00 for midnight.",
           "period_3_price": "Electricity price for each kWh attributed to this period. Use a non-negative €/kWh value.",
-          "period_3_days": "Select the weekdays on which this time band applies. The complete weekly schedule must have no gaps or overlaps."
+          "period_3_days": "Select the weekdays on which this time band applies. The complete weekly schedule must have no gaps or overlaps.",
+          "period_1_price_entity": "Optional · Select a numeric Home Assistant sensor reporting this period's price in the profile currency per kWh (for example EUR/kWh). When selected, it replaces the manual price and changes are timestamped. If the sensor becomes unavailable or reports an invalid unit/value, affected energy remains unpriced; an old price is never silently reused.",
+          "period_2_price_entity": "Optional · Select a numeric Home Assistant sensor reporting this period's price in the profile currency per kWh (for example EUR/kWh). When selected, it replaces the manual price and changes are timestamped. If the sensor becomes unavailable or reports an invalid unit/value, affected energy remains unpriced; an old price is never silently reused.",
+          "period_3_price_entity": "Optional · Select a numeric Home Assistant sensor reporting this period's price in the profile currency per kWh (for example EUR/kWh). When selected, it replaces the manual price and changes are timestamped. If the sensor becomes unavailable or reports an invalid unit/value, affected energy remains unpriced; an old price is never silently reused."
         }
       },
       "profile": {
