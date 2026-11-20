@@ -13,7 +13,9 @@ class EVChargeTrackerCard extends HTMLElement {
 
   set hass(hass) {
     this._hass = hass;
-    if (this.shadowRoot) this._render();
+    // Home Assistant may assign hass after setConfig, before the shadow root
+    // exists. _render creates the root when needed, so do not guard on it.
+    if (this.config) this._render();
   }
 
   getCardSize() { return 5; }
