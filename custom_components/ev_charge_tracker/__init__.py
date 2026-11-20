@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
@@ -11,6 +14,7 @@ from .profile_registry import build_profile_registry
 
 EVChargeConfigEntry = ConfigEntry[EVChargeCoordinator]
 REGISTRY_DATA_KEY = "_profile_registry"
+CARD_URL = "/ev_charge_tracker/ev-charge-tracker-card.js"
 
 
 def _refresh_profile_registry(hass: HomeAssistant) -> None:
@@ -21,9 +25,13 @@ def _refresh_profile_registry(hass: HomeAssistant) -> None:
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
-    """Set up the integration."""
+    """Set up the integration and serve its bundled Lovelace card."""
     hass.data.setdefault(DOMAIN, {})
     _refresh_profile_registry(hass)
+    card_path = Path(__file__).parent / "frontend" / "ev-charge-tracker-card.js"
+    await hass.http.async_register_static_paths(
+        [StaticPathConfig(CARD_URL, str(card_path), cache_headers=True)]
+    )
     return True
 
 
