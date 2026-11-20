@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 from custom_components.ev_charge_tracker.coordinator import (
     _energy_delta,
+    _session_recovery_action,
     _state_is_fresh,
     _state_updated_at_or_after,
 )
@@ -53,6 +54,34 @@ class SessionRecoveryGuardTests(unittest.TestCase):
         self.assertIsNone(_energy_delta(12.5, 0.2))
         self.assertEqual(_energy_delta(12.5, 12.5), 0.0)
         self.assertAlmostEqual(_energy_delta(12.5, 13.1), 0.6)
+
+    def test_recovery_matrix_preserves_session_when_charger_state_is_unknown(self):
+        active = {"ended_at": None, "status": "charging"}
+        pending = {"ended_at": "2026-11-20T08:00:00+00:00", "status": "pending_finalization"}
+        for state in (None, "unknown", "unavailable"):
+            with self.subTest(state=state):
+                self.assertEqual(_session_recovery_action(state, active), "preserve")
+                self.assertEqual(_session_recovery_action(state, pending), "preserve")
+                self.assertEqual(_session_recovery_action(state, None), "preserve")
+
+    def test_recovery_matrix_starts_only_when_on_and_no_session_exists(self):
+        self.assertEqual(_session_recovery_action("on", None), "start")
+        self.assertEqual(
+            _session_recovery_action("on", {"ended_at": None}),
+            "continue",
+        )
+
+    def test_recovery_matrix_resumes_pending_session_when_charging_returns(self):
+        pending = {"ended_at": "2026-11-20T08:00:00+00:00"}
+        self.assertEqual(_session_recovery_action("on", pending), "resume")
+
+    def test_recovery_matrix_stops_active_session_when_charger_is_off(self):
+        active = {"ended_at": None}
+        self.assertEqual(_session_recovery_action("off", active), "stop")
+        self.assertEqual(
+            _session_recovery_action("off", {"ended_at": "2026-11-20T08:00:00+00:00"}),
+            "idle",
+        )
 
 
 if __name__ == "__main__":
