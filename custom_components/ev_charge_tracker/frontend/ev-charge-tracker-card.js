@@ -5,12 +5,9 @@ const CARD_VERSION = "0.1.0";
 
 class EVChargeTrackerCard extends HTMLElement {
   setConfig(config) {
-    if (!config || !config.entities || !config.entities.status || !config.entities.energy ||
-        !config.entities.cost || !config.entities.soc_start || !config.entities.soc_end ||
-        !config.entities.soc_increase || !config.entities.duration || !config.entities.history) {
-      throw new Error("Configura entities: status, energy, cost, soc_start, soc_end, soc_increase, duration e history.");
-    }
-    this.config = config;
+    // Home Assistant calls setConfig with the stub while the user is still
+    // configuring the card. Keep incomplete configurations editable.
+    this.config = { ...config, entities: { ...(config?.entities || {}) } };
     this._render();
   }
 
@@ -78,7 +75,7 @@ class EVChargeTrackerCard extends HTMLElement {
   _render() {
     if (!this.config || !this._hass) return;
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
-    const e = this.config.entities;
+    const e = this.config.entities || {};
     const status = this._value(e.status, "idle");
     const statusLabels = {
       idle: "En espera", charging: "Cargando", finishing: "Finalizando",
@@ -97,7 +94,9 @@ class EVChargeTrackerCard extends HTMLElement {
     const latest = this._attr(e.history, "latest_session", null);
     const diagnostic = this._attr(e.history, "diagnostic", "");
     const record = current || latest || {};
-    const currency = this._attr(e.cost, "currency", this._attr(e.cost, "unit_of_measurement", "EUR"));
+    const currency = this._attr(e.cost, "currency", this._state(e.cost)?.attributes?.unit_of_measurement || "EUR");
+    const costStatus = this._attr(e.cost, "cost_status", record.cost_status || "unknown");
+    const tariffEstimated = this._attr(e.cost, "tariff_estimated", record.tariff_estimated || false);
     const energyUnit = this._attr(e.energy, "unit_of_measurement", "kWh");
     const title = this.config.name || this.config.vehicle || "EV Charge Tracker";
     const start = this._date(record.started_at);
@@ -162,8 +161,8 @@ class EVChargeTrackerCard extends HTMLElement {
               <div class="metric"><strong>${this._duration(duration)}</strong><span>Duración</span></div>
               <div class="metric"><strong>${energy === null ? "—" : this._fmt(energy,2) + " " + energyUnit}</strong><span>Energía</span></div>
               <div class="metric"><strong>${cost === null ? "—" : this._fmt(cost,2) + " " + currency}</strong><span>Coste</span></div>
-              <div class="metric"><strong>${record.cost_status === "partial" ? "Parcial" : (record.cost_status === "unknown" ? "—" : "OK")}</strong><span>Estado del coste</span></div>
-              <div class="metric"><strong>${record.tariff_estimated ? "Estimado" : "Medido"}</strong><span>Reparto tarifa</span></div>
+              <div class="metric"><strong>${({ complete: "Completo", in_progress: "En curso", partial: "Parcial", unknown: "Sin datos" })[costStatus] || "Sin datos"}</strong><span>Estado del coste</span></div>
+              <div class="metric"><strong>${tariffEstimated ? "Estimado" : "Medido"}</strong><span>Reparto tarifa</span></div>
             </div>
             <div class="dates">
               <div class="date">Inicio<b>${start}</b></div>
@@ -206,7 +205,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     ];
     this.shadowRoot.innerHTML = `<style>
       .field{display:block;margin:12px 0} label{display:block;margin-bottom:5px;font-size:13px}
-      input{box-sizing:border-box;width:100%;padding:9px;border:1px solid var(-- hu);border:1px solid var(--divider-color);border-radius:8px;background:var(--card-background-color);color:var(--primary-text-color)}
+      input{box-sizing:border-box;width:100%;padding:9px;border:1px solid var(--divider-color);border-radius:8px;background:var(--card-background-color);color:var(--primary-text-color)}
     </style><div>
       <label class="field">Nombre visible<input id="name" value="${this._esc(this._config.name || "")}" placeholder="Leapmotor C10"></label>
       ${fields.map(([key,label]) => `<label class="field">${label}<input data-key="${key}" value="${this._esc(this._config.entities?.[key] || "")}" placeholder="sensor...."></label>`).join("")}
