@@ -62,6 +62,225 @@ class ConfigEntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
         self.coordinator.async_shutdown.assert_not_awaited()
         self.entry.async_on_unload.assert_called_once()
 
+
+    async def test_restart_restores_pending_session_and_resumes_when_charger_is_on(self):
+        from datetime import datetime, timezone
+        import custom_components.ev_charge_tracker.coordinator as coordinator_module
+        from custom_components.ev_charge_tracker.const import (
+            CONF_CHARGING_ENTITY, CONF_ENERGY_ENTITY, CONF_FINALIZATION,
+            FINALIZE_IMMEDIATE,
+        )
+
+        restored_session = {
+            "started_at": "2026-11-19T08:00:00+00:00",
+            "ended_at": "2026-11-19T09:00:00+00:00",
+            "status": "pending_finalization",
+            "energy_kwh": 12.4,
+            "energy_valid": True,
+        }
+        coordinator = object.__new__(coordinator_module.EVChargeCoordinator)
+        coordinator.store = SimpleNamespace(async_load=AsyncMock(return_value={
+            "status": "pending_finalization",
+            "session": restored_session,
+            "latest": None,
+            "history": [{"session_id": "previous"}],
+            "diagnostic": "restored",
+        }))
+        coordinator.data = {
+            "status": "idle", "session": None, "latest": None,
+            "history": [], "diagnostic": "",
+        }
+        coordinator.config = {
+            CONF_CHARGING_ENTITY: "binary_sensor.charger",
+            CONF_ENERGY_ENTITY: "sensor.energy",
+            CONF_FINALIZATION: FINALIZE_IMMEDIATE,
+        }
+        coordinator.hass = SimpleNamespace(
+            states=SimpleNamespace(get=Mock(return_value=SimpleNamespace(state="on")))
+        )
+        coordinator._unsub = []
+        coordinator._async_save = AsyncMock()
+        coordinator._capture_initial_tariff_prices = Mock()
+        unsubscribe = Mock()
+
+        with patch.object(
+            coordinator_module, "async_track_state_change_event",
+            return_value=unsubscribe,
+        ):
+            await coordinator.async_setup()
+
+        self.assertIs(coordinator.data["session"], restored_session)
+        self.assertIsNone(restored_session["ended_at"])
+        self.assertEqual(restored_session["status"], "charging")
+        self.assertEqual(coordinator.data["status"], "charging")
+        self.assertEqual(coordinator.data["history"][0]["session_id"], "previous")
+        coordinator._async_save.assert_awaited_once()
+        coordinator._capture_initial_tariff_prices.assert_called_once()
+        self.assertEqual(coordinator._unsub, [unsubscribe])
+
+    async def test_restart_with_unknown_charger_state_preserves_restored_session(self):
+        import custom_components.ev_charge_tracker.coordinator as coordinator_module
+        from custom_components.ev_charge_tracker.const import (
+            CONF_CHARGING_ENTITY, CONF_ENERGY_ENTITY,
+        )
+
+        restored_session = {
+            "started_at": "2026-11-19T08:00:00+00:00",
+            "ended_at": None,
+            "status": "charging",
+        }
+        coordinator = object.__new__(coordinator_module.EVChargeCoordinator)
+        coordinator.store = SimpleNamespace(async_load=AsyncMock(return_value={
+            "status": "charging",
+            "session": restored_session,
+            "latest": None,
+            "history": [],
+            "diagnostic": "restored",
+        }))
+        coordinator.data = {
+            "status": "idle", "session": None, "latest": None,
+            "history": [], "diagnostic": "",
+        }
+        coordinator.config = {
+            CONF_CHARGING_ENTITY: "binary_sensor.charger",
+            CONF_ENERGY_ENTITY: "sensor.energy",
+        }
+        coordinator.hass = SimpleNamespace(
+            states=SimpleNamespace(get=Mock(return_value=SimpleNamespace(state="unavailable")))
+        )
+        coordinator._unsub = []
+        coordinator._async_save = AsyncMock()
+        unsubscribe = Mock()
+
+        with patch.object(
+            coordinator_module, "async_track_state_change_event",
+            return_value=unsubscribe,
+        ):
+            await coordinator.async_setup()
+
+        self.assertIs(coordinator.data["session"], restored_session)
+        self.assertIsNone(restored_session["ended_at"])
+        self.assertEqual(coordinator.data["status"], "charging")
+        coordinator._async_save.assert_not_awaited()
+        self.assertEqual(coordinator._unsub, [unsubscribe])
+
+    async def test_restart_off_marks_restored_active_session_pending_without_losing_history(self):
+        import custom_components.ev_charge_tracker.coordinator as coordinator_module
+        from custom_components.ev_charge_tracker.const import (
+            CONF_CHARGING_ENTITY, CONF_ENERGY_ENTITY, CONF_FINALIZATION,
+            FINALIZE_IMMEDIATE,
+        )
+
+        restored_session = {
+            "started_at": "2026-11-19T08:00:00+00:00",
+            "ended_at": None,
+            "status": "charging",
+            "energy_valid": False,
+        }
+        coordinator = object.__new__(coordinator_module.EVChargeCoordinator)
+        coordinator.store = SimpleNamespace(async_load=AsyncMock(return_value={
+            "status": "charging",
+            "session": restored_session,
+            "latest": None,
+            "history": [{"session_id": "older-session"}],
+            "diagnostic": "restored",
+        }))
+        coordinator.data = {
+            "status": "idle", "session": None, "latest": None,
+            "history": [], "diagnostic": "",
+        }
+        coordinator.config = {
+            CONF_CHARGING_ENTITY: "binary_sensor.charger",
+            CONF_ENERGY_ENTITY: "sensor.energy",
+            CONF_FINALIZATION: FINALIZE_IMMEDIATE,
+        }
+        coordinator.hass = SimpleNamespace(
+            states=SimpleNamespace(get=Mock(return_value=SimpleNamespace(state="off")))
+        )
+        coordinator._unsub = []
+        coordinator._async_save = AsyncMock()
+        coordinator._try_finalize = Mock()
+        coordinator._capture_initial_tariff_prices = Mock()
+        unsubscribe = Mock()
+
+        with patch.object(
+            coordinator_module, "async_track_state_change_event",
+            return_value=unsubscribe,
+        ):
+            await coordinator.async_setup()
+
+        self.assertIsNotNone(restored_session["ended_at"])
+        self.assertEqual(restored_session["status"], "pending_finalization")
+        self.assertEqual(coordinator.data["status"], "pending_finalization")
+        self.assertEqual(coordinator.data["history"][0]["session_id"], "older-session")
+        coordinator._try_finalize.assert_called_once()
+        coordinator._async_save.assert_awaited_once()
+
+    async def test_delayed_energy_reading_after_stop_is_captured_before_finalization(self):
+        from datetime import datetime, timedelta, timezone
+        import custom_components.ev_charge_tracker.coordinator as coordinator_module
+        from custom_components.ev_charge_tracker.const import (
+            CONF_CHARGING_ENTITY, CONF_ENERGY_ENTITY, CONF_FINALIZATION,
+            FINALIZE_IMMEDIATE,
+        )
+
+        stopped_at = datetime.now(timezone.utc) - timedelta(minutes=2)
+        coordinator = object.__new__(coordinator_module.EVChargeCoordinator)
+        coordinator.config = {
+            CONF_CHARGING_ENTITY: "binary_sensor.charger",
+            CONF_ENERGY_ENTITY: "sensor.energy",
+            CONF_FINALIZATION: FINALIZE_IMMEDIATE,
+        }
+        coordinator.data = {
+            "status": "pending_finalization",
+            "session": {
+                "started_at": (stopped_at - timedelta(hours=1)).isoformat(),
+                "ended_at": stopped_at.isoformat(),
+                "energy_kwh": 0.0,
+                "energy_valid": False,
+                "last_energy_sample_kwh": 20.0,
+                "last_energy_sample_at": (stopped_at - timedelta(minutes=1)).isoformat(),
+                "cost_complete": False,
+                "tariff_breakdown": {},
+            },
+            "latest": None,
+            "history": [],
+            "diagnostic": "",
+        }
+        energy_state = SimpleNamespace(
+            state="22.5",
+            attributes={"unit_of_measurement": "kWh"},
+            last_updated=datetime.now(timezone.utc),
+        )
+        charger_state = SimpleNamespace(state="off")
+        coordinator.hass = SimpleNamespace(
+            states=SimpleNamespace(get=lambda entity_id: (
+                charger_state if entity_id == "binary_sensor.charger" else energy_state
+            )),
+            async_create_task=Mock(),
+        )
+        coordinator.async_set_updated_data = Mock()
+        coordinator._async_save = AsyncMock()
+        coordinator._capture_measurements = Mock(
+            side_effect=lambda entity_id, value: coordinator.data["session"].update({
+                "energy_kwh": 2.5, "energy_valid": True,
+                "last_energy_sample_kwh": 22.5,
+            })
+        )
+        coordinator._try_finalize = Mock()
+
+        coordinator._handle_state_change(SimpleNamespace(data={
+            "entity_id": "sensor.energy",
+            "new_state": energy_state,
+        }))
+
+        coordinator._capture_measurements.assert_called_once_with("sensor.energy", "22.5")
+        coordinator._try_finalize.assert_called_once()
+        coordinator.async_set_updated_data.assert_called_once()
+        coordinator.hass.async_create_task.assert_called_once()
+        self.assertEqual(coordinator.data["session"]["energy_kwh"], 2.5)
+        self.assertTrue(coordinator.data["session"]["energy_valid"])
+
     async def test_coordinator_shutdown_unsubscribes_only_once(self):
         from custom_components.ev_charge_tracker.coordinator import EVChargeCoordinator
 
