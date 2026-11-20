@@ -219,10 +219,10 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                 self.data["diagnostic"] = "Carga reanudada; se conserva la sesión"
             elif (
                 new_state.state == "off"
-                and old_state is not None
-                and old_state.state == "on"
                 and self.data.get("session") is not None
+                and self.data["session"].get("ended_at") is None
             ):
+                # Also reconcile unknown/unavailable -> OFF after a restart.
                 self._stop_session()
 
         if self.data.get("session") is not None:
