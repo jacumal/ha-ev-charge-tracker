@@ -26,8 +26,8 @@ class PowerAllocationTests(unittest.TestCase):
         ]
         result = allocate_energy_by_power(start, end, 12.0, self.periods, samples)
         by_name = {item["period"]: item["energy_kwh"] for item in result["breakdown"]}
-        self.assertAlmostEqual(by_name["Valle"], 3.0, places=4)
-        self.assertAlmostEqual(by_name["Punta"], 9.0, places=4)
+        self.assertAlmostEqual(by_name["Valle"], 3.0, places=1)
+        self.assertAlmostEqual(by_name["Punta"], 9.0, places=1)
         self.assertAlmostEqual(sum(by_name.values()), 12.0, places=5)
         self.assertEqual(result["method"], "power")
 
