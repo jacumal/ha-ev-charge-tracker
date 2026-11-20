@@ -12,7 +12,7 @@ from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .tariff import allocate_energy_by_time, validate_periods
-from .power import allocate_energy_by_power
+from .power import allocate_energy_by_power, allocate_energy_by_dynamic_price
 from .units import convert_unit, normalize_currency_code
 
 from .const import (
@@ -120,6 +120,9 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             self.config[CONF_CHARGING_ENTITY],
             self.config[CONF_ENERGY_ENTITY],
         ]
+        for period in self.config.get("tariff_periods", []):
+            if period.get("price_entity"):
+                entities.append(period["price_entity"])
         for key in (CONF_SOC_ENTITY, CONF_ODOMETER_ENTITY, CONF_PRICE_ENTITY, CONF_POWER_ENTITY):
             if self.config.get(key):
                 entities.append(self.config[key])
@@ -128,6 +131,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         )
 
         # Reconcile the persisted session with the real charging state after restart.
+        had_restored_session = self.data.get("session") is not None
         charging_state = self.hass.states.get(self.config[CONF_CHARGING_ENTITY])
         if charging_state is not None and charging_state.state not in ("unknown", "unavailable"):
             if charging_state.state == "on":
@@ -143,6 +147,12 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                 if self.data["session"].get("ended_at") is None:
                     self._stop_session()
                 self._try_finalize()
+            if had_restored_session and self.data.get("session") is not None:
+                # A restart is a new observation point: do not carry a pre-restart
+                # dynamic price forward if its source is now unavailable.
+                self._capture_initial_tariff_prices(
+                    self.data["session"], dt_util.utcnow().isoformat()
+                )
             await self._async_save()
 
     async def _async_update_data(self):
@@ -163,6 +173,8 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         new_state = event.data.get("new_state")
         old_state = event.data.get("old_state")
         if new_state is None or new_state.state in ("unknown", "unavailable"):
+            if self.data.get("session") is not None and self._is_tariff_price_entity(entity_id):
+                self._append_tariff_price_sample(entity_id, None)
             self.data["diagnostic"] = f"Lectura no disponible: {entity_id}"
             self.async_set_updated_data(self.data)
             self.hass.async_create_task(self._async_save())
@@ -180,6 +192,8 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                 self._stop_session()
 
         if self.data.get("session") is not None:
+            if self._is_tariff_price_entity(entity_id):
+                self._append_tariff_price_sample(entity_id)
             self._capture_measurements(entity_id, new_state.state)
 
         self._try_finalize()
@@ -224,7 +238,9 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             "last_energy_sample_kwh": energy_baseline,
             "last_energy_sample_at": now if energy_baseline is not None else None,
             "power_samples": [],
+            "price_samples": [],
         }
+        self._capture_initial_tariff_prices(self.data["session"], now)
         self.data["status"] = "charging"
         self.data["diagnostic"] = "Sesión iniciada"
         initial_power = self._read_power_kw()
@@ -330,7 +346,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
 
 
     def _allocate_tariff_delta(self, session, start_utc, end_utc, energy_delta):
-        """Allocate a sampled energy increment across configured local tariff periods."""
+        """Allocate energy using tariff periods and the price valid in each interval."""
         periods = self.config.get("tariff_periods") or []
         if not periods:
             price = session.get("price_per_kwh")
@@ -357,15 +373,14 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         try:
             start_local = dt_util.as_local(start_utc)
             end_local = dt_util.as_local(end_utc)
-            power_samples = session.get("power_samples") or []
-            if self.config.get(CONF_POWER_ENTITY) and power_samples:
-                allocation = allocate_energy_by_power(
-                    start_local, end_local, energy_delta, periods, power_samples
-                )
-            else:
-                allocation = allocate_energy_by_time(
-                    start_local, end_local, energy_delta, periods
-                )
+            allocation = allocate_energy_by_dynamic_price(
+                start_local,
+                end_local,
+                energy_delta,
+                periods,
+                session.get("power_samples") or [],
+                session.get("price_samples") or [],
+            )
         except ValueError as err:
             session["cost_complete"] = False
             session["unpriced_energy_kwh"] = round(
@@ -373,18 +388,91 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             )
             self.data["diagnostic"] = str(err)
             return
+
         session["tariff_estimated"] = True
-        session["tariff_allocation_method"] = allocation.get("method", "time")
+        session["tariff_allocation_method"] = allocation["method"]
+        session["priced_energy_kwh"] = round(
+            session.get("priced_energy_kwh", 0.0) + allocation["priced_energy_kwh"], 6
+        )
+        session["unpriced_energy_kwh"] = round(
+            session.get("unpriced_energy_kwh", 0.0) + allocation["unpriced_energy_kwh"], 6
+        )
+        if allocation["unpriced_energy_kwh"] > 0:
+            session["cost_complete"] = False
+            self.data["diagnostic"] = "Precio dinámico no disponible para parte de la energía"
         buckets = session.setdefault("tariff_breakdown", {})
         for item in allocation["breakdown"]:
             bucket = buckets.setdefault(item["period"], {
-                "energy_kwh": 0.0, "cost": 0.0,
-                "price_per_kwh": item["price_per_kwh"]
+                "energy_kwh": 0.0,
+                "cost": 0.0,
+                "priced_energy_kwh": 0.0,
+                "unpriced_energy_kwh": 0.0,
+                "price_per_kwh": item.get("price_per_kwh"),
+                "price_segments": [],
             })
-            bucket["energy_kwh"] += item["energy_kwh"]
-            bucket["cost"] += item["cost"]
-            session["priced_energy_kwh"] = round(session.get("priced_energy_kwh", 0.0) + item["energy_kwh"], 6)
+            bucket["energy_kwh"] = round(bucket.get("energy_kwh", 0.0) + item["energy_kwh"], 6)
+            bucket["cost"] = round(bucket.get("cost", 0.0) + item["cost"], 6)
+            bucket["priced_energy_kwh"] = round(
+                bucket.get("priced_energy_kwh", 0.0) + item["priced_energy_kwh"], 6
+            )
+            bucket["unpriced_energy_kwh"] = round(
+                bucket.get("unpriced_energy_kwh", 0.0) + item["unpriced_energy_kwh"], 6
+            )
+            for segment in item.get("price_segments", []):
+                bucket.setdefault("price_segments", []).append(segment)
+            prices = {segment["price_per_kwh"] for segment in bucket["price_segments"]}
+            bucket["price_per_kwh"] = next(iter(prices)) if len(prices) == 1 else None
 
+    def _is_tariff_price_entity(self, entity_id: str) -> bool:
+        """Return whether an entity supplies a configured tariff-period price."""
+        return any(
+            period.get("price_entity") == entity_id
+            for period in self.config.get("tariff_periods", [])
+        )
+
+    def _read_tariff_price(self, entity_id: str) -> float | None:
+        """Read a non-negative price sensor with an explicit profile currency unit."""
+        state = self.hass.states.get(entity_id)
+        if state is None or state.state in ("unknown", "unavailable"):
+            return None
+        unit = "".join(
+            (state.attributes.get("unit_of_measurement") or "").lower().split()
+        )
+        currency = self._currency_code()
+        accepted = {f"{currency.lower()}/kwh", f"{currency.lower()}kwh-1"}
+        if currency == "EUR":
+            accepted.update(("€/kwh", "eur/kwh", "eurkwh-1"))
+        value = _number(state.state)
+        return value if unit in accepted and value is not None and value >= 0 else None
+
+    def _capture_initial_tariff_prices(self, session, timestamp: str) -> None:
+        """Snapshot the initial value (or unavailable state) of every dynamic period."""
+        for period in self.config.get("tariff_periods", []):
+            entity_id = period.get("price_entity")
+            if entity_id:
+                session.setdefault("price_samples", []).append({
+                    "at": timestamp,
+                    "period": str(period["name"]),
+                    "price": self._read_tariff_price(entity_id),
+                })
+
+    def _append_tariff_price_sample(self, entity_id: str, value=None) -> None:
+        """Persist a timestamped price change for the matching tariff period."""
+        session = self.data.get("session")
+        if session is None:
+            return
+        price = self._read_tariff_price(entity_id) if value is None else value
+        timestamp = dt_util.utcnow().isoformat()
+        for period in self.config.get("tariff_periods", []):
+            if period.get("price_entity") == entity_id:
+                samples = session.setdefault("price_samples", [])
+                samples.append({
+                    "at": timestamp,
+                    "period": str(period["name"]),
+                    "price": price,
+                })
+                if len(samples) > 5000:
+                    session["price_samples"] = samples[-5000:]
     def _read_power_kw(self) -> float | None:
         """Read and normalize an optional instantaneous power sensor to kW."""
         entity_id = self.config.get(CONF_POWER_ENTITY)
@@ -560,6 +648,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         # Raw telemetry is only needed while allocating the active session.
         # Keep the compact tariff result, not thousands of power samples, in history.
         session.pop("power_samples", None)
+        session.pop("price_samples", None)
         record = dict(session)
         record["session_id"] = record["started_at"]
         self.data["latest"] = record
