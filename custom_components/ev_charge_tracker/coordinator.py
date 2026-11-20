@@ -70,6 +70,29 @@ def _energy_delta(previous: float | None, current: float) -> float | None:
         return None
     return current - previous
 
+
+def _state_is_fresh(state, now: datetime, max_age_seconds: int = 600) -> bool:
+    """Return whether a Home Assistant state has a recent observation timestamp."""
+    if state is None or state.state in ("unknown", "unavailable"):
+        return False
+    updated = getattr(state, "last_updated", None)
+    if updated is None:
+        return False
+    age = (now - updated).total_seconds()
+    return 0 <= age <= max_age_seconds
+
+
+def _state_updated_at_or_after(state, moment: datetime) -> bool:
+    """Return whether a state was observed at or after a lifecycle boundary."""
+    updated = getattr(state, "last_updated", None)
+    if updated is None:
+        return False
+    if updated.tzinfo is None and moment.tzinfo is not None:
+        updated = updated.replace(tzinfo=moment.tzinfo)
+    elif updated.tzinfo is not None and moment.tzinfo is None:
+        moment = moment.replace(tzinfo=updated.tzinfo)
+    return updated >= moment
+
 def _normalize_odometer(value: float | None, sensor_unit: str, configured_unit: str = "km") -> float | None:
     """Normalize odometer readings to km, preferring an explicit HA unit.
 
@@ -183,6 +206,17 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         if entity_id == self.config[CONF_CHARGING_ENTITY]:
             if new_state.state == "on" and self.data.get("session") is None:
                 self._start_session()
+            elif (
+                new_state.state == "on"
+                and self.data.get("session") is not None
+                and self.data["session"].get("ended_at") is not None
+            ):
+                # A brief OFF/ON transition is a resumed session, not a reason
+                # to finalize while the charger is actively delivering energy.
+                self.data["session"]["ended_at"] = None
+                self.data["session"]["status"] = "charging"
+                self.data["status"] = "charging"
+                self.data["diagnostic"] = "Carga reanudada; se conserva la sesión"
             elif (
                 new_state.state == "off"
                 and old_state is not None
@@ -492,7 +526,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         """Read the configured energy counter and normalize Wh/kWh to kWh."""
         entity_id = self.config.get(CONF_ENERGY_ENTITY)
         state = self.hass.states.get(entity_id) if entity_id else None
-        if state is None:
+        if not _state_is_fresh(state, dt_util.utcnow()):
             return None
         unit = state.attributes.get("unit_of_measurement") or ""
         return _normalize_energy(state.state, unit)
@@ -509,9 +543,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         if state is None or (state.attributes.get("unit_of_measurement") or "").strip() != "%":
             return None
         # A sleeping vehicle can leave a plausible but obsolete SOC in HA.
-        # Do not snapshot it as the charge-start value after a long stale period.
-        age = (dt_util.utcnow() - state.last_updated).total_seconds()
-        if age > 600:
+        if not _state_is_fresh(state, dt_util.utcnow()):
             return None
         value = _number(state.state)
         return value if value is not None and 0 < value <= 100 else None
@@ -545,10 +577,13 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         return value if value is not None and value >= 0 else None
 
     def _read_odometer(self) -> float | None:
-        value = self._read_number(CONF_ODOMETER_ENTITY)
+        entity_id = self.config.get(CONF_ODOMETER_ENTITY)
+        state = self.hass.states.get(entity_id) if entity_id else None
+        if not _state_is_fresh(state, dt_util.utcnow()):
+            return None
+        value = _number(state.state)
         if value is None:
             return None
-        state = self.hass.states.get(self.config[CONF_ODOMETER_ENTITY])
         unit = state.attributes.get("unit_of_measurement") or ""
         configured = self.config.get(CONF_ODOMETER_UNIT, "km")
         return _normalize_odometer(value, unit, configured)
@@ -557,6 +592,11 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         """Finalize once, using the configured strategy."""
         session = self.data.get("session")
         if session is None or session.get("ended_at") is None:
+            return
+        charging_state = self.hass.states.get(self.config[CONF_CHARGING_ENTITY])
+        # Never finalize from a stale persisted OFF, or while charging state is
+        # unknown/unavailable/on. Recovery must first establish an explicit OFF.
+        if charging_state is None or charging_state.state != "off":
             return
         strategy = self.config.get(CONF_FINALIZATION, FINALIZE_ODOMETER)
         if strategy == FINALIZE_IMMEDIATE:
@@ -582,9 +622,17 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             self.data["diagnostic"] = "Carga pendiente de confirmación manual"
             return
         if strategy == FINALIZE_ODOMETER:
+            odometer_entity = self.config.get(CONF_ODOMETER_ENTITY)
+            odometer_state = self.hass.states.get(odometer_entity) if odometer_entity else None
+            ended_at = datetime.fromisoformat(session["ended_at"])
             current = self._read_odometer()
             start = session.get("odometer_start_km")
-            if current is not None and start is not None and current > start:
+            if (
+                current is not None
+                and start is not None
+                and current > start
+                and _state_updated_at_or_after(odometer_state, ended_at)
+            ):
                 if session.get("energy_valid"):
                     session["odometer_end_km"] = current
                     self._finalize()
