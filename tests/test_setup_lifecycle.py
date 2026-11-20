@@ -322,6 +322,22 @@ class ConfigEntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(coordinator.data["session"]["energy_kwh"], 2.5)
         self.assertTrue(coordinator.data["session"]["energy_valid"])
 
+    async def test_coordinator_shutdown_ignores_already_removed_listener(self):
+        from custom_components.ev_charge_tracker.coordinator import EVChargeCoordinator
+
+        coordinator = object.__new__(EVChargeCoordinator)
+        already_removed = Mock(side_effect=ValueError("listener already removed"))
+        remaining_listener = Mock()
+        coordinator._unsub = [already_removed, remaining_listener]
+        coordinator._async_save = AsyncMock()
+
+        await coordinator.async_shutdown()
+
+        already_removed.assert_called_once()
+        remaining_listener.assert_called_once()
+        coordinator._async_save.assert_awaited_once()
+        self.assertEqual(coordinator._unsub, [])
+
     async def test_coordinator_shutdown_unsubscribes_only_once(self):
         from custom_components.ev_charge_tracker.coordinator import EVChargeCoordinator
 
