@@ -326,7 +326,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             self._period_count = int(user_input[CONF_TARIFF_COUNT])
             return await self.async_step_periods()
         schema = vol.Schema({
-            vol.Required(CONF_TARIFF_COUNT, default=current_count): selector.SelectSelector(
+            vol.Required(CONF_TARIFF_COUNT, default=str(current_count)): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[
                         {"value": "1", "label": "Un periodo (precio único)"},
@@ -400,7 +400,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             )
             schema[vol.Required(
                 f"period_{index}_days",
-                default=period.get("days", list(range(7))),
+                default=[str(day) for day in period.get("days", list(range(7)))],
             )] = selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=day_options,
