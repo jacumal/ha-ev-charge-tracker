@@ -39,6 +39,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: EVChargeConfigEntry) -> 
     """Set up a configured vehicle/charger profile."""
     coordinator = EVChargeCoordinator(hass, entry)
     hass.data.setdefault(DOMAIN, {})
+    platform_setup_started = False
     try:
         await coordinator.async_setup()
         await coordinator.async_config_entry_first_refresh()
@@ -46,10 +47,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: EVChargeConfigEntry) -> 
         hass.data[DOMAIN][entry.entry_id] = coordinator
         _refresh_profile_registry(hass)
 
+        platform_setup_started = True
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
         entry.async_on_unload(entry.add_update_listener(async_reload_entry))
         return True
     except Exception:
+        # Platform forwarding may have loaded some platforms before failing.
+        # Best-effort unload them while preserving the original setup error.
+        if platform_setup_started:
+            try:
+                await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+            except Exception:  # noqa: BLE001
+                pass
         # async_setup() subscribes to source entities before the first refresh
         # and platform forwarding can still fail afterwards. Always release
         # those listeners and persist the restored session on failed setup.
