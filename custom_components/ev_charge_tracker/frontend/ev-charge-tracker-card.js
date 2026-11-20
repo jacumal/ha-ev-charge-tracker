@@ -76,13 +76,20 @@ class EVChargeTrackerCard extends HTMLElement {
     if (!this.config || !this._hass) return;
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
     const e = this.config.entities || {};
-    const status = this._value(e.status, "idle");
+    const statusState = this._state(e.status);
+    const status = !e.status
+      ? "not_configured"
+      : (!statusState || ["unknown", "unavailable", "none"].includes(statusState.state)
+        ? "unavailable"
+        : statusState.state);
     const statusLabels = {
       idle: "En espera", charging: "Cargando", finishing: "Finalizando",
       pending_finalization: "Pendiente de confirmar", completed: "Completada",
-      needs_attention: "Revisar datos",
+      needs_attention: "Revisar datos", not_configured: "Estado sin configurar",
+      unavailable: "Estado no disponible",
     };
     const charging = status === "charging";
+    const statusWarning = ["pending_finalization", "needs_attention", "not_configured", "unavailable"].includes(status);
     const energy = this._number(e.energy);
     const cost = this._number(e.cost);
     const rawKnownCost = this._attr(e.cost, "known_cost", null);
@@ -149,7 +156,7 @@ class EVChargeTrackerCard extends HTMLElement {
         <div class="wrap">
           <div class="top">
             <div><div class="eyebrow">Cargas · Última carga</div><h2>${this._escape(title)}</h2></div>
-            <div class="status ${charging ? "active" : (status.includes("pending") || status.includes("attention") ? "warn" : "")}">
+            <div class="status ${charging ? "active" : (statusWarning ? "warn" : "")}">
               <i class="dot"></i>${this._escape(statusLabels[status] || status)}
             </div>
           </div>
@@ -165,7 +172,7 @@ class EVChargeTrackerCard extends HTMLElement {
               <div class="metric"><strong>${energy === null ? "—" : this._fmt(energy,2) + " " + energyUnit}</strong><span>Energía</span></div>
               <div class="metric"><strong>${cost !== null ? this._fmt(cost,2) + " " + currency : (hasKnownCost ? this._fmt(knownCost,2) + " " + currency : "—")}</strong><span>${cost !== null ? "Coste total" : (hasKnownCost ? "Coste conocido · parcial" : "Coste")}</span></div>
               <div class="metric"><strong>${({ complete: "Completo", in_progress: "En curso", partial: "Parcial", unknown: "Sin datos" })[costStatus] || "Sin datos"}</strong><span>Estado del coste</span></div>
-              <div class="metric"><strong>${tariffEstimated ? "Estimado" : "Medido"}</strong><span>Reparto tarifa</span></div>
+              <div class="metric"><strong>${tariffEstimated ? "Estimado" : "Precio aplicado"}</strong><span>Cálculo de tarifa</span></div>
             </div>
             <div class="dates">
               <div class="date">Inicio<b>${start}</b></div>
