@@ -107,6 +107,11 @@ class EVChargeTrackerCard extends HTMLElement {
     const currency = this._attr(e.cost, "currency", this._state(e.cost)?.attributes?.unit_of_measurement || "EUR");
     const costStatus = this._attr(e.cost, "cost_status", record.cost_status || "unknown");
     const tariffEstimated = this._attr(e.cost, "tariff_estimated", record.tariff_estimated || false);
+    const tariffBreakdown = this._attr(e.cost, "tariff_breakdown", record.tariff_breakdown || {});
+    const hasTariffData = Boolean(
+      this._state(e.cost) &&
+      (cost !== null || hasKnownCost || (tariffBreakdown && Object.keys(tariffBreakdown).length))
+    );
     const energyUnit = this._attr(e.energy, "unit_of_measurement", "kWh");
     const title = this.config.name || this.config.vehicle || "EV Charge Tracker";
     const start = this._date(record.started_at);
@@ -172,7 +177,7 @@ class EVChargeTrackerCard extends HTMLElement {
               <div class="metric"><strong>${energy === null ? "—" : this._fmt(energy,2) + " " + energyUnit}</strong><span>Energía</span></div>
               <div class="metric"><strong>${cost !== null ? this._fmt(cost,2) + " " + currency : (hasKnownCost ? this._fmt(knownCost,2) + " " + currency : "—")}</strong><span>${cost !== null ? "Coste total" : (hasKnownCost ? "Coste conocido · parcial" : "Coste")}</span></div>
               <div class="metric"><strong>${({ complete: "Completo", in_progress: "En curso", partial: "Parcial", unknown: "Sin datos" })[costStatus] || "Sin datos"}</strong><span>Estado del coste</span></div>
-              <div class="metric"><strong>${tariffEstimated ? "Estimado" : "Precio aplicado"}</strong><span>Cálculo de tarifa</span></div>
+              <div class="metric"><strong>${!hasTariffData ? "Sin datos" : (tariffEstimated ? "Estimado" : "Precio aplicado")}</strong><span>Cálculo de tarifa</span></div>
             </div>
             <div class="dates">
               <div class="date">Inicio<b>${start}</b></div>
