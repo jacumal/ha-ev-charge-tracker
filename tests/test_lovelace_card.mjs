@@ -44,7 +44,7 @@ test("distinguishes unavailable status from a real idle state", () => {
     { "sensor.charge_status": { state: "idle", attributes: {} } },
   );
   assert.match(unavailable, /Estado no disponible/);
-  assert.match(idle, />En espera</);
+  assert.match(idle, /En espera/);
 });
 
 test("labels a calculated fixed-price cost as applied, not measured", () => {
