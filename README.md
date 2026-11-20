@@ -4,7 +4,7 @@ Universal EV charging session tracker for Home Assistant.
 
 Track charging sessions, delivered energy, battery state of charge (SOC), mileage, costs and history across multiple electric vehicles and chargers. The integration is designed to work with existing Home Assistant entities, independently of vehicle and charger brands.
 
-**Project status:** early development (`0.1.0-dev`). The first integration skeleton is being implemented; it is not ready for installation or real charging tests yet.
+**Project status:** early development (`0.1.0-dev`). The repository already contains the session coordinator, persistent history, configurable pricing and a one-to-three-period tariff engine with automated tests. It is still not a production-ready release: real Home Assistant validation, broader lifecycle tests, the bundled Lovelace card and release packaging remain pending. See the [implementation roadmap](docs/roadmap.md) for the current status.
 
 ## Design principles
 
@@ -19,12 +19,14 @@ Track charging sessions, delivered energy, battery state of charge (SOC), mileag
 
 - [Functional specification and sensor contract](docs/functional-specification.md)
 - [Lovelace dashboard design](docs/dashboard-design.md)
+- [Implementation roadmap and status](docs/roadmap.md)
 
 ## Planned capabilities
 
 - Initial prototype: charging session detection using a selected `binary_sensor`.
 - Initial prototype: session energy from either a session-scoped counter or a cumulative lifetime meter in Wh or kWh, using a start-of-session baseline.
 - SOC start, maximum and final values.
+- Battery-care roadmap: parked SOC history, vampire-drain monitoring, optional 12 V monitoring and advisory notifications (specified; implementation pending).
 - Optional odometer-based or manual session finalization; automatic immediate finalization waits 60 seconds after the charging signal turns off to collect delayed final energy/SOC updates.
 - Duration, electricity cost, history and diagnostics.
 - Multiple vehicles, chargers and charging profiles.
