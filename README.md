@@ -4,7 +4,7 @@ Universal EV charging session tracker for Home Assistant.
 
 Track charging sessions, delivered energy, battery state of charge (SOC), mileage, costs and history across multiple electric vehicles and chargers. The integration is designed to work with existing Home Assistant entities, independently of vehicle and charger brands.
 
-**Project status:** early development (`0.1.0-dev`). The repository already contains the session coordinator, persistent history, configurable pricing and a one-to-three-period tariff engine with automated tests. It is still not a production-ready release: real Home Assistant validation, broader lifecycle tests, the bundled Lovelace card and release packaging remain pending. See the [implementation roadmap](docs/roadmap.md) for the current status.
+**Project status:** early development (`0.1.0-dev`). The repository already contains the session coordinator, persistent history, configurable pricing and a one-to-three-period tariff engine with automated tests. It is still not a production-ready release: real Home Assistant validation, broader lifecycle tests, and release packaging remain pending. A bundled development Lovelace card is present and still needs frontend validation. See the [implementation roadmap](docs/roadmap.md) for the current status.
 
 ## Design principles
 
@@ -31,13 +31,13 @@ Track charging sessions, delivered energy, battery state of charge (SOC), mileag
 - Duration, electricity cost, history and diagnostics.
 - Multiple vehicles, chargers and charging profiles.
 - Guided graphical sensor setup with explanations, unit validation and examples.
-- An integrated custom Lovelace card, bundled with the integration and styled with Bubble Card / Apple-inspired design principles. No separate Bubble Card installation is required.
+- A bundled custom Lovelace card with a visual editor and native Home Assistant entity pickers for the eight semantic entity mappings. No separate Bubble Card installation is required; frontend behavior still needs real-HA validation.
 
 ## Development
 
 The first reference setup is a Leapmotor C10 with a V2C charger. It is a test environment only; the core design must remain generic.
 
-The Lovelace card will be included in this same integration repository and distributed with it. The integration backend will also work without the card.
+The Lovelace card is included in this integration repository and served by the integration. The backend also works without the card.
 
 Contributions, feature requests and bug reports are welcome. The architecture and sensor contract are still being defined, so interfaces may change before the first release.
 
@@ -56,7 +56,7 @@ The first development increment is intentionally limited to one charging profile
 - Immediate or odometer-increase finalization.
 - Persistent session state and up to 500 history records.
 
-Power-based session detection, advanced freshness validation beyond the SOC start-age guard, country-specific tariff presets, and the bundled Lovelace card are not implemented yet. Per-period dynamic price sensors are implemented in the current feature branch and are awaiting CI and controlled Home Assistant validation. Manual finalization is available through a dedicated button entity when selected in the profile. Do not install this development version in a production instance or use it to record real charging sessions. A testable alpha will be announced only after syntax checks, Home Assistant validation, and a controlled test plan are complete.
+Power-based session detection, country-specific tariff presets, aggregate day/week/month statistics and complete release packaging remain outstanding. Advanced freshness safeguards and the bundled Lovelace card are implemented in the development branch; the card still requires controlled Home Assistant frontend validation. Per-period dynamic price sensors are implemented and require end-to-end validation. Manual finalization is available through a dedicated button entity when selected in the profile. Do not install this development version in a production instance or use it to record real charging sessions. A testable alpha will be announced only after syntax checks, Home Assistant validation, and a controlled test plan are complete.
 
 
 The tariff engine supports one to three periods, weekday selection, overnight boundaries, schedule validation, and estimated allocation of sampled energy deltas. The coordinator now calls this engine when tariff periods are present in the profile configuration and persists the resulting per-period breakdown. The schedule editor is available from the profile options. Its end-to-end behavior still requires controlled Home Assistant testing. See the functional specification for the target behavior.
