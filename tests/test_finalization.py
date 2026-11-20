@@ -1,6 +1,9 @@
 """Session finalization regression tests."""
 
 import unittest
+from datetime import timedelta
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 from custom_components.ev_charge_tracker.coordinator import EVChargeCoordinator
 
@@ -155,9 +158,7 @@ if __name__ == "__main__":
 
 class FinalizationStrategyTests(unittest.TestCase):
     def setUp(self):
-        from datetime import datetime, timedelta, timezone
-        from types import SimpleNamespace
-        from unittest.mock import Mock
+        from datetime import datetime, timezone
         from custom_components.ev_charge_tracker import coordinator as coordinator_module
         from custom_components.ev_charge_tracker.const import (
             CONF_CHARGING_ENTITY, CONF_FINALIZATION, CONF_ODOMETER_ENTITY,
