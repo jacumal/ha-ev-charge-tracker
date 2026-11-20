@@ -39,7 +39,8 @@
     "error": {
       "name_required": "Introduce un nombre para el vehículo y el cargador.",
       "odometer_required": "Selecciona un sensor de odómetro o cambia el método de finalización.",
-      "price_sensor_required": "Selecciona un sensor de precio para utilizar el modo automático."
+      "price_sensor_required": "Selecciona un sensor de precio para utilizar el modo automático.",
+      "resource_conflict": "El estado de carga o el contador de energía ya está asignado a otro perfil. Cada perfil necesita sus propias entidades de carga y energía para evitar atribuciones ambiguas."
     },
     "abort": {
       "already_configured": "Este perfil de vehículo y cargador ya está configurado.",

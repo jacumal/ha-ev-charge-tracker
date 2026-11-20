@@ -10,6 +10,7 @@ from homeassistant.core import callback
 from homeassistant.helpers import selector
 
 from .tariff import default_periods, validate_periods
+from .profile_registry import build_profile_identity, find_resource_conflicts
 
 from .const import (
     CONF_CHARGER_NAME,
@@ -64,14 +65,29 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             elif user_input[CONF_PRICE_MODE] == PRICE_MODE_SENSOR and not user_input.get(CONF_PRICE_ENTITY):
                 errors["base"] = "price_sensor_required"
             else:
-                await self.async_set_unique_id(
-                    f"{vehicle_name.lower()}_{charger_name.lower()}"
-                )
-                self._abort_if_unique_id_configured()
-                return self.async_create_entry(
-                    title=f"{vehicle_name} · {charger_name}",
-                    data=user_input,
-                )
+                try:
+                    identity = build_profile_identity(vehicle_name, charger_name)
+                except ValueError:
+                    errors["base"] = "name_required"
+                else:
+                    conflicts = find_resource_conflicts(
+                        user_input,
+                        (
+                            {**entry.data, **entry.options}
+                            for entry in self.hass.config_entries.async_entries(DOMAIN)
+                        ),
+                    )
+                    if conflicts:
+                        errors["base"] = "resource_conflict"
+                    else:
+                        await self.async_set_unique_id(
+                            f"{identity['vehicle_id']}__{identity['charger_id']}"
+                        )
+                        self._abort_if_unique_id_configured()
+                        return self.async_create_entry(
+                            title=f"{vehicle_name} · {charger_name}",
+                            data={**user_input, **identity},
+                        )
 
         schema = vol.Schema(
             {
