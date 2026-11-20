@@ -141,7 +141,7 @@ The card does not depend on Bubble Card or any other frontend custom card. It di
 the current/latest session, SOC start/end and increase, duration, energy, cost,
 cost quality, tariff allocation quality, diagnostic text and persistent session history.
 Missing values remain shown as unavailable rather than being displayed as zero.
-The current visual editor accepts entity IDs as text for each semantic role; entity-picker controls and full editor usability checks remain outstanding.
+The visual editor uses Home Assistant entity-picker controls for the eight semantic entity mappings. The editor still requires end-to-end validation in a live Home Assistant frontend, including selection persistence, mobile layout and light/dark themes.
 
 ### Lovelace YAML example
 
