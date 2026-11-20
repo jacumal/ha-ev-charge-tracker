@@ -131,6 +131,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         )
 
         # Reconcile the persisted session with the real charging state after restart.
+        had_restored_session = self.data.get("session") is not None
         charging_state = self.hass.states.get(self.config[CONF_CHARGING_ENTITY])
         if charging_state is not None and charging_state.state not in ("unknown", "unavailable"):
             if charging_state.state == "on":
@@ -146,6 +147,12 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                 if self.data["session"].get("ended_at") is None:
                     self._stop_session()
                 self._try_finalize()
+            if had_restored_session and self.data.get("session") is not None:
+                # A restart is a new observation point: do not carry a pre-restart
+                # dynamic price forward if its source is now unavailable.
+                self._capture_initial_tariff_prices(
+                    self.data["session"], dt_util.utcnow().isoformat()
+                )
             await self._async_save()
 
     async def _async_update_data(self):
