@@ -16,7 +16,8 @@
           "price_mode": "Electricity price source",
           "price_per_kwh": "Manual price (€/kWh)",
           "price_entity": "Price sensor (€/kWh)",
-          "finalization": "When to finalize a charge"
+          "finalization": "When to finalize a charge",
+          "power_entity": "Instantaneous charging power (W/kW, optional)"
         },
         "data_description": {
           "vehicle_name": "Vehicle identifier, e.g. Leapmotor C10. Used for the integration device and generated entity names.",
@@ -30,7 +31,8 @@
           "price_mode": "Choose the electricity price source. The observed price is saved with each session so later tariff changes do not rewrite historical costs.",
           "price_per_kwh": "Used only for a fixed manual price. Enter the price per kWh, currently expressed as €/kWh. Example: 0.18. Do not use a single average as an exact price if your tariff changes by time.",
           "price_entity": "Used only for sensor pricing. Must be a numeric sensor whose state is the price per kWh and unit is €/kWh. Do not select bill total, contracted power or €/MWh. The value is snapshotted at session start; unavailable or incompatible units leave cost unknown. Price changes during one session are not yet reconstructed.",
-          "finalization": "Choose when to close and save a session. Odometer waits for total distance to increase. Immediate closes when charging turns OFF. Manual leaves the session pending until you press the Finalize latest charge button after checking the data."
+          "finalization": "Choose when to close and save a session. Odometer waits for total distance to increase. Immediate closes when charging turns OFF. Manual leaves the session pending until you press the Finalize latest charge button after checking the data.",
+          "power_entity": "Optional instantaneous power sensor in W or kW. It improves tariff-period energy allocation; the energy counter remains authoritative for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate."
         }
       }
     },
@@ -104,7 +106,8 @@
           "price_mode": "Electricity price source",
           "price_per_kwh": "Fixed price per kWh",
           "price_entity": "Price sensor (€/kWh)",
-          "finalization": "When to finalize a charge"
+          "finalization": "When to finalize a charge",
+          "power_entity": "Instantaneous charging power (W/kW, optional)"
         },
         "data_description": {
           "charging_entity": "Must be ON while charging and OFF when stopped. unknown/unavailable never close a session.",
@@ -116,7 +119,8 @@
           "price_mode": "Select a fixed price or a price sensor.",
           "price_per_kwh": "Used with manual fixed pricing, in €/kWh.",
           "price_entity": "Numeric sensor in €/kWh.",
-          "finalization": "Choose odometer, automatic after 60 seconds, or manual finalization."
+          "finalization": "Choose odometer, automatic after 60 seconds, or manual finalization.",
+          "power_entity": "Optional instantaneous power sensor in W or kW. It improves tariff-period energy allocation; the energy counter remains authoritative for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate."
         }
       },
       "tariffs": {
