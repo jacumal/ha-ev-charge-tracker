@@ -19,9 +19,10 @@ class PowerAllocationTests(unittest.TestCase):
         start = datetime(2026, 11, 19, 7, 0, tzinfo=self.zone)
         end = datetime(2026, 11, 19, 9, 0, tzinfo=self.zone)
         samples = [
-            {"at": start.isoformat(), "power_kw": 2.0},
-            {"at": datetime(2026, 11, 19, 8, 0, tzinfo=self.zone).isoformat(), "power_kw": 10.0},
-            {"at": end.isoformat(), "power_kw": 10.0},
+            {"at": start.isoformat(), "power_kw": 3.0},
+            {"at": datetime(2026, 11, 19, 7, 59, tzinfo=self.zone).isoformat(), "power_kw": 3.0},
+            {"at": datetime(2026, 11, 19, 8, 0, tzinfo=self.zone).isoformat(), "power_kw": 9.0},
+            {"at": end.isoformat(), "power_kw": 9.0},
         ]
         result = allocate_energy_by_power(start, end, 12.0, self.periods, samples)
         by_name = {item["period"]: item["energy_kwh"] for item in result["breakdown"]}
