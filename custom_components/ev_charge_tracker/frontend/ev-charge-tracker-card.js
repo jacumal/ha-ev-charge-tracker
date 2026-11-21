@@ -294,7 +294,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const selectedId = this._config.profile_entry_id;
       if (selectedId) {
         const selected = this._profiles.find(profile => profile.entry_id === selectedId);
-        if (selected) this._applyProfile(selected, false);
+        if (selected && !this._config.profile_manual_override) this._applyProfile(selected, false);
       } else if (this._profiles.length === 1) {
         this._applyProfile(this._profiles[0], false);
       } else if (this._profiles.length > 1) {
@@ -344,7 +344,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     if (hasProfiles) {
       const selectedId = this._config.profile_entry_id || (this._profiles.length === 1 ? this._profiles[0].entry_id : "");
       if (profileSelect.options.length !== this._profiles.length) {
-        profileSelect.innerHTML = this._profiles.map(profile =>
+        profileSelect.innerHTML = `<option value="">Selecciona un perfil…</option>` + this._profiles.map(profile =>
           `<option value="${this._esc(profile.entry_id)}">${this._esc(profile.vehicle_name)} · ${this._esc(profile.charger_name)}</option>`
         ).join("");
       }
