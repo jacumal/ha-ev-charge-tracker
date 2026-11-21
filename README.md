@@ -20,6 +20,7 @@ Track charging sessions, delivered energy, battery state of charge (SOC), mileag
 - [Functional specification and sensor contract](docs/functional-specification.md)
 - [Lovelace dashboard design](docs/dashboard-design.md)
 - [Implementation roadmap and status](docs/roadmap.md)
+- [Beta validation checklist](docs/beta-checklist.md)
 
 ## Planned capabilities
 
