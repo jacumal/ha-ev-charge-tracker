@@ -11,6 +11,7 @@ from homeassistant.core import HomeAssistant
 from .const import DOMAIN, PLATFORMS
 from .coordinator import EVChargeCoordinator
 from .profile_registry import build_profile_registry
+from .websocket import async_register as async_register_websocket
 
 EVChargeConfigEntry = ConfigEntry[EVChargeCoordinator]
 REGISTRY_DATA_KEY = "_profile_registry"
@@ -28,6 +29,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the integration and serve its bundled Lovelace card."""
     hass.data.setdefault(DOMAIN, {})
     _refresh_profile_registry(hass)
+    async_register_websocket(hass)
     card_path = Path(__file__).parent / "frontend" / "ev-charge-tracker-card.js"
     await hass.http.async_register_static_paths(
         [StaticPathConfig(CARD_URL, str(card_path), cache_headers=True)]
