@@ -1,5 +1,6 @@
 """Config-entry lifecycle cleanup tests."""
 
+import asyncio
 import unittest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, Mock, patch
@@ -298,7 +299,7 @@ class ConfigEntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
             states=SimpleNamespace(get=lambda entity_id: (
                 charger_state if entity_id == "binary_sensor.charger" else energy_state
             )),
-            async_create_task=lambda coroutine: __import__("asyncio").create_task(coroutine),
+            async_create_task=lambda coroutine: asyncio.create_task(coroutine),
         )
         coordinator.async_set_updated_data = Mock()
         coordinator._async_save = AsyncMock()
@@ -316,7 +317,6 @@ class ConfigEntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
         }))
         # Let the task scheduled by Home Assistant's async_create_task run;
         # otherwise the AsyncMock coroutine is created but never awaited.
-        import asyncio
         await asyncio.sleep(0)
 
         coordinator._capture_measurements.assert_called_once_with("sensor.energy", "22.5")
