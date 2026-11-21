@@ -14,8 +14,8 @@
           "odometer_entity": "Distancia total recorrida (odómetro, opcional)",
           "odometer_unit": "Unidad del odómetro",
           "price_mode": "Origen del precio eléctrico",
-          "price_per_kwh": "Precio fijo por kWh",
-          "price_entity": "Precio por kWh (sensor, opcional según origen)",
+          "price_per_kwh": "Precio fijo por kWh (IVA e impuestos incluidos)",
+          "price_entity": "Precio por kWh (sensor, IVA e impuestos incluidos)",
           "finalization": "Cuándo consolidar una carga",
           "power_entity": "Potencia instantánea de carga (W/kW, opcional)"
         },
@@ -29,8 +29,8 @@
           "odometer_entity": "OPCIONAL según el cierre · Sensor de distancia total recorrida, normalmente km o mi. Se usa para confirmar que el vehículo se ha movido después de cargar. Si eliges cierre por odómetro, es obligatorio y debe actualizarse tras el viaje; si no aumenta, la sesión quedará pendiente de consolidación. No selecciones un sensor de autonomía.",
           "odometer_unit": "Unidad real que publica el sensor de odómetro. Se normaliza internamente a kilómetros. Si la unidad declarada por la entidad no coincide con tu selección, corrige la entidad o crea un sensor plantilla coherente.",
           "price_mode": "Define de dónde sale el precio de la electricidad. El precio se guarda en cada sesión para que cambiar la tarifa en el futuro no modifique el coste histórico.",
-          "price_per_kwh": "Solo para precio manual fijo. Introduce el coste total por kWh en la moneda que corresponda, expresado por ahora como €/kWh. Ejemplo: 0.18. Si tu tarifa cambia por horas, no uses un precio medio como si fuera exacto: configura periodos horarios cuando esté disponible el editor de tarifas.",
-          "price_entity": "Solo para precio desde sensor. Debe ser un sensor numérico cuyo estado sea el precio por kWh y cuya unidad sea €/kWh (por ejemplo 0.18). No selecciones el coste acumulado de la factura, potencia contratada ni precio por MWh. Se toma una instantánea al inicio de la sesión; si el sensor está unavailable o la unidad no coincide, el coste puede quedar sin calcular. La lectura actual no reconstruye todavía cambios de precio dentro de una misma carga.",
+          "price_per_kwh": "Solo para precio manual fijo. Introduce el precio FINAL que pagas por cada kWh, con IVA e impuestos incluidos, expresado en €/kWh. Ejemplo: 0.18. No introduzcas el precio antes de impuestos ni añadas el IVA por separado: la integración no calcula ni añade impuestos. Si tu tarifa cambia por horas, configura periodos horarios e introduce en cada uno el precio final con impuestos incluidos.",
+          "price_entity": "Solo para precio desde sensor. Debe ser un sensor numérico cuyo estado sea el precio FINAL que pagas por kWh, con IVA e impuestos incluidos, y cuya unidad sea €/kWh (por ejemplo 0.18). No selecciones un precio antes de impuestos, el coste acumulado de la factura, potencia contratada ni precio por MWh. La integración no calcula ni añade impuestos: el sensor debe proporcionar ya el precio final. Se toma una instantánea al inicio de la sesión; si el sensor está unavailable o la unidad no coincide, el coste puede quedar sin calcular. La lectura actual no reconstruye todavía cambios de precio dentro de una misma carga.",
           "finalization": "Elige cuándo se cierra y se guarda una sesión. Por odómetro: espera a que la distancia total aumente. Inmediata: cierra al pasar el estado a OFF. Manual: deja la sesión pendiente hasta pulsar el botón «Consolidar última carga» después de comprobar los datos.",
           "power_entity": "Sensor opcional de potencia instantánea en W o kW. Mejora el reparto de energía entre periodos tarifarios; el contador de energía sigue siendo la referencia del total entregado. Si no está disponible, se utiliza el reparto temporal y se marca como estimación."
         }
@@ -82,21 +82,21 @@
           "period_1_name": "Nombre breve que aparecerá en el desglose del coste de la sesión.",
           "period_1_start": "Hora local en formato HH:MM. El inicio está incluido.",
           "period_1_end": "Hora local en formato HH:MM. El final no está incluido; usa 00:00 o 24:00 para medianoche.",
-          "period_1_price": "Precio manual no negativo en la moneda del perfil por kWh. Solo se utiliza cuando no se selecciona un sensor para este periodo. Si el sensor seleccionado queda unavailable o publica un valor/unidad no válidos, la energía afectada queda sin precio; este valor manual no actúa como sustituto.",
+          "period_1_price": "Precio manual FINAL, con IVA e impuestos incluidos, en la moneda del perfil por kWh. Introduce lo que realmente pagas; la integración no calcula ni añade impuestos. Solo se utiliza cuando no se selecciona un sensor para este periodo. Si el sensor seleccionado queda unavailable o publica un valor/unidad no válidos, la energía afectada queda sin precio; este valor manual no actúa como sustituto.",
           "period_1_days": "Selecciona los días de la semana en los que se aplica este tramo. El horario semanal completo no debe tener huecos ni solapamientos.",
           "period_2_name": "Nombre breve que aparecerá en el desglose del coste de la sesión.",
           "period_2_start": "Hora local en formato HH:MM. El inicio está incluido.",
           "period_2_end": "Hora local en formato HH:MM. El final no está incluido; usa 00:00 o 24:00 para medianoche.",
-          "period_2_price": "Precio manual no negativo en la moneda del perfil por kWh. Solo se utiliza cuando no se selecciona un sensor para este periodo. Si el sensor seleccionado queda unavailable o publica un valor/unidad no válidos, la energía afectada queda sin precio; este valor manual no actúa como sustituto.",
+          "period_2_price": "Precio manual FINAL, con IVA e impuestos incluidos, en la moneda del perfil por kWh. Introduce lo que realmente pagas; la integración no calcula ni añade impuestos. Solo se utiliza cuando no se selecciona un sensor para este periodo. Si el sensor seleccionado queda unavailable o publica un valor/unidad no válidos, la energía afectada queda sin precio; este valor manual no actúa como sustituto.",
           "period_2_days": "Selecciona los días de la semana en los que se aplica este tramo. El horario semanal completo no debe tener huecos ni solapamientos.",
           "period_3_name": "Nombre breve que aparecerá en el desglose del coste de la sesión.",
           "period_3_start": "Hora local en formato HH:MM. El inicio está incluido.",
           "period_3_end": "Hora local en formato HH:MM. El final no está incluido; usa 00:00 o 24:00 para medianoche.",
-          "period_3_price": "Precio manual no negativo en la moneda del perfil por kWh. Solo se utiliza cuando no se selecciona un sensor para este periodo. Si el sensor seleccionado queda unavailable o publica un valor/unidad no válidos, la energía afectada queda sin precio; este valor manual no actúa como sustituto.",
+          "period_3_price": "Precio manual FINAL, con IVA e impuestos incluidos, en la moneda del perfil por kWh. Introduce lo que realmente pagas; la integración no calcula ni añade impuestos. Solo se utiliza cuando no se selecciona un sensor para este periodo. Si el sensor seleccionado queda unavailable o publica un valor/unidad no válidos, la energía afectada queda sin precio; este valor manual no actúa como sustituto.",
           "period_3_days": "Selecciona los días de la semana en los que se aplica este tramo. El horario semanal completo no debe tener huecos ni solapamientos.",
-          "period_1_price_entity": "Opcional · Selecciona un sensor numérico de Home Assistant con el precio de este periodo en la moneda del perfil por kWh (por ejemplo EUR/kWh). Si lo seleccionas, sustituye al precio manual y se registran los cambios con su hora. Si el sensor queda unavailable o publica una unidad/valor no válido, la energía afectada queda sin precio; no se reutiliza un precio antiguo.",
-          "period_2_price_entity": "Opcional · Selecciona un sensor numérico de Home Assistant con el precio de este periodo en la moneda del perfil por kWh (por ejemplo EUR/kWh). Si lo seleccionas, sustituye al precio manual y se registran los cambios con su hora. Si el sensor queda unavailable o publica una unidad/valor no válido, la energía afectada queda sin precio; no se reutiliza un precio antiguo.",
-          "period_3_price_entity": "Opcional · Selecciona un sensor numérico de Home Assistant con el precio de este periodo en la moneda del perfil por kWh (por ejemplo EUR/kWh). Si lo seleccionas, sustituye al precio manual y se registran los cambios con su hora. Si el sensor queda unavailable o publica una unidad/valor no válido, la energía afectada queda sin precio; no se reutiliza un precio antiguo."
+          "period_1_price_entity": "Opcional · Selecciona un sensor numérico de Home Assistant con el precio FINAL de este periodo, con IVA e impuestos incluidos, en la moneda del perfil por kWh (por ejemplo EUR/kWh). El sensor debe proporcionar el precio final; la integración no calcula ni añade impuestos. Si lo seleccionas, sustituye al precio manual y se registran los cambios con su hora. Si el sensor queda unavailable o publica una unidad/valor no válido, la energía afectada queda sin precio; no se reutiliza un precio antiguo.",
+          "period_2_price_entity": "Opcional · Selecciona un sensor numérico de Home Assistant con el precio FINAL de este periodo, con IVA e impuestos incluidos, en la moneda del perfil por kWh (por ejemplo EUR/kWh). El sensor debe proporcionar el precio final; la integración no calcula ni añade impuestos. Si lo seleccionas, sustituye al precio manual y se registran los cambios con su hora. Si el sensor queda unavailable o publica una unidad/valor no válido, la energía afectada queda sin precio; no se reutiliza un precio antiguo.",
+          "period_3_price_entity": "Opcional · Selecciona un sensor numérico de Home Assistant con el precio FINAL de este periodo, con IVA e impuestos incluidos, en la moneda del perfil por kWh (por ejemplo EUR/kWh). El sensor debe proporcionar el precio final; la integración no calcula ni añade impuestos. Si lo seleccionas, sustituye al precio manual y se registran los cambios con su hora. Si el sensor queda unavailable o publica una unidad/valor no válido, la energía afectada queda sin precio; no se reutiliza un precio antiguo."
         }
       },
       "profile": {
@@ -110,8 +110,8 @@
           "odometer_entity": "Odómetro (opcional)",
           "odometer_unit": "Unidad del odómetro",
           "price_mode": "Origen del precio eléctrico",
-          "price_per_kwh": "Precio fijo por kWh",
-          "price_entity": "Sensor de precio (€/kWh)",
+          "price_per_kwh": "Precio fijo por kWh (IVA e impuestos incluidos)",
+          "price_entity": "Sensor de precio final (€/kWh, impuestos incluidos)",
           "finalization": "Cuándo consolidar una carga",
           "power_entity": "Potencia instantánea de carga (W/kW, opcional)"
         },
@@ -123,8 +123,8 @@
           "odometer_entity": "Necesario si se elige el cierre por odómetro.",
           "odometer_unit": "Unidad de distancia publicada por el sensor.",
           "price_mode": "Selecciona precio fijo o sensor de precio.",
-          "price_per_kwh": "Se usa con precio manual fijo, en €/kWh.",
-          "price_entity": "Sensor numérico en €/kWh.",
+          "price_per_kwh": "Introduce el precio FINAL que pagas por kWh, con IVA e impuestos incluidos. La integración no calcula ni añade impuestos.",
+          "price_entity": "Sensor numérico que ya proporciona el precio FINAL por kWh, con IVA e impuestos incluidos. La integración no calcula ni añade impuestos.",
           "finalization": "Elige cierre por odómetro, automático tras 60 segundos o manual.",
           "power_entity": "Sensor opcional de potencia instantánea en W o kW. Mejora el reparto de energía entre periodos tarifarios; el contador de energía sigue siendo la referencia del total entregado. Si no está disponible, se utiliza el reparto temporal y se marca como estimación."
         }
