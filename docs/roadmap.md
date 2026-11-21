@@ -1,8 +1,8 @@
 # Project roadmap and implementation status
 
 **Repository:** jacumal/ha-ev-charge-tracker  
-**Baseline reviewed:** 2026-11-20  
-**Baseline commit:** bb44cd1bea7ba38122d125b37568af59e6cea2a8  
+**Baseline reviewed:** 2026-11-21  
+**Baseline commit:** 8aa5d06ad21e199a7e1fdf8abfc242f721de76ae  
 **Rule:** A planned or specified capability is not implemented until code and automated tests exist. Real Home Assistant behavior remains pending until controlled testing.
 
 Status: **Implemented** · **Partial** · **Specified / pending** · **Not started / validation pending**
@@ -18,7 +18,7 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [ ] Full lifecycle validation in a real HA instance, including restart at each transition and persistence failure/recovery.
 - [ ] Multi-profile architecture and unambiguous simultaneous-session assignment.
 
-**Status: Partial.** Recovery guards and automated transition/freshness tests are implemented on PR #3; live Home Assistant restart validation and multi-profile behavior remain open.
+**Status: Partial.** Recovery guards, transition/freshness tests and lifecycle hardening are merged to `main` (PR #5). The post-merge CI run passed; live Home Assistant restart validation and multi-profile behavior remain open.
 
 ## 2. Vehicles and chargers
 - [x] User-selected charging-state, energy, optional SOC, odometer, power and price entities.
@@ -43,7 +43,7 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [ ] More complete counter reset/rollover and stale-energy validation.
 - [ ] Controlled end-to-end tests against known meter readings and bills.
 
-**Status: Implementation and automated CI complete (PR #2, run 124 passed).** Controlled validation in a real Home Assistant instance, plus end-to-end comparison against known meter readings and electricity bills, remain open; therefore the full category is not yet closed.
+**Status: Implementation and automated CI complete.** Dynamic per-period price sensors and timestamped price segments are implemented. Controlled validation in a real Home Assistant instance, plus end-to-end comparison against known meter readings and electricity bills, remain open; therefore the full category is not yet closed.
 
 ## 4. Sensors, statistics and history
 - [x] Current status, session energy, cost, SOC start/end/increase, duration and history sensors.
@@ -59,24 +59,26 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 
 ## 5. Lovelace card
 - [x] Design direction documented: responsive, Bubble Card-compatible and Apple-inspired.
-- [ ] Functional card bundled in this repository.
-- [ ] Latest charge summary, SOC start/end/increase, duration, timestamps, energy and cost.
-- [ ] Chronological history and tariff breakdown.
-- [ ] Mobile/desktop, light/dark and missing-data behavior.
-- [ ] Installation, entity mapping and screenshots.
+- [x] Functional custom Lovelace card bundled and served by the integration.
+- [x] Visual editor and native Home Assistant entity pickers for semantic entity mappings.
+- [ ] Validate latest-charge summary, history, tariff breakdown and missing-data states against a live HA frontend.
+- [ ] Verify mobile/desktop and light/dark layouts in a real HA instance.
+- [ ] Publish installation guidance and verified screenshots.
 
-**Status: Specified / pending.** No integrated card implementation is complete yet.
+**Status: Partial.** Card code and visual-editor support are present; browser/frontend validation in Home Assistant remains pending.
 
 ## 6. Quality, documentation and release
-- [x] GitHub Actions: Python compilation, translation structure checks, module import and pytest.
-- [x] Unit tests for tariff and power allocation.
-- [ ] Expand coverage for coordinator lifecycle, persistence, config flow and sensors.
-- [ ] Home Assistant integration validation and controlled real-instance test plan.
-- [x] Refresh README project status and link the implementation roadmap; broader README cleanup remains.
-- [ ] Complete HACS metadata, release packaging, license and versioning.
-- [ ] Alpha installation guide and known limitations.
+- [x] GitHub Actions: Python compilation, JavaScript syntax/behavior checks, translation validation, module import and pytest.
+- [x] Automated lifecycle, recovery, tariff and power-allocation tests.
+- [x] Post-merge CI on `8aa5d06`: 93 pytest tests passed, 14 subtests passed; two warnings were reported. One warning came from an un-awaited AsyncMock coroutine in a lifecycle test and is being corrected.
+- [ ] Complete a clean CI run after the warning fix.
+- [ ] Home Assistant integration validation, config-flow selector checks and controlled real-instance test plan.
+- [x] README and roadmap refreshed to reflect the merged implementation.
+- [ ] Verify HACS release packaging and installation from a versioned tag.
+- [x] MIT license file and beta version metadata prepared on the beta-readiness branch.
+- [ ] Publish a beta only after PR review, green CI and packaging checks.
 
-**Status: Partial.** CI baseline exists and recent run passed; real HA validation and release readiness remain open.
+**Status: Partial.** Code and metadata are being prepared for `0.1.0-beta.1`; no release/tag has been published. Real HA validation remains a release gate.
 
 ## 7. Battery care, parked monitoring and safety advice (new scope)
 Source: user-provided transcript screenshots, approximately 09:36–15:06. These are video-derived recommendations, not verified manufacturer instructions.
