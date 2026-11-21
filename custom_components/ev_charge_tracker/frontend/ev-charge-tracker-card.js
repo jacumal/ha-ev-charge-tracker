@@ -1,7 +1,7 @@
 /* EV Charge Tracker Lovelace card
  * Copyright (c) EV Charge Tracker contributors. MIT.
  */
-const CARD_VERSION = "0.1.0";
+const CARD_VERSION = "0.2.0";
 
 class EVChargeTrackerCard extends HTMLElement {
   setConfig(config) {
@@ -210,12 +210,34 @@ class EVChargeTrackerCard extends HTMLElement {
 }
 
 class EVChargeTrackerCardEditor extends HTMLElement {
-  setConfig(config) { this._config = config || {}; this._render(); }
-  set hass(hass) { this._hass = hass; this._render(); }
+  constructor() {
+    super();
+    this._config = {};
+    this._hass = null;
+    this._profiles = [];
+    this._profilesLoaded = false;
+    this._profileRequest = false;
+    this._built = false;
+    this._manualMode = false;
+  }
 
-  _render() {
-    if (!this._hass || !this._config) return;
+  setConfig(config) {
+    this._config = { ...(config || {}), entities: { ...(config?.entities || {}) } };
+    this._syncControls();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
     if (!this.shadowRoot) this.attachShadow({ mode: "open" });
+    this._ensureDom();
+    this.shadowRoot.querySelectorAll("ha-entity-picker").forEach(picker => {
+      picker.hass = hass;
+    });
+    this._loadProfiles();
+  }
+
+  _ensureDom() {
+    if (this._built) return;
     const fields = [
       ["status","Estado de carga"],["energy","Energía de la carga"],["cost","Coste de la carga"],
       ["soc_start","Batería al inicio"],["soc_end","Batería al final"],["soc_increase","Aumento de batería"],
@@ -223,38 +245,143 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     ];
     this.shadowRoot.innerHTML = `<style>
       .field{display:block;margin:12px 0} label{display:block;margin-bottom:5px;font-size:13px}
-      input{box-sizing:border-box;width:100%;padding:9px;border:1px solid var(--divider-color);border-radius:8px;background:var(--card-background-color);color:var(--primary-text-color)}
+      input,select{box-sizing:border-box;width:100%;padding:9px;border:1px solid var(--divider-color);border-radius:8px;background:var(--card-background-color);color:var(--primary-text-color)}
       ha-entity-picker{display:block;width:100%}
+      .hint{font-size:12px;color:var(--secondary-text-color);margin:6px 0 12px}
+      .profile{margin:12px 0;padding:12px;border:1px solid var(--divider-color);border-radius:10px}
+      .hidden{display:none}
+      button{margin-top:8px;padding:7px 12px;border:1px solid var(--divider-color);border-radius:8px;background:var(--secondary-background-color);color:var(--primary-text-color);cursor:pointer}
     </style><div>
-      <label class="field">Nombre visible<input id="name" value="${this._esc(this._config.name || "")}" placeholder="Mi vehículo"></label>
-      ${fields.map(([key,label]) => `<label class="field">${label}<ha-entity-picker data-key="${key}" allow-custom-entity value="${this._esc(this._config.entities?.[key] || "")}"></ha-entity-picker></label>`).join("")}
-      <label class="field">Máximo de cargas históricas<input id="max_history" type="number" min="1" max="50" value="${this._config.max_history || 8}"></label>
+      <div id="profileBox" class="profile hidden">
+        <label for="profileSelect">Perfil de carga</label>
+        <select id="profileSelect"></select>
+        <div id="profileHint" class="hint"></div>
+        <button id="manualToggle" type="button">Editar entidades manualmente</button>
+      </div>
+      <label class="field">Nombre visible<input id="name" placeholder="Mi vehículo"></label>
+      <div id="entityFields" class="hidden">
+        ${fields.map(([key,label]) => `<label class="field">${label}<ha-entity-picker data-key="${key}" allow-custom-entity></ha-entity-picker></label>`).join("")}
+      </div>
+      <label class="field">Máximo de cargas históricas<input id="max_history" type="number" min="1" max="50"></label>
     </div>`;
+    this.shadowRoot.getElementById("name").addEventListener("change", () => this._updateConfig());
+    this.shadowRoot.getElementById("max_history").addEventListener("change", () => this._updateConfig());
+    this.shadowRoot.getElementById("profileSelect").addEventListener("change", event => {
+      const selected = this._profiles.find(profile => profile.entry_id === event.target.value);
+      if (selected) this._applyProfile(selected);
+    });
+    this.shadowRoot.getElementById("manualToggle").addEventListener("click", () => {
+      this._manualMode = !this._manualMode;
+      this._syncControls();
+    });
     this.shadowRoot.querySelectorAll("ha-entity-picker").forEach(picker => {
-      picker.hass = this._hass;
-      picker.value = this._config.entities?.[picker.dataset.key] || "";
       picker.addEventListener("value-changed", event => {
+        if (event.detail?.value !== picker.value) return;
         this._updateConfig(picker.dataset.key, event.detail.value);
       });
     });
-    this.shadowRoot.getElementById("name").addEventListener("change", () => this._updateConfig());
-    this.shadowRoot.getElementById("max_history").addEventListener("change", () => this._updateConfig());
+    this._built = true;
+    this._syncControls();
+  }
+
+  async _loadProfiles() {
+    if (!this._hass || this._profilesLoaded || this._profileRequest || typeof this._hass.callWS !== "function") return;
+    this._profileRequest = true;
+    try {
+      const result = await this._hass.callWS({ type: "ev_charge_tracker/profiles" });
+      this._profiles = Array.isArray(result?.profiles) ? result.profiles : [];
+      this._profilesLoaded = true;
+      const selectedId = this._config.profile_entry_id;
+      if (selectedId) {
+        const selected = this._profiles.find(profile => profile.entry_id === selectedId);
+        if (selected && !this._config.profile_manual_override) this._applyProfile(selected, false);
+      } else if (this._profiles.length === 1) {
+        this._applyProfile(this._profiles[0], false);
+      } else if (this._profiles.length > 1) {
+        this._manualMode = false;
+      } else {
+        this._manualMode = true;
+      }
+      this._syncControls();
+    } catch (error) {
+      // Keep manual configuration available if the backend profile API is unavailable.
+      this._profilesLoaded = true;
+      this._manualMode = true;
+      this._syncControls();
+    } finally {
+      this._profileRequest = false;
+    }
+  }
+
+  _applyProfile(profile, emit = true) {
+    const next = {
+      ...this._config,
+      name: profile.vehicle_name || this._config.name || "EV Charge Tracker",
+      profile_entry_id: profile.entry_id,
+      entities: { ...(this._config.entities || {}), ...(profile.entities || {}) },
+    };
+    for (const key of Object.keys(next.entities)) {
+      if (!profile.entities?.[key]) delete next.entities[key];
+    }
+    this._config = next;
+    this._manualMode = false;
+    this._syncControls();
+    if (emit) this._fireConfigChanged();
+  }
+
+  _syncControls() {
+    if (!this.shadowRoot || !this._built) return;
+    const name = this.shadowRoot.getElementById("name");
+    const maxHistory = this.shadowRoot.getElementById("max_history");
+    if (name && name !== this.shadowRoot.activeElement) name.value = this._config.name || "";
+    if (maxHistory && maxHistory !== this.shadowRoot.activeElement) maxHistory.value = this._config.max_history || 8;
+
+    const profileBox = this.shadowRoot.getElementById("profileBox");
+    const profileSelect = this.shadowRoot.getElementById("profileSelect");
+    const profileHint = this.shadowRoot.getElementById("profileHint");
+    const hasProfiles = this._profiles.length > 0;
+    profileBox.classList.toggle("hidden", !hasProfiles);
+    if (hasProfiles) {
+      const selectedId = this._config.profile_entry_id || (this._profiles.length === 1 ? this._profiles[0].entry_id : "");
+      if (profileSelect.options.length !== this._profiles.length) {
+        profileSelect.innerHTML = `<option value="">Selecciona un perfil…</option>` + this._profiles.map(profile =>
+          `<option value="${this._esc(profile.entry_id)}">${this._esc(profile.vehicle_name)} · ${this._esc(profile.charger_name)}</option>`
+        ).join("");
+      }
+      if (selectedId && profileSelect.value !== selectedId) profileSelect.value = selectedId;
+      profileSelect.classList.toggle("hidden", this._profiles.length === 1);
+      profileHint.textContent = this._profiles.length === 1
+        ? "Perfil detectado automáticamente."
+        : "Selecciona el vehículo y cargador que utilizará esta tarjeta.";
+    }
+    const entityFields = this.shadowRoot.getElementById("entityFields");
+    entityFields.classList.toggle("hidden", !this._manualMode);
+    this.shadowRoot.getElementById("manualToggle").textContent =
+      this._manualMode ? "Ocultar edición manual" : "Editar entidades manualmente";
+    this.shadowRoot.querySelectorAll("ha-entity-picker").forEach(picker => {
+      picker.hass = this._hass;
+      const value = this._config.entities?.[picker.dataset.key] || "";
+      if (picker.value !== value) picker.value = value;
+    });
   }
 
   _updateConfig(changedKey, changedValue) {
-    const next = {
-      ...this._config,
-      name: this.shadowRoot.getElementById("name").value.trim() || "EV Charge Tracker",
-      max_history: Math.min(50, Math.max(1, Number(this.shadowRoot.getElementById("max_history").value || 8))),
-      entities: { ...(this._config.entities || {}) },
-    };
+    const name = this.shadowRoot.getElementById("name").value.trim() || "EV Charge Tracker";
+    const maxHistory = Math.min(50, Math.max(1, Number(this.shadowRoot.getElementById("max_history").value || 8)));
+    const next = { ...this._config, name, max_history: maxHistory, entities: { ...(this._config.entities || {}) } };
     if (changedKey) {
       if (changedValue) next.entities[changedKey] = changedValue;
       else delete next.entities[changedKey];
+      // A manual override is intentional; do not silently reapply profile defaults.
+      next.profile_manual_override = true;
     }
     this._config = next;
+    this._fireConfigChanged();
+  }
+
+  _fireConfigChanged() {
     this.dispatchEvent(new CustomEvent("config-changed", {
-      detail: { config: next }, bubbles: true, composed: true,
+      detail: { config: this._config }, bubbles: true, composed: true,
     }));
   }
 
