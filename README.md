@@ -4,7 +4,7 @@ Universal EV charging session tracker for Home Assistant.
 
 Track charging sessions, delivered energy, battery state of charge (SOC), mileage, costs and history across multiple electric vehicles and chargers. The integration is designed to work with existing Home Assistant entities, independently of vehicle and charger brands.
 
-**Project status:** early development (`0.1.0-dev`). The repository already contains the session coordinator, persistent history, configurable pricing and a one-to-three-period tariff engine with automated tests. It is still not a production-ready release: real Home Assistant validation, broader lifecycle tests, and release packaging remain pending. A bundled development Lovelace card is present and still needs frontend validation. See the [implementation roadmap](docs/roadmap.md) for the current status.
+**Project status:** beta candidate preparation (`0.1.0-beta.1`, not yet published). The repository already contains the session coordinator, persistent history, configurable pricing and a one-to-three-period tariff engine with automated tests. It is still not a production-ready release: real Home Assistant validation, live Home Assistant validation and final release packaging checks remain pending. A bundled development Lovelace card is present and still needs frontend validation. See the [implementation roadmap](docs/roadmap.md) for the current status.
 
 ## Design principles
 
@@ -56,7 +56,7 @@ The first development increment is intentionally limited to one charging profile
 - Immediate or odometer-increase finalization.
 - Persistent session state and up to 500 history records.
 
-Power-based session detection, country-specific tariff presets, aggregate day/week/month statistics and complete release packaging remain outstanding. Advanced freshness safeguards and the bundled Lovelace card are implemented in the development branch; the card still requires controlled Home Assistant frontend validation. Per-period dynamic price sensors are implemented and require end-to-end validation. Manual finalization is available through a dedicated button entity when selected in the profile. Do not install this development version in a production instance or use it to record real charging sessions. A testable alpha will be announced only after syntax checks, Home Assistant validation, and a controlled test plan are complete.
+Power-based session detection, country-specific tariff presets, aggregate day/week/month statistics and complete release packaging remain outstanding. Advanced freshness safeguards and the bundled Lovelace card are implemented in `main`; the card still requires controlled Home Assistant frontend validation. Per-period dynamic price sensors are implemented and require end-to-end validation. Manual finalization is available through a dedicated button entity when selected in the profile. Do not install this development version in a production instance or use it to record real charging sessions. A beta candidate (`0.1.0-beta.1`) is being prepared. It will not be published until the packaging checks and CI are clean; real Home Assistant validation remains an explicit pre-production gate.
 
 
 The tariff engine supports one to three periods, weekday selection, overnight boundaries, schedule validation, and estimated allocation of sampled energy deltas. The coordinator now calls this engine when tariff periods are present in the profile configuration and persists the resulting per-period breakdown. The schedule editor is available from the profile options. Its end-to-end behavior still requires controlled Home Assistant testing. See the functional specification for the target behavior.
@@ -103,5 +103,4 @@ and energy that could not be priced. The cost sensor exposes:
 
 A partial amount is never presented as the complete session cost. Missing or
 invalid price data does not erase known priced segments and is never replaced
-with zero. Tariff periods currently use the profile's selected currency and
-manually entered per-kWh prices. Dynamic per-period price sensors remain planned.
+with zero. Tariff periods support either manually entered per-kWh prices or selected Home Assistant price sensors. Dynamic price changes are timestamped and retained as historical price segments; this behavior is implemented but still requires end-to-end validation in a real Home Assistant instance.
