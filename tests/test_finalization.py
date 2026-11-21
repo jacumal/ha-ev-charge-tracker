@@ -1,6 +1,9 @@
 """Session finalization regression tests."""
 
 import unittest
+from datetime import timedelta
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 from custom_components.ev_charge_tracker.coordinator import EVChargeCoordinator
 
@@ -147,6 +150,93 @@ class SessionFinalizationTests(unittest.TestCase):
         self.assertFalse(record["energy_valid"])
         self.assertEqual(record["energy_kwh"], 0.0)
         self.assertEqual(len(coordinator.data["history"]), 1)
+
+
+class FinalizationStrategyTests(unittest.TestCase):
+    def setUp(self):
+        from datetime import datetime, timezone
+        from custom_components.ev_charge_tracker import coordinator as coordinator_module
+        from custom_components.ev_charge_tracker.const import (
+            CONF_CHARGING_ENTITY, CONF_FINALIZATION, CONF_ODOMETER_ENTITY,
+            FINALIZE_IMMEDIATE, FINALIZE_MANUAL, FINALIZE_ODOMETER,
+        )
+        self.module = coordinator_module
+        self.Mock = Mock
+        self.now = datetime(2026, 11, 20, 12, 0, tzinfo=timezone.utc)
+        self.stopped_at = self.now - timedelta(minutes=2)
+        self.config_keys = (CONF_CHARGING_ENTITY, CONF_FINALIZATION, CONF_ODOMETER_ENTITY)
+        self.strategies = (FINALIZE_IMMEDIATE, FINALIZE_MANUAL, FINALIZE_ODOMETER)
+        self.coordinator = object.__new__(EVChargeCoordinator)
+        self.coordinator.config = {
+            CONF_CHARGING_ENTITY: "binary_sensor.charger",
+            CONF_ODOMETER_ENTITY: "sensor.odometer",
+            CONF_FINALIZATION: FINALIZE_IMMEDIATE,
+        }
+        self.coordinator.data = {
+            "session": {
+                "ended_at": self.stopped_at.isoformat(),
+                "energy_valid": True,
+                "odometer_start_km": 100.0,
+            },
+            "diagnostic": "",
+        }
+        self.coordinator.hass = SimpleNamespace(
+            states=SimpleNamespace(get=lambda entity_id: SimpleNamespace(state="off"))
+        )
+        self.coordinator._finalize = Mock()
+        self.coordinator._read_odometer = Mock(return_value=101.0)
+
+    def test_immediate_strategy_waits_for_post_stop_grace_period(self):
+        from datetime import timedelta
+        with patch.object(self.module.dt_util, "utcnow", return_value=self.stopped_at + timedelta(seconds=30)):
+            self.coordinator._try_finalize()
+        self.coordinator._finalize.assert_not_called()
+        self.assertIn("esperando lecturas finales", self.coordinator.data["diagnostic"])
+
+    def test_immediate_strategy_finalizes_after_grace_with_valid_energy(self):
+        with patch.object(self.module.dt_util, "utcnow", return_value=self.now):
+            self.coordinator._try_finalize()
+        self.coordinator._finalize.assert_called_once()
+
+    def test_manual_strategy_never_auto_finalizes(self):
+        from custom_components.ev_charge_tracker.const import CONF_FINALIZATION, FINALIZE_MANUAL
+        self.coordinator.config[CONF_FINALIZATION] = FINALIZE_MANUAL
+        self.coordinator._try_finalize()
+        self.coordinator._finalize.assert_not_called()
+        self.assertEqual(self.coordinator.data["diagnostic"], "Carga pendiente de confirmación manual")
+
+    def test_odometer_strategy_requires_post_stop_observation(self):
+        from datetime import timedelta
+        from custom_components.ev_charge_tracker.const import CONF_FINALIZATION, FINALIZE_ODOMETER
+        self.coordinator.config[CONF_FINALIZATION] = FINALIZE_ODOMETER
+        old_state = SimpleNamespace(last_updated=self.stopped_at - timedelta(seconds=1))
+        self.coordinator.hass.states.get = lambda entity_id: (SimpleNamespace(state="off") if entity_id == "binary_sensor.charger" else old_state)
+        self.coordinator._try_finalize()
+        self.coordinator._finalize.assert_not_called()
+
+    def test_odometer_strategy_finalizes_with_increased_fresh_reading_and_energy(self):
+        from datetime import timedelta
+        from custom_components.ev_charge_tracker.const import CONF_FINALIZATION, FINALIZE_ODOMETER
+        self.coordinator.config[CONF_FINALIZATION] = FINALIZE_ODOMETER
+        fresh_state = SimpleNamespace(last_updated=self.stopped_at + timedelta(seconds=1))
+        self.coordinator.hass.states.get = lambda entity_id: (SimpleNamespace(state="off") if entity_id == "binary_sensor.charger" else fresh_state)
+        self.coordinator._try_finalize()
+        self.coordinator._finalize.assert_called_once()
+
+    def test_odometer_strategy_does_not_finalize_without_energy(self):
+        from datetime import timedelta
+        from custom_components.ev_charge_tracker.const import CONF_FINALIZATION, FINALIZE_ODOMETER
+        self.coordinator.config[CONF_FINALIZATION] = FINALIZE_ODOMETER
+        self.coordinator.data["session"]["energy_valid"] = False
+        fresh_state = SimpleNamespace(last_updated=self.stopped_at + timedelta(seconds=1))
+        self.coordinator.hass.states.get = lambda entity_id: (
+            SimpleNamespace(state="off")
+            if entity_id == "binary_sensor.charger"
+            else fresh_state
+        )
+        self.coordinator._try_finalize()
+        self.coordinator._finalize.assert_not_called()
+        self.assertIn("falta una lectura válida de energía", self.coordinator.data["diagnostic"])
 
 
 if __name__ == "__main__":

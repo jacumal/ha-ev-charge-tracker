@@ -10,6 +10,7 @@ from homeassistant.core import callback
 from homeassistant.helpers import selector
 
 from .tariff import default_periods, validate_periods
+from .profile_registry import build_profile_identity, find_resource_conflicts
 
 from .const import (
     CONF_CHARGER_NAME,
@@ -64,14 +65,29 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             elif user_input[CONF_PRICE_MODE] == PRICE_MODE_SENSOR and not user_input.get(CONF_PRICE_ENTITY):
                 errors["base"] = "price_sensor_required"
             else:
-                await self.async_set_unique_id(
-                    f"{vehicle_name.lower()}_{charger_name.lower()}"
-                )
-                self._abort_if_unique_id_configured()
-                return self.async_create_entry(
-                    title=f"{vehicle_name} · {charger_name}",
-                    data=user_input,
-                )
+                try:
+                    identity = build_profile_identity(vehicle_name, charger_name)
+                except ValueError:
+                    errors["base"] = "name_required"
+                else:
+                    conflicts = find_resource_conflicts(
+                        user_input,
+                        (
+                            {**entry.data, **entry.options}
+                            for entry in self.hass.config_entries.async_entries(DOMAIN)
+                        ),
+                    )
+                    if conflicts:
+                        errors["base"] = "resource_conflict"
+                    else:
+                        await self.async_set_unique_id(
+                            f"{identity['vehicle_id']}__{identity['charger_id']}"
+                        )
+                        self._abort_if_unique_id_configured()
+                        return self.async_create_entry(
+                            title=f"{vehicle_name} · {charger_name}",
+                            data={**user_input, **identity},
+                        )
 
         schema = vol.Schema(
             {
@@ -92,7 +108,7 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             {"value": ENERGY_MODE_SESSION, "label": "Energía de la sesión (se reinicia en cada carga)"},
                             {"value": ENERGY_MODE_CUMULATIVE, "label": "Contador acumulativo (lectura total que nunca se reinicia)"}
                         ],
-                        mode=selector.SelectSelectorMode.DROPDOWN,
+                        mode=selector.SelectSelectorMode.LIST,
                     )
                 ),
                 vol.Optional(CONF_SOC_ENTITY): selector.EntitySelector(
@@ -107,7 +123,7 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             {"value": "km", "label": "Kilómetros"},
                             {"value": "mi", "label": "Millas"},
                         ],
-                        mode=selector.SelectSelectorMode.DROPDOWN,
+                        mode=selector.SelectSelectorMode.LIST,
                     )
                 ),
                 vol.Required(CONF_PRICE_MODE, default=PRICE_MODE_MANUAL): selector.SelectSelector(
@@ -116,7 +132,7 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             {"value": PRICE_MODE_MANUAL, "label": "Precio manual fijo"},
                             {"value": PRICE_MODE_SENSOR, "label": "Precio desde sensor de Home Assistant"},
                         ],
-                        mode=selector.SelectSelectorMode.DROPDOWN,
+                        mode=selector.SelectSelectorMode.LIST,
                     )
                 ),
                 vol.Optional(CONF_PRICE, default=0.11): All(Coerce(float), Range(min=0)),
@@ -130,7 +146,7 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             {"value": FINALIZE_IMMEDIATE, "label": "Al terminar la carga"},
                             {"value": FINALIZE_MANUAL, "label": "Confirmación manual desde un botón"},
                         ],
-                        mode=selector.SelectSelectorMode.DROPDOWN,
+                        mode=selector.SelectSelectorMode.LIST,
                     )
                 ),
             }
@@ -173,7 +189,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                         {"value": "tariffs", "label": "Tarifas eléctricas"},
                         {"value": "units", "label": "Unidades y moneda"},
                     ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    mode=selector.SelectSelectorMode.LIST,
                 )
             )
         })
@@ -211,7 +227,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                         {"value": ENERGY_MODE_SESSION, "label": "Energía de sesión (se reinicia en cada carga)"},
                         {"value": ENERGY_MODE_CUMULATIVE, "label": "Contador acumulativo"},
                     ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    mode=selector.SelectSelectorMode.LIST,
                 )
             ),
             vol.Optional(CONF_SOC_ENTITY, default=current.get(CONF_SOC_ENTITY)): selector.EntitySelector(
@@ -226,7 +242,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                         {"value": "km", "label": "Kilómetros"},
                         {"value": "mi", "label": "Millas"},
                     ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    mode=selector.SelectSelectorMode.LIST,
                 )
             ),
             vol.Required(CONF_PRICE_MODE, default=current.get(CONF_PRICE_MODE, PRICE_MODE_MANUAL)): selector.SelectSelector(
@@ -235,7 +251,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                         {"value": PRICE_MODE_MANUAL, "label": "Precio manual fijo"},
                         {"value": PRICE_MODE_SENSOR, "label": "Precio desde sensor"},
                     ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    mode=selector.SelectSelectorMode.LIST,
                 )
             ),
             vol.Optional(CONF_PRICE, default=current.get(CONF_PRICE, 0.11)): All(Coerce(float), Range(min=0)),
@@ -249,7 +265,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                         {"value": FINALIZE_IMMEDIATE, "label": "Al terminar la carga"},
                         {"value": FINALIZE_MANUAL, "label": "Confirmación manual"},
                     ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    mode=selector.SelectSelectorMode.LIST,
                 )
             ),
         })
@@ -278,7 +294,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             return selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[{"value": value, "label": label} for value, label in values],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    mode=selector.SelectSelectorMode.LIST,
                 )
             )
         return vol.Schema({
@@ -310,14 +326,14 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             self._period_count = int(user_input[CONF_TARIFF_COUNT])
             return await self.async_step_periods()
         schema = vol.Schema({
-            vol.Required(CONF_TARIFF_COUNT, default=current_count): selector.SelectSelector(
+            vol.Required(CONF_TARIFF_COUNT, default=str(current_count)): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[
-                        {"value": 1, "label": "Un periodo (precio único)"},
-                        {"value": 2, "label": "Dos periodos"},
-                        {"value": 3, "label": "Tres periodos"},
+                        {"value": "1", "label": "Un periodo (precio único)"},
+                        {"value": "2", "label": "Dos periodos"},
+                        {"value": "3", "label": "Tres periodos"},
                     ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
+                    mode=selector.SelectSelectorMode.LIST,
                 )
             )
         })
@@ -339,7 +355,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                     "end": user_input[f"period_{index}_end"],
                     "price": float(user_input[f"period_{index}_price"]),
                     "price_entity": user_input.get(f"period_{index}_price_entity"),
-                    "days": user_input[f"period_{index}_days"],
+                    "days": [int(day) for day in user_input[f"period_{index}_days"]],
                 })
             errors = validate_periods(periods)
             if not errors:
@@ -359,13 +375,13 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
 
     def _period_schema(self, existing):
         day_options = [
-            {"value": 0, "label": "Lunes"},
-            {"value": 1, "label": "Martes"},
-            {"value": 2, "label": "Miércoles"},
-            {"value": 3, "label": "Jueves"},
-            {"value": 4, "label": "Viernes"},
-            {"value": 5, "label": "Sábado"},
-            {"value": 6, "label": "Domingo"},
+            {"value": "0", "label": "Lunes"},
+            {"value": "1", "label": "Martes"},
+            {"value": "2", "label": "Miércoles"},
+            {"value": "3", "label": "Jueves"},
+            {"value": "4", "label": "Viernes"},
+            {"value": "5", "label": "Sábado"},
+            {"value": "6", "label": "Domingo"},
         ]
         schema = {}
         for index in range(1, self._period_count + 1):
@@ -384,7 +400,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             )
             schema[vol.Required(
                 f"period_{index}_days",
-                default=period.get("days", list(range(7))),
+                default=[str(day) for day in period.get("days", list(range(7)))],
             )] = selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=day_options,
