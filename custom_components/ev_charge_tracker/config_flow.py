@@ -172,6 +172,8 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
 
     def __init__(self):
         self._period_count = 1
+        self._period_index = 0
+        self._period_drafts = []
 
     async def async_step_init(self, user_input=None):
         """Choose which profile settings to edit."""
