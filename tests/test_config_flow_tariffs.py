@@ -54,3 +54,12 @@ def test_sensor_price_step_requires_entity_when_none_was_saved():
     )
 
     assert _field_names(schema) == {"price_entity"}
+
+def test_sensor_price_step_restores_previously_selected_sensor_after_switching():
+    schema = EVChargeTrackerOptionsFlow._period_price_schema(
+        {"price": 0.17, "price_entity_backup": "sensor.previously_selected"}, "sensor"
+    )
+
+    assert _field_names(schema) == {"price_entity"}
+    key = next(iter(schema.schema))
+    assert key.default() == "sensor.previously_selected"
