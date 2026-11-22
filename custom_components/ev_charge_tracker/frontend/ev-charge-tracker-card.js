@@ -1,7 +1,7 @@
 /* EV Charge Tracker Lovelace card
  * Copyright (c) EV Charge Tracker contributors. MIT.
  */
-const CARD_VERSION = "0.2.0";
+const CARD_VERSION = "0.3.0";
 
 class EVChargeTrackerCard extends HTMLElement {
   setConfig(config) {
@@ -120,6 +120,10 @@ class EVChargeTrackerCard extends HTMLElement {
     const end = this._date(record.ended_at || record.completed_at);
     const maxHistory = Math.min(50, Math.max(1, Math.trunc(Number(this.config.max_history) || 8)));
     const rows = Array.isArray(history) ? history.slice(0, maxHistory) : [];
+    const chartRows = Array.isArray(history) ? history.slice(0, 8).slice().reverse().filter(item => Number.isFinite(Number(item.energy_kwh)) && Number(item.energy_kwh) >= 0) : [];
+    const maxEnergy = Math.max(1, ...chartRows.map(item => Number(item.energy_kwh)));
+    const costRows = chartRows.filter(item => Number.isFinite(Number(item.cost ?? item.known_cost)) && Number(item.cost ?? item.known_cost) >= 0);
+    const maxCost = Math.max(1, ...costRows.map(item => Number(item.cost ?? item.known_cost)));
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -133,7 +137,18 @@ class EVChargeTrackerCard extends HTMLElement {
         .dot { width:7px; height:7px; border-radius:50%; background:var(--success-color,#43a66b); }
         .status.active .dot { background:var(--state-active-color,var(--primary-color)); box-shadow:0 0 0 4px color-mix(in srgb,var(--primary-color) 15%,transparent); }
         .status.warn .dot { background:var(--warning-color,#d69b32); }
-        .latest { margin-top:20px; padding:17px; border-radius:17px; background:var(--secondary-background-color); }
+        .latest { margin-top:20px; padding:18px; border-radius:20px; background:var(--secondary-background-color); }
+        .charts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:18px; }
+        .chart-card { min-width:0; padding:14px; border-radius:17px; background:var(--secondary-background-color); }
+        .chart-title { display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-size:12px; font-weight:700; }
+        .chart-subtitle { color:var(--secondary-text-color); font-size:10px; font-weight:400; }
+        .bars { display:flex; align-items:flex-end; gap:6px; height:94px; margin-top:13px; padding:0 2px; border-bottom:1px solid var(--divider-color); }
+        .bar-wrap { flex:1; min-width:0; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:5px; }
+        .bar { width:min(100%,22px); min-height:3px; border-radius:6px 6px 2px 2px; background:var(--primary-color); opacity:.82; }
+        .bar.cost { background:var(--success-color,var(--primary-color)); }
+        .bar-label { max-width:100%; overflow:hidden; color:var(--secondary-text-color); font-size:9px; white-space:nowrap; text-overflow:ellipsis; }
+        .chart-empty { display:flex; align-items:center; justify-content:center; height:94px; color:var(--secondary-text-color); font-size:12px; text-align:center; }
+        .chart-legend { margin-top:8px; color:var(--secondary-text-color); font-size:10px; }
         .section-title { font-size:12px; color:var(--secondary-text-color); font-weight:650; letter-spacing:.04em; text-transform:uppercase; }
         .rings { display:flex; justify-content:space-around; align-items:center; gap:10px; padding:18px 0 14px; }
         .soc { display:flex; flex-direction:column; align-items:center; gap:8px; min-width:85px; }
@@ -158,6 +173,7 @@ class EVChargeTrackerCard extends HTMLElement {
         .row-value small { display:block; margin-top:3px; color:var(--secondary-text-color); font-size:10px; font-weight:400; }
         .empty { padding:18px 4px; color:var(--secondary-text-color); font-size:13px; }
         .diagnostic { margin-top:13px; color:var(--secondary-text-color); font-size:11px; line-height:1.4; }
+        @media(max-width:520px) { .charts{grid-template-columns:1fr;gap:9px}.chart-card{padding:12px}.bars{height:78px} }
         @media(max-width:420px) { .wrap{padding:15px}.ring{width:72px;height:72px}.ring span{font-size:19px}.metric{padding:10px 8px}.metric strong{font-size:17px}.row{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) minmax(0,.8fr)} }
       </style>
       <ha-card>
@@ -186,6 +202,29 @@ class EVChargeTrackerCard extends HTMLElement {
               <div class="date">Inicio<b>${start}</b></div>
               <div class="date">Fin<b>${current && !record.ended_at ? "En curso" : end}</b></div>
             </div>
+          </div>
+          <div class="charts">
+            <section class="chart-card" aria-label="Energía por carga">
+              <div class="chart-title">Energía por carga <span class="chart-subtitle">kWh · últimas ${chartRows.length}</span></div>
+              ${chartRows.length ? `<div class="bars">${chartRows.map(item => {
+                const value = Number(item.energy_kwh);
+                const height = Math.max(4, value / maxEnergy * 72);
+                const label = item.started_at ? new Intl.DateTimeFormat(this._hass?.locale?.language || "es-ES", { day:"2-digit", month:"short" }).format(new Date(item.started_at)) : "—";
+                return `<div class="bar-wrap" title="${this._escape(this._fmt(value,2) + " kWh")}"><div class="bar" style="height:${height}px"></div><span class="bar-label">${this._escape(label)}</span></div>`;
+              }).join("")}</div>` : '<div class="chart-empty">Aún no hay datos de energía suficientes</div>'}
+              <div class="chart-legend">Consumo energético de cada sesión registrada</div>
+            </section>
+            <section class="chart-card" aria-label="Coste por carga">
+              <div class="chart-title">Coste por carga <span class="chart-subtitle">${this._escape(currency)} · últimas ${costRows.length}</span></div>
+              ${costRows.length ? `<div class="bars">${costRows.map(item => {
+                const value = Number(item.cost ?? item.known_cost);
+                const height = Math.max(4, value / maxCost * 72);
+                const label = item.started_at ? new Intl.DateTimeFormat(this._hass?.locale?.language || "es-ES", { day:"2-digit", month:"short" }).format(new Date(item.started_at)) : "—";
+                const partial = item.cost == null && item.known_cost != null;
+                return `<div class="bar-wrap" title="${this._escape(this._fmt(value,2) + " " + currency + (partial ? " · parcial" : ""))}"><div class="bar cost" style="height:${height}px;opacity:${partial ? ".45" : ".82"}"></div><span class="bar-label">${this._escape(label)}</span></div>`;
+              }).join("")}</div>` : '<div class="chart-empty">Sin costes calculables todavía</div>'}
+              <div class="chart-legend">Los costes parciales se muestran atenuados</div>
+            </section>
           </div>
           <div class="history-head"><h3>Histórico de cargas</h3><span class="count">${rows.length} registros</span></div>
           ${rows.length ? rows.map(item => `
@@ -244,13 +283,17 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       ["duration","Duración"],["history","Histórico de cargas"],
     ];
     this.shadowRoot.innerHTML = `<style>
-      .field{display:block;margin:12px 0} label{display:block;margin-bottom:5px;font-size:13px}
-      input,select{box-sizing:border-box;width:100%;padding:9px;border:1px solid var(--divider-color);border-radius:8px;background:var(--card-background-color);color:var(--primary-text-color)}
+      :host{display:block;color:var(--primary-text-color)}
+      .field{display:block;margin:15px 0} label{display:block;margin-bottom:7px;font-size:13px;font-weight:600}
+      input,select{box-sizing:border-box;width:100%;padding:11px 12px;border:1px solid var(--divider-color);border-radius:12px;background:var(--card-background-color);color:var(--primary-text-color)}
       ha-entity-picker{display:block;width:100%}
-      .hint{font-size:12px;color:var(--secondary-text-color);margin:6px 0 12px}
-      .profile{margin:12px 0;padding:12px;border:1px solid var(--divider-color);border-radius:10px}
+      .hint{font-size:12px;color:var(--secondary-text-color);margin:7px 0 12px;line-height:1.45}
+      .profile{margin:12px 0 18px;padding:15px;border:1px solid var(--divider-color);border-radius:16px;background:var(--secondary-background-color)}
       .hidden{display:none}
-      button{margin-top:8px;padding:7px 12px;border:1px solid var(--divider-color);border-radius:8px;background:var(--secondary-background-color);color:var(--primary-text-color);cursor:pointer}
+      button{margin-top:10px;padding:9px 14px;border:0;border-radius:12px;background:var(--primary-color);color:var(--text-primary-color,var(--primary-background-color));font-weight:600;cursor:pointer}
+      #entityFields{padding:4px 0 8px}
+      #entityFields:not(.hidden){border-top:1px solid var(--divider-color);margin-top:12px}
+      #max_history{max-width:140px}
     </style><div>
       <div id="profileBox" class="profile hidden">
         <label for="profileSelect">Perfil de carga</label>
