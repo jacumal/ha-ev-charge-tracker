@@ -18,6 +18,8 @@ SENSOR_KEYS = (
     "soc_increase",
     "duration",
     "history",
+    "soc_current",
+    "odometer",
 )
 
 
@@ -38,7 +40,11 @@ async def websocket_get_profiles(hass, connection, msg):
                 "entry_id": entry_id,
                 "vehicle_name": profile.get("vehicle_name") or "Vehículo",
                 "charger_name": profile.get("charger_name") or "Cargador",
-                "entities": entities,
+                "entities": {
+                    **entities,
+                    "soc_current": profile.get("soc_entity"),
+                    "odometer": profile.get("odometer_entity"),
+                },
             }
         )
     connection.send_result(msg["id"], {"profiles": profiles})
