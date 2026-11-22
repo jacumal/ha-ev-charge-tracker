@@ -10,7 +10,7 @@ verified in a real Home Assistant installation.
 - [x] HACS metadata present.
 - [x] MIT license included.
 - [x] Lovelace card source is bundled with the integration.
-- [ ] CI is green on the final beta candidate commit.
+- [x] CI is green on the final beta candidate commit (run #172, commit `3484dbe`).
 - [ ] Verify the HACS release/tag installation path and packaged file layout.
 - [x] Publish release notes with known limitations and upgrade instructions (`docs/release-notes-beta-3.md`).
 
