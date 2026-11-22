@@ -85,3 +85,26 @@ test("clamps the history display to at most 50 records", () => {
   );
   assert.match(html, /50 registros/);
 });
+
+test("renders energy and cost history charts from stored sessions", () => {
+  const html = createCard(
+    { entities: { history: "sensor.history" } },
+    { "sensor.history": { state: "2", attributes: { sessions: [
+      { started_at: "2026-11-20T10:00:00Z", energy_kwh: 12, cost: 2.4, cost_status: "complete" },
+      { started_at: "2026-11-21T10:00:00Z", energy_kwh: 18, known_cost: 1.8, cost: null, cost_status: "partial" },
+    ] } } },
+  );
+  assert.match(html, /Energía por carga/);
+  assert.match(html, /Coste por carga/);
+  assert.match(html, /parcial/);
+  assert.match(html, /18/);
+});
+
+test("keeps chart placeholders when history is empty", () => {
+  const html = createCard(
+    { entities: { history: "sensor.history" } },
+    { "sensor.history": { state: "0", attributes: { sessions: [] } } },
+  );
+  assert.match(html, /Aún no hay datos de energía suficientes/);
+  assert.match(html, /Sin costes calculables todavía/);
+});
