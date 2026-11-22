@@ -131,3 +131,31 @@ test("keeps known cost visible when the session energy reading is missing", () =
   assert.match(html, /1,25/);
   assert.doesNotMatch(html, /Sin costes calculables todavía/);
 });
+
+test("shows live vehicle SOC and odometer separately from session SOC", () => {
+  const html = createCard(
+    { entities: { soc_current: "sensor.vehicle_soc", odometer: "sensor.vehicle_odometer" } },
+    {
+      "sensor.vehicle_soc": { state: "76", attributes: { unit_of_measurement: "%" } },
+      "sensor.vehicle_odometer": { state: "18432", attributes: { unit_of_measurement: "km" } },
+    },
+  );
+  assert.match(html, /Batería actual/);
+  assert.match(html, /76%/);
+  assert.match(html, /Kilometraje actual/);
+  assert.match(html, /18\.432 km/);
+});
+
+test("does not turn unavailable live vehicle telemetry into zero", () => {
+  const html = createCard(
+    { entities: { soc_current: "sensor.vehicle_soc", odometer: "sensor.vehicle_odometer" } },
+    {
+      "sensor.vehicle_soc": { state: "unavailable", attributes: { unit_of_measurement: "%" } },
+      "sensor.vehicle_odometer": { state: "unknown", attributes: { unit_of_measurement: "km" } },
+    },
+  );
+  assert.match(html, /Batería actual/);
+  assert.match(html, /Kilometraje actual/);
+  assert.doesNotMatch(html, /0%/);
+  assert.doesNotMatch(html, /0 km/);
+});
