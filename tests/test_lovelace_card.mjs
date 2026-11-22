@@ -119,3 +119,15 @@ test("keeps chart placeholders when history is empty", () => {
   assert.match(html, /Aún no hay datos de energía suficientes/);
   assert.match(html, /Sin costes calculables todavía/);
 });
+
+test("keeps known cost visible when the session energy reading is missing", () => {
+  const html = createCard(
+    { entities: { history: "sensor.history" } },
+    { "sensor.history": { state: "1", attributes: { sessions: [
+      { started_at: "2026-11-21T10:00:00Z", energy_kwh: null, cost: null, known_cost: 1.25, cost_status: "partial" },
+    ] } } },
+  );
+  assert.match(html, /Coste por carga/);
+  assert.match(html, /1,25/);
+  assert.doesNotMatch(html, /Sin costes calculables todavía/);
+});
