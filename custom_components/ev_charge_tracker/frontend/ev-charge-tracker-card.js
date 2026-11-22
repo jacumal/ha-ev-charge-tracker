@@ -120,9 +120,12 @@ class EVChargeTrackerCard extends HTMLElement {
     const end = this._date(record.ended_at || record.completed_at);
     const maxHistory = Math.min(50, Math.max(1, Math.trunc(Number(this.config.max_history) || 8)));
     const rows = Array.isArray(history) ? history.slice(0, maxHistory) : [];
-    const chartRows = Array.isArray(history) ? history.slice(0, 8).slice().reverse().filter(item => item.energy_kwh != null && item.energy_kwh !== "" && Number.isFinite(Number(item.energy_kwh)) && Number(item.energy_kwh) >= 0) : [];
+    const recentRows = Array.isArray(history) ? history.slice(0, 8).slice().reverse() : [];
+    const chartRows = recentRows.filter(item => item.energy_kwh != null && item.energy_kwh !== "" && Number.isFinite(Number(item.energy_kwh)) && Number(item.energy_kwh) >= 0);
     const maxEnergy = Math.max(1, ...chartRows.map(item => Number(item.energy_kwh)));
-    const costRows = chartRows.filter(item => {
+    // Cost history is independent of energy display: a known cost can still
+    // be useful when the energy reading for that session is unavailable.
+    const costRows = recentRows.filter(item => {
       const value = item.cost ?? item.known_cost;
       return value != null && value !== "" && Number.isFinite(Number(value)) && Number(value) >= 0;
     });
