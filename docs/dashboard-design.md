@@ -103,3 +103,23 @@ Remaining acceptance checks before real charging:
 - Confirm current and completed session presentation against the coordinator's actual lifecycle states, including missing, unknown and unavailable status entities.
 - Confirm the history list and cost-quality labels with complete, partial and unknown cost records.
 - Verify resource loading after an integration update and restart.
+
+
+## Beta.3 chart and presentation layer
+
+The beta.3 card adds two compact, responsive charts directly from persisted session
+records:
+
+- Energy delivered per completed session (kWh).
+- Applied/known cost per session in the profile currency.
+
+The charts use the most recent eight stored sessions and require no external chart
+library or ApexCharts dependency. They must remain empty-state friendly and never
+invent values. Partial known costs are shown with reduced visual emphasis and are
+not represented as complete costs. Chart values are derived from the same stored
+session records as the history list; no additional recorder statistics or helpers
+are required.
+
+The card editor receives a visual refresh while preserving the profile discovery,
+profile selection and eight semantic entity mappings. Live Home Assistant testing
+is still required for frontend rendering, editor persistence and responsive themes.
