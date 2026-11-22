@@ -65,14 +65,18 @@ def validate_periods(periods: list[dict[str, Any]]) -> list[str]:
             _parse_time(period["end"])
         except (KeyError, ValueError, TypeError):
             errors.append(f"Periodo {index}: horario no válido.")
-        try:
-            price = float(period["price"])
-            if not math.isfinite(price):
-                errors.append(f"Periodo {index}: el precio debe ser un número finito.")
-            elif price < 0:
-                errors.append(f"Periodo {index}: el precio no puede ser negativo.")
-        except (KeyError, TypeError, ValueError):
-            errors.append(f"Periodo {index}: falta un precio numérico.")
+        # A configured price sensor is the exclusive source for this period.
+        # Its live value is validated when samples are consumed; a manual value
+        # is required only when no sensor has been selected.
+        if not period.get("price_entity"):
+            try:
+                price = float(period["price"])
+                if not math.isfinite(price):
+                    errors.append(f"Periodo {index}: el precio debe ser un número finito.")
+                elif price < 0:
+                    errors.append(f"Periodo {index}: el precio no puede ser negativo.")
+            except (KeyError, TypeError, ValueError):
+                errors.append(f"Periodo {index}: falta un precio numérico.")
         days = period.get("days", list(range(7)))
         if not days or any(day not in range(7) for day in days):
             errors.append(f"Periodo {index}: selecciona días válidos.")

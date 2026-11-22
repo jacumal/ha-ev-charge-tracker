@@ -58,46 +58,40 @@
       },
       "periods": {
         "title": "Editar periodos tarifarios",
-        "description": "Indica nombre, hora de inicio y fin, días y precio para cada periodo. Usa 00:00 para medianoche; también se admite 24:00 como hora final. Entre todos los periodos deben cubrir toda la semana sin solapamientos.\n\nValidación: {schedule_error}\n\nEn cada periodo puedes introducir un precio manual o seleccionar un sensor de precio. Si eliges sensor, sus cambios se guardan con marca temporal y se aplican a la energía del intervalo correspondiente.",
+        "description": "Indica nombre, hora de inicio y fin, días y origen del precio para cada periodo. Usa 00:00 para medianoche; también se admite 24:00 como hora final. Entre todos los periodos deben cubrir toda la semana sin solapamientos.\\n\\nValidación: {schedule_error}\\n\\nDespués configurarás únicamente el campo de precio correspondiente al origen elegido. Los sensores son exclusivos: si no están disponibles o publican valores/unidades no válidos, la energía afectada queda sin precio y nunca se usa el precio manual como sustituto.",
         "data": {
           "period_1_name": "Nombre del periodo 1",
           "period_1_start": "Hora de inicio del periodo 1",
           "period_1_end": "Hora de fin del periodo 1",
-          "period_1_price": "Precio manual del periodo 1 (ignorado si se selecciona sensor)",
           "period_1_days": "Días del periodo 1",
           "period_2_name": "Nombre del periodo 2",
           "period_2_start": "Hora de inicio del periodo 2",
           "period_2_end": "Hora de fin del periodo 2",
-          "period_2_price": "Precio manual del periodo 2 (ignorado si se selecciona sensor)",
           "period_2_days": "Días del periodo 2",
           "period_3_name": "Nombre del periodo 3",
           "period_3_start": "Hora de inicio del periodo 3",
           "period_3_end": "Hora de fin del periodo 3",
-          "period_3_price": "Precio manual del periodo 3 (ignorado si se selecciona sensor)",
           "period_3_days": "Días del periodo 3",
-          "period_1_price_entity": "Sensor de precio del periodo 1 (opcional)",
-          "period_2_price_entity": "Sensor de precio del periodo 2 (opcional)",
-          "period_3_price_entity": "Sensor de precio del periodo 3 (opcional)"
+          "period_1_price_source": "Origen del precio del periodo 1",
+          "period_2_price_source": "Origen del precio del periodo 2",
+          "period_3_price_source": "Origen del precio del periodo 3"
         },
         "data_description": {
           "period_1_name": "Nombre breve que aparecerá en el desglose del coste de la sesión.",
           "period_1_start": "Hora local en formato HH:MM. El inicio está incluido.",
           "period_1_end": "Hora local en formato HH:MM. El final no está incluido; usa 00:00 o 24:00 para medianoche.",
-          "period_1_price": "Precio manual no negativo en la moneda del perfil por kWh. Solo se utiliza cuando no se selecciona un sensor para este periodo. Si el sensor seleccionado queda unavailable o publica un valor/unidad no válidos, la energía afectada queda sin precio; este valor manual no actúa como sustituto.",
           "period_1_days": "Selecciona los días de la semana en los que se aplica este tramo. El horario semanal completo no debe tener huecos ni solapamientos.",
           "period_2_name": "Nombre breve que aparecerá en el desglose del coste de la sesión.",
           "period_2_start": "Hora local en formato HH:MM. El inicio está incluido.",
           "period_2_end": "Hora local en formato HH:MM. El final no está incluido; usa 00:00 o 24:00 para medianoche.",
-          "period_2_price": "Precio manual no negativo en la moneda del perfil por kWh. Solo se utiliza cuando no se selecciona un sensor para este periodo. Si el sensor seleccionado queda unavailable o publica un valor/unidad no válidos, la energía afectada queda sin precio; este valor manual no actúa como sustituto.",
           "period_2_days": "Selecciona los días de la semana en los que se aplica este tramo. El horario semanal completo no debe tener huecos ni solapamientos.",
           "period_3_name": "Nombre breve que aparecerá en el desglose del coste de la sesión.",
           "period_3_start": "Hora local en formato HH:MM. El inicio está incluido.",
           "period_3_end": "Hora local en formato HH:MM. El final no está incluido; usa 00:00 o 24:00 para medianoche.",
-          "period_3_price": "Precio manual no negativo en la moneda del perfil por kWh. Solo se utiliza cuando no se selecciona un sensor para este periodo. Si el sensor seleccionado queda unavailable o publica un valor/unidad no válidos, la energía afectada queda sin precio; este valor manual no actúa como sustituto.",
           "period_3_days": "Selecciona los días de la semana en los que se aplica este tramo. El horario semanal completo no debe tener huecos ni solapamientos.",
-          "period_1_price_entity": "Opcional · Selecciona un sensor numérico de Home Assistant con el precio de este periodo en la moneda del perfil por kWh (por ejemplo EUR/kWh). Si lo seleccionas, sustituye al precio manual y se registran los cambios con su hora. Si el sensor queda unavailable o publica una unidad/valor no válido, la energía afectada queda sin precio; no se reutiliza un precio antiguo.",
-          "period_2_price_entity": "Opcional · Selecciona un sensor numérico de Home Assistant con el precio de este periodo en la moneda del perfil por kWh (por ejemplo EUR/kWh). Si lo seleccionas, sustituye al precio manual y se registran los cambios con su hora. Si el sensor queda unavailable o publica una unidad/valor no válido, la energía afectada queda sin precio; no se reutiliza un precio antiguo.",
-          "period_3_price_entity": "Opcional · Selecciona un sensor numérico de Home Assistant con el precio de este periodo en la moneda del perfil por kWh (por ejemplo EUR/kWh). Si lo seleccionas, sustituye al precio manual y se registran los cambios con su hora. Si el sensor queda unavailable o publica una unidad/valor no válido, la energía afectada queda sin precio; no se reutiliza un precio antiguo."
+          "period_1_price_source": "Elige una única fuente. El precio manual y el sensor se configuran en el siguiente paso por separado.",
+          "period_2_price_source": "Elige una única fuente. El precio manual y el sensor se configuran en el siguiente paso por separado.",
+          "period_3_price_source": "Elige una única fuente. El precio manual y el sensor se configuran en el siguiente paso por separado."
         }
       },
       "profile": {
@@ -149,6 +143,18 @@
           "unit_temperature": "Temperature display unit.",
           "unit_consumption": "Vehicle consumption display format.",
           "currency": "Three-letter ISO 4217 currency code (EUR, USD, GBP, JPY...). No FX conversion is applied."
+        }
+      },
+      "period_price": {
+        "title": "Configurar precio del periodo",
+        "description": "Periodo {period_number}: {period_name}. Solo se muestra el campo de la fuente seleccionada. El precio manual debe ser el importe final realmente pagado por kWh, con impuestos incluidos. Si seleccionas un sensor, este será la fuente exclusiva.",
+        "data": {
+          "price": "Precio manual final por kWh",
+          "price_entity": "Sensor de precio del periodo"
+        },
+        "data_description": {
+          "price": "Introduce un precio numérico no negativo en la moneda del perfil por kWh, con IVA y demás impuestos incluidos. La integración no añade impuestos.",
+          "price_entity": "Selecciona un sensor numérico que publique el precio final por kWh en la moneda del perfil (por ejemplo EUR/kWh). Si queda unavailable o publica un valor/unidad no válido, la energía afectada queda sin precio; no se utiliza el precio manual como fallback."
         }
       }
     },

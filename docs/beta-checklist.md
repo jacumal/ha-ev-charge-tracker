@@ -1,6 +1,6 @@
 # Beta candidate checklist
 
-Target candidate: `0.1.0-beta.1`
+Target candidate: `0.1.0-beta.3`
 
 This checklist separates repository/CI readiness from behavior that can only be
 verified in a real Home Assistant installation.
@@ -10,14 +10,18 @@ verified in a real Home Assistant installation.
 - [x] HACS metadata present.
 - [x] MIT license included.
 - [x] Lovelace card source is bundled with the integration.
-- [ ] CI is green on the final beta candidate commit.
+- [x] CI is green on the final beta candidate commit (run #172, commit `3484dbe`).
 - [ ] Verify the HACS release/tag installation path and packaged file layout.
-- [ ] Publish release notes with known limitations and upgrade instructions.
+- [x] Publish release notes with known limitations and upgrade instructions (`docs/release-notes-beta-3.md`).
 
 ## Real Home Assistant validation (required before production use)
+
+The automated candidate checks do not close these live-instance gates. Do not treat beta.3 as production-validated until they are completed.
 - [ ] Install/update from the beta candidate without removing the existing config entry.
 - [ ] Confirm all configured entity selectors and tariff/unit options are usable.
 - [ ] Confirm the Lovelace card JavaScript is served and the visual editor loads.
+- [ ] Confirm energy and cost charts match stored sessions, including partial and missing costs.
+- [ ] Confirm conditional tariff price fields and source switching preserve existing values.
 - [ ] Confirm profile settings and history survive a Home Assistant restart.
 - [ ] Confirm sensors report sensible idle/unknown values before a real session.
 - [ ] Validate a complete real charge: start, energy deltas, SOC, stop grace period,

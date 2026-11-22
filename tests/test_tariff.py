@@ -120,6 +120,34 @@ class TariffTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             default_periods(1, float("inf"))
 
+    def test_sensor_priced_period_does_not_require_manual_price(self):
+        periods = [
+            {"name": "Único", "start": "00:00", "end": "24:00",
+             "price_entity": "sensor.precio_luz", "days": list(range(7))}
+        ]
+        self.assertEqual(validate_periods(periods), [])
+
+
+    def test_selected_sensor_is_exclusive_even_if_a_manual_value_is_retained(self):
+        periods = [
+            {
+                "name": "Único",
+                "start": "00:00",
+                "end": "24:00",
+                "price": float("nan"),
+                "price_entity": "sensor.precio_luz",
+                "days": list(range(7)),
+            }
+        ]
+        self.assertEqual(validate_periods(periods), [])
+
+    def test_manual_period_still_requires_a_valid_price(self):
+        periods = [
+            {"name": "Único", "start": "00:00", "end": "24:00",
+             "days": list(range(7))}
+        ]
+        self.assertTrue(any("precio" in error for error in validate_periods(periods)))
+
 
 if __name__ == "__main__":
     unittest.main()

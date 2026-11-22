@@ -57,46 +57,40 @@
       },
       "periods": {
         "title": "Edit tariff periods",
-        "description": "Set a name, start/end time, weekdays and price for every period. Use 00:00 as midnight; 24:00 is also accepted as an end boundary. All periods together must cover the full week without overlaps.\n\nValidation: {schedule_error}\n\nFor each period, use a manual price or select a price sensor. Sensor changes are timestamped and applied to energy in the corresponding interval.",
+        "description": "Set a name, start/end time, weekdays and price source for every period. Use 00:00 as midnight; 24:00 is also accepted as an end boundary. All periods together must cover the full week without overlaps.\\n\\nValidation: {schedule_error}\\n\\nYou will then configure only the price field matching the selected source. A selected sensor is exclusive: unavailable or invalid readings leave affected energy unpriced and never fall back to the manual price.",
         "data": {
           "period_1_name": "Period 1 name",
           "period_1_start": "Period 1 start time",
           "period_1_end": "Period 1 end time",
-          "period_1_price": "Period 1 manual price (ignored when sensor selected)",
           "period_1_days": "Days for period 1",
           "period_2_name": "Period 2 name",
           "period_2_start": "Period 2 start time",
           "period_2_end": "Period 2 end time",
-          "period_2_price": "Period 2 manual price (ignored when sensor selected)",
           "period_2_days": "Days for period 2",
           "period_3_name": "Period 3 name",
           "period_3_start": "Period 3 start time",
           "period_3_end": "Period 3 end time",
-          "period_3_price": "Period 3 manual price (ignored when sensor selected)",
           "period_3_days": "Days for period 3",
-          "period_1_price_entity": "Period 1 price sensor (optional)",
-          "period_2_price_entity": "Period 2 price sensor (optional)",
-          "period_3_price_entity": "Period 3 price sensor (optional)"
+          "period_1_price_source": "Period 1 price source",
+          "period_2_price_source": "Period 2 price source",
+          "period_3_price_source": "Period 3 price source"
         },
         "data_description": {
           "period_1_name": "Short label shown in the session cost breakdown.",
           "period_1_start": "Local start time in HH:MM format. The start is inclusive.",
           "period_1_end": "Local end time in HH:MM format. The end is exclusive; use 00:00 or 24:00 for midnight.",
-          "period_1_price": "Manual non-negative price in the profile currency per kWh. Used only when no price sensor is selected for this period. If a selected sensor becomes unavailable or invalid, affected energy remains unpriced; this manual value is not used as a fallback.",
           "period_1_days": "Select the weekdays on which this time band applies. The complete weekly schedule must have no gaps or overlaps.",
           "period_2_name": "Short label shown in the session cost breakdown.",
           "period_2_start": "Local start time in HH:MM format. The start is inclusive.",
           "period_2_end": "Local end time in HH:MM format. The end is exclusive; use 00:00 or 24:00 for midnight.",
-          "period_2_price": "Manual non-negative price in the profile currency per kWh. Used only when no price sensor is selected for this period. If a selected sensor becomes unavailable or invalid, affected energy remains unpriced; this manual value is not used as a fallback.",
           "period_2_days": "Select the weekdays on which this time band applies. The complete weekly schedule must have no gaps or overlaps.",
           "period_3_name": "Short label shown in the session cost breakdown.",
           "period_3_start": "Local start time in HH:MM format. The start is inclusive.",
           "period_3_end": "Local end time in HH:MM format. The end is exclusive; use 00:00 or 24:00 for midnight.",
-          "period_3_price": "Manual non-negative price in the profile currency per kWh. Used only when no price sensor is selected for this period. If a selected sensor becomes unavailable or invalid, affected energy remains unpriced; this manual value is not used as a fallback.",
           "period_3_days": "Select the weekdays on which this time band applies. The complete weekly schedule must have no gaps or overlaps.",
-          "period_1_price_entity": "Optional · Select a numeric Home Assistant sensor reporting this period's price in the profile currency per kWh (for example EUR/kWh). When selected, it replaces the manual price and changes are timestamped. If the sensor becomes unavailable or reports an invalid unit/value, affected energy remains unpriced; an old price is never silently reused.",
-          "period_2_price_entity": "Optional · Select a numeric Home Assistant sensor reporting this period's price in the profile currency per kWh (for example EUR/kWh). When selected, it replaces the manual price and changes are timestamped. If the sensor becomes unavailable or reports an invalid unit/value, affected energy remains unpriced; an old price is never silently reused.",
-          "period_3_price_entity": "Optional · Select a numeric Home Assistant sensor reporting this period's price in the profile currency per kWh (for example EUR/kWh). When selected, it replaces the manual price and changes are timestamped. If the sensor becomes unavailable or reports an invalid unit/value, affected energy remains unpriced; an old price is never silently reused."
+          "period_1_price_source": "Choose one source. The manual price and sensor are configured separately on the next step.",
+          "period_2_price_source": "Choose one source. The manual price and sensor are configured separately on the next step.",
+          "period_3_price_source": "Choose one source. The manual price and sensor are configured separately on the next step."
         }
       },
       "profile": {
@@ -123,7 +117,7 @@
           "odometer_entity": "Required when odometer-based finalization is selected.",
           "odometer_unit": "Distance unit reported by the sensor.",
           "price_mode": "Select a fixed price or a price sensor.",
-          "price_per_kwh": "Used with manual fixed pricing, in €/kWh.",
+          "price_per_kwh": "Used with manual fixed pricing, in €/kWh. Introduce el precio final realmente pagado, con impuestos y peajes incluidos; la integración no añade IVA ni otros recargos.",
           "price_entity": "Numeric sensor in €/kWh.",
           "finalization": "Choose odometer, automatic after 60 seconds, or manual finalization.",
           "power_entity": "Optional instantaneous power sensor in W or kW. It improves tariff-period energy allocation; the energy counter remains authoritative for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate."
@@ -158,6 +152,18 @@
           "unit_temperature": "Temperature display unit.",
           "unit_consumption": "Vehicle consumption display format.",
           "currency": "Three-letter ISO 4217 currency code (EUR, USD, GBP, JPY...). No FX conversion is applied."
+        }
+      },
+      "period_price": {
+        "title": "Configure period price",
+        "description": "Period {period_number}: {period_name}. Only the field for the selected source is shown. A manual price must be the final amount actually paid per kWh, including taxes. A selected sensor is the exclusive source.",
+        "data": {
+          "price": "Final manual price per kWh",
+          "price_entity": "Period price sensor"
+        },
+        "data_description": {
+          "price": "Enter a non-negative numeric price in the profile currency per kWh, including VAT and all applicable taxes. The integration does not add taxes.",
+          "price_entity": "Select a numeric sensor reporting the final price per kWh in the profile currency (for example EUR/kWh). If unavailable or invalid, affected energy remains unpriced; the manual value is never used as a fallback."
         }
       }
     },

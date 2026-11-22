@@ -4,7 +4,7 @@ import unittest
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from custom_components.ev_charge_tracker.power import allocate_energy_by_power
+from custom_components.ev_charge_tracker.power import allocate_energy_by_power, allocate_energy_by_dynamic_price
 
 
 class PowerAllocationTests(unittest.TestCase):
@@ -74,6 +74,35 @@ class PowerAllocationTests(unittest.TestCase):
         result = allocate_energy_by_power(start, end, 3.0, self.periods, samples)
         self.assertEqual(result["method"], "time_fallback")
         self.assertAlmostEqual(sum(x["energy_kwh"] for x in result["breakdown"]), 3.0, places=5)
+
+    def test_unavailable_dynamic_price_never_falls_back_to_manual_price(self):
+        start = datetime(2026, 11, 19, 7, 0, tzinfo=self.zone)
+        end = datetime(2026, 11, 19, 8, 0, tzinfo=self.zone)
+        periods = [{
+            "name": "Valle", "start": "00:00", "end": "24:00",
+            "price": 0.08, "price_entity": "sensor.precio_valle",
+        }]
+        result = allocate_energy_by_dynamic_price(start, end, 2.0, periods, [], [
+            {"at": start.isoformat(), "period": "Valle", "price": None},
+        ])
+        self.assertEqual(result["priced_energy_kwh"], 0)
+        self.assertAlmostEqual(result["unpriced_energy_kwh"], 2.0)
+        self.assertEqual(result["cost"], 0)
+
+    def test_dynamic_price_change_is_applied_at_its_timestamp(self):
+        start = datetime(2026, 11, 19, 7, 0, tzinfo=self.zone)
+        middle = datetime(2026, 11, 19, 7, 30, tzinfo=self.zone)
+        end = datetime(2026, 11, 19, 8, 0, tzinfo=self.zone)
+        periods = [{
+            "name": "Valle", "start": "00:00", "end": "24:00",
+            "price_entity": "sensor.precio_valle",
+        }]
+        result = allocate_energy_by_dynamic_price(start, end, 2.0, periods, [], [
+            {"at": start.isoformat(), "period": "Valle", "price": 0.1},
+            {"at": middle.isoformat(), "period": "Valle", "price": 0.2},
+        ])
+        self.assertAlmostEqual(result["cost"], 0.3, places=5)
+        self.assertAlmostEqual(result["priced_energy_kwh"], 2.0, places=5)
 
 
 if __name__ == "__main__":
