@@ -96,7 +96,7 @@
       },
       "profile": {
         "title": "Sensors and behavior",
-        "description": "Change the entities mapped to the vehicle and charger, counter type, pricing and session finalization. Existing history is preserved.",
+        "description": "Modifica las entidades asociadas al vehículo y al cargador, el tipo de contador y el criterio de cierre. La configuración de precios se encuentra únicamente en Tarifas eléctricas. El histórico se conserva.",
         "data": {
           "charging_entity": "Charging state (binary_sensor)",
           "energy_entity": "Delivered energy (kWh/Wh)",
@@ -104,9 +104,6 @@
           "soc_entity": "Battery state of charge (SOC, optional)",
           "odometer_entity": "Odometer (optional)",
           "odometer_unit": "Odometer unit",
-          "price_mode": "Electricity price source",
-          "price_per_kwh": "Fixed price per kWh",
-          "price_entity": "Price sensor (€/kWh)",
           "finalization": "When to finalize a charge",
           "power_entity": "Potencia instantánea de carga (W/kW, opcional)"
         },
