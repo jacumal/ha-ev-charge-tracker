@@ -112,3 +112,70 @@ Source: user-provided transcript screenshots, approximately 09:36–15:06. These
 
 ## Working rule
 Changes are developed on a feature branch and reviewed before merging to main. A checkbox closes only when implementation and tests exist; real-instance validation is tracked separately.
+
+## 8. Next beta scope and follow-on roadmap
+
+The next beta is based on the current beta.2 line. Keep this scope explicit so UI
+polish does not get mistaken for completed tariff behavior.
+
+### 8.1 Conditional manual-price fields (next beta)
+- [ ] When a tariff period has no price sensor selected, show and require its manual
+      price field.
+- [ ] When a price sensor is selected, hide the manual-price field and do not require
+      or validate a manual price for that period.
+- [ ] Switching from sensor to manual mode restores the previously entered manual
+      value; switching to sensor mode must not erase it.
+- [ ] The selected sensor is the exclusive price source for that period. If it is
+      unavailable, stale where freshness is required, or publishes an invalid value
+      or incompatible unit, affected energy remains unpriced; never silently fall
+      back to the hidden manual value.
+- [ ] Apply identical behavior independently to tariff periods 1, 2 and 3.
+- [ ] Keep configuration migration/backward compatibility for existing profiles
+      that already contain both a manual value and a selected sensor.
+- [ ] Add config-flow/options-flow tests for both source modes, switching modes,
+      validation, persisted values and invalid/unavailable sensor behavior.
+- [ ] Verify the mobile and desktop options forms in a real Home Assistant frontend.
+
+**Acceptance rule:** visibility, required-field validation and runtime price-source
+selection must all agree. Hiding a field in the form alone does not complete this
+item.
+
+### 8.2 Previously identified feature candidates (subsequent betas)
+
+These remain in the roadmap; they are not silently considered implemented or
+automatically included in the next beta.
+
+**EV Economy**
+- [ ] Historical tariff validity and price history, preserving the price that applied
+      to each past session.
+- [ ] Compare historical sessions under alternative tariffs ("what if").
+- [ ] Model subscription fees and subscription break-even/savings.
+- [ ] CSV import/export with validation and duplicate handling.
+- [ ] Monthly energy and cost summaries.
+
+**EV Intelligence**
+- [ ] Learn real-world consumption and autonomy from valid driving history.
+- [ ] Estimate charging efficiency by comparing battery-side energy estimates with
+      energy measured at the charger, clearly labelling estimates and confidence.
+- [ ] Monitor parked battery SOC loss with sample quality checks and avoid converting
+      percentage points to kWh without valid usable-capacity data.
+- [ ] Compare predictions with observed outcomes and expose confidence/sample count.
+- [ ] Learn charge-power taper from real sessions before using it in completion-time
+      estimates.
+
+**EV Planner**
+- [ ] Estimate time to target SOC and charge-completion ETA using observed charging
+      behavior where available.
+- [ ] Support trip target SOC, configurable reserve and departure deadline.
+- [ ] Add optional calendar/trip inputs and optional solar-aware recommendations.
+- [ ] Keep charger control out of scope; planning must remain useful without a
+      controllable wallbox.
+
+**Design principles**
+- Keep session facts, measured energy and costs distinct from estimates.
+- Make optional data sources genuinely optional; missing tariffs must not disable
+  session tracking, and missing vehicle history must not disable cost accounting.
+- Label data provenance, freshness and confidence. Never silently substitute an
+  estimate or manual value for an invalid selected sensor.
+- Implement concepts independently; do not copy competitor code, wording or UI.
+
