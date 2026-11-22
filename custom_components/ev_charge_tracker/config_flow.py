@@ -318,12 +318,19 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_tariffs(self, user_input=None):
         """Choose the number of tariff periods."""
-        existing = self.config_entry.options.get(
+        saved = self.config_entry.options.get(
             CONF_TARIFF_PERIODS, self.config_entry.data.get(CONF_TARIFF_PERIODS)
-        )
-        current_count = len(existing) if existing else 1
+        ) or []
+        current_count = len(saved) if saved else 1
         if user_input is not None:
             self._period_count = int(user_input[CONF_TARIFF_COUNT])
+            defaults = default_periods(self._period_count)
+            self._period_drafts = [
+                {**defaults[index], **saved[index]}
+                if index < len(saved) else defaults[index]
+                for index in range(self._period_count)
+            ]
+            self._period_index = 0
             return await self.async_step_periods()
         schema = vol.Schema({
             vol.Required(CONF_TARIFF_COUNT, default=str(current_count)): selector.SelectSelector(
@@ -340,41 +347,84 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
         return self.async_show_form(step_id="tariffs", data_schema=schema)
 
     async def async_step_periods(self, user_input=None):
-        """Configure names, times, weekdays and prices."""
-        saved = self.config_entry.options.get(
-            CONF_TARIFF_PERIODS, self.config_entry.data.get(CONF_TARIFF_PERIODS)
-        ) or []
-        defaults = default_periods(self._period_count)
-        existing = (saved + defaults)[0:self._period_count]
+        """Collect schedule details and choose a price source for every period."""
+        errors = {}
         if user_input is not None:
-            periods = []
+            drafts = []
             for index in range(1, self._period_count + 1):
-                periods.append({
+                previous = self._period_drafts[index - 1]
+                source = user_input[f"period_{index}_price_source"]
+                period = {
                     "name": user_input[f"period_{index}_name"].strip(),
                     "start": user_input[f"period_{index}_start"],
                     "end": user_input[f"period_{index}_end"],
-                    **({"price": float(user_input[f"period_{index}_price"])}
-                       if user_input.get(f"period_{index}_price") not in (None, "") else {}),
-                    "price_entity": user_input.get(f"period_{index}_price_entity"),
                     "days": [int(day) for day in user_input[f"period_{index}_days"]],
-                })
-            errors = validate_periods(periods)
-            if not errors:
-                return self.async_create_entry(
-                    title="", data={**self.config_entry.options, CONF_TARIFF_PERIODS: periods}
-                )
-            existing = periods
-            return self.async_show_form(
-                step_id="periods",
-                data_schema=self._period_schema(existing),
-                errors={"base": "invalid_schedule"},
-                description_placeholders={"schedule_error": " ".join(errors)},
-            )
+                    "_price_source": source,
+                }
+                # Retain the inactive source's previous value so switching
+                # back later does not destroy the user's previous setting.
+                if previous.get("price") is not None:
+                    period["price"] = previous["price"]
+                if previous.get("price_entity"):
+                    period["price_entity"] = previous["price_entity"]
+                drafts.append(period)
+            self._period_drafts = drafts
+            self._period_index = 0
+            return await self.async_step_period_price()
+
         return self.async_show_form(
-            step_id="periods", data_schema=self._period_schema(existing)
+            step_id="periods",
+            data_schema=self._period_details_schema(self._period_drafts),
+            errors=errors,
         )
 
-    def _period_schema(self, existing):
+    async def async_step_period_price(self, user_input=None):
+        """Ask only for the selected source: manual price or price sensor."""
+        index = self._period_index
+        period = self._period_drafts[index]
+        source = period.get("_price_source", "sensor" if period.get("price_entity") else "manual")
+
+        if user_input is not None:
+            if source == "manual":
+                period["price"] = float(user_input["price"])
+                # A manual source is exclusive; remove any previously selected sensor.
+                period.pop("price_entity", None)
+            else:
+                period["price_entity"] = user_input["price_entity"]
+                # Keep a prior manual value hidden for a future source switch,
+                # but tariff validation and calculation treat the sensor as exclusive.
+            self._period_drafts[index] = period
+            if index + 1 < self._period_count:
+                self._period_index += 1
+                return await self.async_step_period_price()
+
+            periods = []
+            for draft in self._period_drafts:
+                saved_period = {key: value for key, value in draft.items() if not key.startswith("_")}
+                periods.append(saved_period)
+            errors = validate_periods(periods)
+            if errors:
+                return self.async_show_form(
+                    step_id="periods",
+                    data_schema=self._period_details_schema(self._period_drafts),
+                    errors={"base": "invalid_schedule"},
+                    description_placeholders={"schedule_error": " ".join(errors)},
+                )
+            return self.async_create_entry(
+                title="", data={**self.config_entry.options, CONF_TARIFF_PERIODS: periods}
+            )
+
+        return self.async_show_form(
+            step_id="period_price",
+            data_schema=self._period_price_schema(period, source),
+            description_placeholders={
+                "period_name": period.get("name", f"Periodo {index + 1}"),
+                "period_number": str(index + 1),
+            },
+        )
+
+    def _period_details_schema(self, existing):
+        """Build the shared schedule/source form, without showing inactive price fields."""
         day_options = [
             {"value": "0", "label": "Lunes"},
             {"value": "1", "label": "Martes"},
@@ -387,21 +437,22 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
         schema = {}
         for index in range(1, self._period_count + 1):
             period = existing[index - 1]
+            source = period.get(
+                "_price_source", "sensor" if period.get("price_entity") else "manual"
+            )
             schema[vol.Required(f"period_{index}_name", default=period["name"])] = str
             schema[vol.Required(f"period_{index}_start", default=period["start"])] = str
             schema[vol.Required(f"period_{index}_end", default=period["end"])] = str
-            price_name = f"period_{index}_price"
-            price_key = (
-                vol.Optional(price_name, default=period["price"])
-                if period.get("price") is not None
-                else vol.Optional(price_name)
-            )
-            schema[price_key] = All(Coerce(float), Range(min=0))
-            schema[vol.Optional(
-                f"period_{index}_price_entity",
-                default=period.get("price_entity"),
-            )] = selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor")
+            schema[vol.Required(
+                f"period_{index}_price_source", default=source
+            )] = selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": "manual", "label": "Manual"},
+                        {"value": "sensor", "label": "Sensor"},
+                    ],
+                    mode=selector.SelectSelectorMode.LIST,
+                )
             )
             schema[vol.Required(
                 f"period_{index}_days",
@@ -414,3 +465,22 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                 )
             )
         return vol.Schema(schema)
+
+    @staticmethod
+    def _period_price_schema(period, source):
+        """Return a form containing exactly one active price source field."""
+        if source == "manual":
+            key = (
+                vol.Required("price", default=period["price"])
+                if period.get("price") is not None
+                else vol.Required("price")
+            )
+            return vol.Schema({key: All(Coerce(float), Range(min=0))})
+        key = (
+            vol.Required("price_entity", default=period["price_entity"])
+            if period.get("price_entity")
+            else vol.Required("price_entity")
+        )
+        return vol.Schema({
+            key: selector.EntitySelector(selector.EntitySelectorConfig(domain="sensor"))
+        })
