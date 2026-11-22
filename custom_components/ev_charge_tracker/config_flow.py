@@ -390,8 +390,11 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             schema[vol.Required(f"period_{index}_name", default=period["name"])] = str
             schema[vol.Required(f"period_{index}_start", default=period["start"])] = str
             schema[vol.Required(f"period_{index}_end", default=period["end"])] = str
-            price_key = vol.Optional(
-                f"period_{index}_price", default=period.get("price")
+            price_name = f"period_{index}_price"
+            price_key = (
+                vol.Optional(price_name, default=period["price"])
+                if period.get("price") is not None
+                else vol.Optional(price_name)
             )
             schema[price_key] = All(Coerce(float), Range(min=0))
             schema[vol.Optional(
