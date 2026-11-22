@@ -101,6 +101,10 @@ class EVChargeTrackerCard extends HTMLElement {
     const socEnd = this._number(e.soc_end);
     const increase = this._number(e.soc_increase);
     const duration = this._number(e.duration);
+    // Live vehicle telemetry is deliberately separate from session SOC start/end.
+    const liveSoc = this._number(e.soc_current);
+    const odometer = this._number(e.odometer);
+    const odometerUnit = this._attr(e.odometer, "unit_of_measurement", "km");
     const history = this._attr(e.history, "sessions", []);
     const current = this._attr(e.history, "current_session", null);
     const latest = this._attr(e.history, "latest_session", null);
@@ -167,6 +171,10 @@ class EVChargeTrackerCard extends HTMLElement {
         .metric strong { display:block; font-size:19px; font-weight:680; letter-spacing:-.04em; overflow-wrap:anywhere; }
         .metric span { display:block; margin-top:4px; color:var(--secondary-text-color); font-size:11px; }
         .dates { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+        .vehicle-live { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-top:12px; }
+        .live-item { min-width:0; padding:12px 14px; border-radius:14px; background:var(--card-background-color); }
+        .live-item strong { display:block; font-size:20px; font-weight:680; letter-spacing:-.04em; }
+        .live-item span { display:block; margin-top:4px; color:var(--secondary-text-color); font-size:11px; }
         .date { font-size:12px; color:var(--secondary-text-color); line-height:1.5; }
         .date b { display:block; color:var(--primary-text-color); font-weight:550; }
         .history-head { display:flex; justify-content:space-between; align-items:center; margin:22px 0 10px; }
@@ -208,6 +216,10 @@ class EVChargeTrackerCard extends HTMLElement {
               <div class="date">Inicio<b>${start}</b></div>
               <div class="date">Fin<b>${current && !record.ended_at ? "En curso" : end}</b></div>
             </div>
+            ${(e.soc_current || e.odometer) ? `<div class="vehicle-live" aria-label="Datos actuales del vehículo">
+              ${e.soc_current ? `<div class="live-item"><strong>${liveSoc === null || liveSoc < 0 || liveSoc > 100 ? "—" : this._fmt(liveSoc,0) + "%"}</strong><span>Batería actual</span></div>` : ""}
+              ${e.odometer ? `<div class="live-item"><strong>${odometer === null ? "—" : this._fmt(odometer,0) + " " + this._escape(odometerUnit)}</strong><span>Kilometraje actual</span></div>` : ""}
+            </div>` : ""}
           </div>
           <div class="charts">
             <section class="chart-card" aria-label="Energía por carga">
