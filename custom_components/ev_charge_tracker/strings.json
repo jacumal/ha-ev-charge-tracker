@@ -96,7 +96,7 @@
       },
       "profile": {
         "title": "Sensors and behavior",
-        "description": "Modifica las entidades asociadas al vehículo y al cargador, el tipo de contador y el criterio de cierre. La configuración de precios se encuentra únicamente en Tarifas eléctricas. El histórico se conserva.",
+        "description": "Change the entities mapped to the vehicle and charger, energy counter type, and session finalization behavior. Electricity pricing is configured only in Electricity tariffs. Existing history is preserved.",
         "data": {
           "charging_entity": "Charging state (binary_sensor)",
           "energy_entity": "Delivered energy (kWh/Wh)",
@@ -108,7 +108,7 @@
           "power_entity": "Potencia instantánea de carga (W/kW, opcional)"
         },
         "data_description": {
-          "power_entity": "Sensor opcional de potencia instantánea en W o kW. Mejora el reparto de energía entre periodos tarifarios; el contador de energía sigue siendo la referencia del total entregado. Si no está disponible, se utiliza el reparto temporal y se marca como estimación."
+          "power_entity": "Optional instantaneous charging power sensor in W or kW. It improves energy allocation across tariff periods; the energy counter remains the reference for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate."
         }
       },
       "tariffs": {
