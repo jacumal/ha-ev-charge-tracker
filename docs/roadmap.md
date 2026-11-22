@@ -1,8 +1,8 @@
 # Project roadmap and implementation status
 
 **Repository:** jacumal/ha-ev-charge-tracker  
-**Baseline reviewed:** 2026-11-21  
-**Baseline commit:** 8aa5d06ad21e199a7e1fdf8abfc242f721de76ae  
+**Baseline reviewed:** 2026-11-22  
+**Baseline:** beta.3 candidate branch `feature/beta-3-ui-redesign`  
 **Rule:** A planned or specified capability is not implemented until code and automated tests exist. Real Home Assistant behavior remains pending until controlled testing.
 
 Status: **Implemented** · **Partial** · **Specified / pending** · **Not started / validation pending**
@@ -61,7 +61,9 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [x] Design direction documented: responsive, Bubble Card-compatible and Apple-inspired.
 - [x] Functional custom Lovelace card bundled and served by the integration.
 - [x] Visual editor and native Home Assistant entity pickers for semantic entity mappings.
-- [ ] Validate latest-charge summary, history, tariff breakdown and missing-data states against a live HA frontend.
+- [x] Add responsive per-session energy and cost charts using persisted history only; partial costs are visually distinguished and missing values are omitted.
+- [x] Refresh the visual editor while retaining automatic profile discovery, explicit multi-profile selection and manual entity overrides.
+- [ ] Validate latest-charge summary, charts, history, tariff breakdown and missing-data states against a live HA frontend.
 - [ ] Verify mobile/desktop and light/dark layouts in a real HA instance.
 - [ ] Publish installation guidance and verified screenshots.
 
