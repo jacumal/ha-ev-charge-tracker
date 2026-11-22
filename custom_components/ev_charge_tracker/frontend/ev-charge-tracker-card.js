@@ -120,9 +120,12 @@ class EVChargeTrackerCard extends HTMLElement {
     const end = this._date(record.ended_at || record.completed_at);
     const maxHistory = Math.min(50, Math.max(1, Math.trunc(Number(this.config.max_history) || 8)));
     const rows = Array.isArray(history) ? history.slice(0, maxHistory) : [];
-    const chartRows = Array.isArray(history) ? history.slice(0, 8).slice().reverse().filter(item => Number.isFinite(Number(item.energy_kwh)) && Number(item.energy_kwh) >= 0) : [];
+    const chartRows = Array.isArray(history) ? history.slice(0, 8).slice().reverse().filter(item => item.energy_kwh != null && item.energy_kwh !== "" && Number.isFinite(Number(item.energy_kwh)) && Number(item.energy_kwh) >= 0) : [];
     const maxEnergy = Math.max(1, ...chartRows.map(item => Number(item.energy_kwh)));
-    const costRows = chartRows.filter(item => Number.isFinite(Number(item.cost ?? item.known_cost)) && Number(item.cost ?? item.known_cost) >= 0);
+    const costRows = chartRows.filter(item => {
+      const value = item.cost ?? item.known_cost;
+      return value != null && value !== "" && Number.isFinite(Number(value)) && Number(value) >= 0;
+    });
     const maxCost = Math.max(1, ...costRows.map(item => Number(item.cost ?? item.known_cost)));
 
     this.shadowRoot.innerHTML = `
