@@ -369,6 +369,8 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                     period["price"] = previous["price"]
                 if previous.get("price_entity"):
                     period["price_entity"] = previous["price_entity"]
+                if previous.get("price_entity_backup"):
+                    period["price_entity_backup"] = previous["price_entity_backup"]
                 drafts.append(period)
             self._period_drafts = drafts
             self._period_index = 0
@@ -389,12 +391,16 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             if source == "manual":
                 period["price"] = float(user_input["price"])
-                # A manual source is exclusive; remove any previously selected sensor.
+                # Keep the previous sensor selection separately so switching
+                # back to sensor pricing does not discard the user's choice.
+                if period.get("price_entity"):
+                    period["price_entity_backup"] = period["price_entity"]
                 period.pop("price_entity", None)
             else:
                 period["price_entity"] = user_input["price_entity"]
+                period["price_entity_backup"] = user_input["price_entity"]
                 # Keep a prior manual value hidden for a future source switch,
-                # but tariff validation and calculation treat the sensor as exclusive.
+                # but tariff validation and calculation treat the active sensor as exclusive.
             self._period_drafts[index] = period
             if index + 1 < self._period_count:
                 self._period_index += 1
@@ -479,8 +485,11 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             )
             return vol.Schema({key: All(Coerce(float), Range(min=0))})
         key = (
-            vol.Required("price_entity", default=period["price_entity"])
-            if period.get("price_entity")
+            vol.Required(
+                "price_entity",
+                default=period.get("price_entity") or period.get("price_entity_backup"),
+            )
+            if period.get("price_entity") or period.get("price_entity_backup")
             else vol.Required("price_entity")
         )
         return vol.Schema({
