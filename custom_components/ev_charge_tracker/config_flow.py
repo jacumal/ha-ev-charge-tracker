@@ -353,7 +353,8 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                     "name": user_input[f"period_{index}_name"].strip(),
                     "start": user_input[f"period_{index}_start"],
                     "end": user_input[f"period_{index}_end"],
-                    "price": float(user_input[f"period_{index}_price"]),
+                    **({"price": float(user_input[f"period_{index}_price"])}
+                       if user_input.get(f"period_{index}_price") not in (None, "") else {}),
                     "price_entity": user_input.get(f"period_{index}_price_entity"),
                     "days": [int(day) for day in user_input[f"period_{index}_days"]],
                 })
@@ -389,9 +390,10 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             schema[vol.Required(f"period_{index}_name", default=period["name"])] = str
             schema[vol.Required(f"period_{index}_start", default=period["start"])] = str
             schema[vol.Required(f"period_{index}_end", default=period["end"])] = str
-            schema[vol.Required(f"period_{index}_price", default=period["price"])] = All(
-                Coerce(float), Range(min=0)
+            price_key = vol.Optional(
+                f"period_{index}_price", default=period.get("price")
             )
+            schema[price_key] = All(Coerce(float), Range(min=0))
             schema[vol.Optional(
                 f"period_{index}_price_entity",
                 default=period.get("price_entity"),
