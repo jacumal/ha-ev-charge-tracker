@@ -21,6 +21,7 @@ Track charging sessions, delivered energy, battery state of charge (SOC), mileag
 - [Lovelace dashboard design](docs/dashboard-design.md)
 - [Implementation roadmap and status](docs/roadmap.md)
 - [Beta validation checklist](docs/beta-checklist.md)
+- [Beta.3 release notes](docs/release-notes-beta-3.md)
 
 ## Planned capabilities
 
