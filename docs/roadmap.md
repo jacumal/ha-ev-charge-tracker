@@ -77,7 +77,7 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [x] Preserve inactive manual prices and sensor selections when switching source.
 - [x] Beta.3 Lovelace chart tests for populated, empty, partial and missing-data states.
 - [x] README, beta checklist and beta.3 release notes updated.
-- [ ] Complete a clean CI run on the final beta.3 candidate commit.
+- [x] Complete a clean CI run on the final beta.3 candidate commit (run #172, commit `3484dbe`).
 - [ ] Home Assistant config-flow selector and frontend validation in a real instance.
 - [ ] Verify HACS release packaging and installation from a versioned tag.
 - [ ] Publish the beta after PR review, green CI and packaging checks.
