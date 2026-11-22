@@ -6,5 +6,5 @@
   "documentation": "https://github.com/jacumal/ha-ev-charge-tracker",
   "iot_class": "local_polling",
   "requirements": [],
-  "version": "0.1.0-beta.2"
+  "version": "0.1.0-beta.3"
 }
