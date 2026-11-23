@@ -103,7 +103,16 @@ class EVChargeTrackerCard extends HTMLElement {
     const currentSoc = this._number(e.current_soc);
     const odometer = this._number(e.odometer);
     const odometerUnit = this._attr(e.odometer, "unit_of_measurement", "km") || "km";
-    const hasLiveTelemetry = Boolean(e.current_soc || e.odometer);
+    const rangeValue = this._number(e.range);
+    const rangeUnit = this._attr(e.range, "unit_of_measurement", "km") || "km";
+    const validSoc = currentSoc !== null && currentSoc >= 0 && currentSoc <= 100;
+    const validOdometer = odometer !== null && odometer >= 0;
+    const validRange = rangeValue !== null && rangeValue >= 0;
+    const telemetryStates = [e.current_soc, e.odometer, e.range].filter(Boolean).map(id => this._state(id)).filter(Boolean);
+    const telemetryTimes = telemetryStates.map(state => Date.parse(state.last_updated || state.last_changed || "")).filter(Number.isFinite);
+    const telemetryAgeMinutes = telemetryTimes.length ? Math.max(0, (Date.now() - Math.min(...telemetryTimes)) / 60000) : null;
+    const telemetryFreshness = telemetryAgeMinutes === null ? "Sin marca temporal" : telemetryAgeMinutes <= 15 ? "Datos actualizados" : telemetryAgeMinutes <= 180 ? "Datos antiguos" : "Datos desactualizados";
+    const hasLiveTelemetry = Boolean(e.current_soc || e.odometer || e.range);
     const displayMode = ["compact", "balanced", "complete"].includes(this.config.display_mode) ? this.config.display_mode : "balanced";
     const themeMode = ["auto", "light", "dark"].includes(this.config.theme_mode) ? this.config.theme_mode : "auto";
     const duration = this._number(e.duration);
@@ -271,6 +280,14 @@ class EVChargeTrackerCard extends HTMLElement {
         .odo-reading { margin-top:9px; overflow-wrap:anywhere; font-size:clamp(22px,5vw,31px); line-height:1.12; font-weight:730; letter-spacing:-.055em; font-variant-numeric:tabular-nums; }
         .odo-reading small { font-size:13px; color:var(--secondary-text-color); font-weight:600; letter-spacing:0; }
         .live-foot { margin-top:9px; color:var(--secondary-text-color); font-size:10px; line-height:1.35; }
+        .live-range { margin-top:8px; color:var(--secondary-text-color); font-size:11px; }
+        .telemetry-freshness { display:flex; align-items:center; gap:6px; margin-top:9px; color:var(--secondary-text-color); font-size:10px; }
+        .telemetry-freshness i { width:6px; height:6px; border-radius:50%; background:var(--success-color); }
+        .telemetry-freshness.stale i { background:var(--warning-color); }
+        .telemetry-freshness.missing i { background:var(--secondary-text-color); }
+        .latest,.chart-card { border:1px solid color-mix(in srgb,var(--divider-color) 65%,transparent); }
+        .section-title { font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:750; color:var(--secondary-text-color); }
+        .history-head { margin-top:22px; padding-top:16px; border-top:1px solid var(--divider-color); }
         .latest { margin-top:20px; padding:18px; border-radius:20px; background:var(--secondary-background-color); }
         .charts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:18px; }
         .chart-card { min-width:0; padding:14px; border-radius:17px; background:var(--secondary-background-color); }
@@ -320,10 +337,21 @@ class EVChargeTrackerCard extends HTMLElement {
             </div>
           </div>
           ${vehicleMarkup}
-          ${hasLiveTelemetry ? `<section class="vehicle-telemetry" aria-label="Datos complementarios del vehículo">
-            <span><small>Batería</small><b>${currentSoc === null || currentSoc < 0 || currentSoc > 100 ? "—" : this._fmt(currentSoc,1) + "%"}</b></span>
-            <span><small>Odómetro</small><b>${odometer === null || odometer < 0 ? "—" : this._fmt(odometer,0) + " " + this._escape(odometerUnit)}</b></span>
-          </section>` : ""}
+          ${hasLiveTelemetry ? `<section class="live-hero" aria-label="Telemetría actual del vehículo">
+            <div class="live-battery">
+              <div class="live-label">BATERÍA ACTUAL</div>
+              <div class="live-reading">${validSoc ? this._fmt(currentSoc,1) + "<small>%</small>" : "—"}</div>
+              <div class="battery-track"><span style="width:${validSoc ? currentSoc : 0}%"></span></div>
+              ${validRange ? `<div class="live-range">Autonomía indicada · <strong>${this._fmt(rangeValue,0)} ${this._escape(rangeUnit)}</strong></div>` : ""}
+            </div>
+            <div class="live-divider" aria-hidden="true"></div>
+            <div class="live-odometer">
+              <div class="live-label">KILOMETRAJE</div>
+              <div class="odo-reading">${validOdometer ? this._fmt(odometer,0) : "—"} <small>${this._escape(odometerUnit)}</small></div>
+              <div class="live-foot">${validOdometer ? "Lectura del vehículo" : "Odómetro no disponible"}</div>
+            </div>
+          </section>
+          <div class="telemetry-freshness ${telemetryAgeMinutes === null ? "missing" : telemetryAgeMinutes > 15 ? "stale" : ""}"><i></i>${this._escape(telemetryFreshness)}${telemetryAgeMinutes === null ? "" : " · hace " + this._fmt(telemetryAgeMinutes,0) + " min"}</div>` : ""}
           <div class="latest mode-${displayMode}">
             <div class="section-title">${current ? "Carga actual" : "Resumen de la última carga"}</div>
             <div class="rings">
@@ -432,7 +460,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const fields = [
       ["status","Estado de carga"],["energy","Energía de la carga"],["cost","Coste de la carga"],
       ["soc_start","Batería al inicio"],["soc_end","Batería al final"],["soc_increase","Aumento de batería"],
-      ["current_soc","Batería actual"],["odometer","Odómetro"],["plugged","Cable conectado"],
+      ["current_soc","Batería actual"],["odometer","Odómetro"],["range","Autonomía (sensor opcional)"],["plugged","Cable conectado"],
       ["duration","Duración"],["history","Histórico de cargas"],
     ];
     this.shadowRoot.innerHTML = `<style>
