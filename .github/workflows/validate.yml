@@ -34,14 +34,18 @@ jobs:
           import json
           from pathlib import Path
           base = json.loads(Path("custom_components/ev_charge_tracker/strings.json").read_text())
-          base_fields = set(base["config"]["step"]["user"]["data"])
-          base_descriptions = set(base["config"]["step"]["user"]["data_description"])
+
+          def structure(value):
+              if isinstance(value, dict):
+                  return {key: structure(item) for key, item in value.items()}
+              if isinstance(value, list):
+                  return [structure(item) for item in value]
+              return type(value).__name__
+
+          expected = structure(base)
           for path in ("translations/es.json", "translations/en.json"):
               data = json.loads((Path("custom_components/ev_charge_tracker") / path).read_text())
-              step = data["config"]["step"]["user"]
-              assert set(step["data"]) == base_fields, f"{path}: field labels differ"
-              assert set(step["data_description"]) == base_descriptions, f"{path}: field descriptions differ"
-              assert data.get("options", {}).keys() == base.get("options", {}).keys(), f"{path}: options steps differ"
+              assert structure(data) == expected, f"{path}: translation keys or value types differ from strings.json"
           PY
       - name: Import integration modules
         env:
