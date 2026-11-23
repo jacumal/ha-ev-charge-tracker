@@ -54,7 +54,7 @@
         "title": "Profile settings",
         "description": "Choose which profile settings to edit. Changing sensor mappings does not delete saved sessions.",
         "data": {
-          "section": "Vehicle appearance"
+          "section": "Settings section"
         }
       },
       "periods": {
