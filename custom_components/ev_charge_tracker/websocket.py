@@ -37,11 +37,13 @@ async def websocket_get_profiles(hass, connection, msg):
         # entities. These are existing HA entities, not new tracker sensors.
         entities["current_soc"] = profile.get("soc_entity")
         entities["odometer"] = profile.get("odometer_entity")
+        entities["plugged"] = profile.get("plugged_entity")
         profiles.append(
             {
                 "entry_id": entry_id,
                 "vehicle_name": profile.get("vehicle_name") or "Vehículo",
                 "charger_name": profile.get("charger_name") or "Cargador",
+                "vehicle_visual": profile.get("vehicle_visual") or {},
                 "entities": entities,
             }
         )
