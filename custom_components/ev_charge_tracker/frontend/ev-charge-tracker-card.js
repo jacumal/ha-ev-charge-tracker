@@ -105,6 +105,7 @@ class EVChargeTrackerCard extends HTMLElement {
     const odometerUnit = this._attr(e.odometer, "unit_of_measurement", "km") || "km";
     const hasLiveTelemetry = Boolean(e.current_soc || e.odometer);
     const displayMode = ["compact", "balanced", "complete"].includes(this.config.display_mode) ? this.config.display_mode : "balanced";
+    const themeMode = ["auto", "light", "dark"].includes(this.config.theme_mode) ? this.config.theme_mode : "auto";
     const duration = this._number(e.duration);
     const history = this._attr(e.history, "sessions", []);
     const current = this._attr(e.history, "current_session", null);
@@ -210,7 +211,9 @@ class EVChargeTrackerCard extends HTMLElement {
       <style>
         :host { display:block; color:var(--primary-text-color); }
         ha-card { overflow:hidden; border-radius:var(--ha-card-border-radius, 22px); }
-        .wrap { padding:20px; background:var(--ha-card-background,var(--card-background-color)); }
+        .wrap { padding:20px; background:var(--ha-card-background,var(--card-background-color)); color:var(--primary-text-color); }
+        .wrap[data-theme="dark"] { --primary-text-color:#f5f5f7; --secondary-text-color:#a1a1a6; --card-background-color:#1c1c1e; --secondary-background-color:#2c2c2e; --divider-color:#3a3a3c; --primary-color:#0a84ff; --success-color:#30d158; --warning-color:#ff9f0a; --ha-card-background:#1c1c1e; color-scheme:dark; }
+        .wrap[data-theme="light"] { --primary-text-color:#1d1d1f; --secondary-text-color:#6e6e73; --card-background-color:#ffffff; --secondary-background-color:#f5f5f7; --divider-color:#d2d2d7; --primary-color:#007aff; --success-color:#28a745; --warning-color:#c77c00; --ha-card-background:#ffffff; color-scheme:light; }
         .top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
         .eyebrow { color:var(--secondary-text-color); font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; }
         h2 { margin:5px 0 0; font-size:21px; font-weight:650; letter-spacing:-.03em; }
@@ -309,7 +312,7 @@ class EVChargeTrackerCard extends HTMLElement {
         @media(max-width:420px) { .wrap{padding:15px}.ring{width:72px;height:72px}.ring span{font-size:19px}.metric{padding:10px 8px}.metric strong{font-size:17px}.row{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) minmax(0,.8fr)}.vehicle-caption{flex-basis:40%}.vehicle-stage{height:68px}.vehicle-state{font-size:8px}.live-hero{padding:14px;gap:10px}.live-reading{font-size:31px}.odo-reading{font-size:20px}.live-label{font-size:9px} }
       </style>
       <ha-card>
-        <div class="wrap">
+        <div class="wrap" data-theme="${themeMode}">
           <div class="top">
             <div><div class="eyebrow">Cargas · Última carga</div><h2>${this._escape(title)}</h2></div>
             <div class="status ${charging && !inconsistentConnection ? "active" : (statusWarning || inconsistentConnection) ? "warn" : ""}">
@@ -457,7 +460,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         <button id="manualToggle" type="button">Editar entidades manualmente</button>
       </div>
       <label class="field">Nombre visible<input id="name" placeholder="Mi vehículo"></label>
-      <label class="field">Densidad de información<select id="display_mode"><option value="compact">Compacto · esencial</option><option value="balanced">Equilibrado · gráficos y resumen</option><option value="complete">Completo · todo el histórico</option></select></label>
+      <label class="field">Densidad de información<select id="display_mode"><option value="compact">Compacto · esencial</option><option value="balanced">Equilibrado · gráficos y resumen</option><option value="complete">Completo · todo el histórico</option></select></label>\n      <label class="field">Apariencia<select id="theme_mode"><option value="auto">Automática · seguir Home Assistant</option><option value="light">Clara</option><option value="dark">Oscura</option></select></label>
       <div id="entityFields" class="hidden">
         ${fields.map(([key,label]) => `<label class="field">${label}<ha-entity-picker data-key="${key}" allow-custom-entity></ha-entity-picker></label>`).join("")}
       </div>
@@ -466,6 +469,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     this.shadowRoot.getElementById("name").addEventListener("change", () => this._updateConfig());
     this.shadowRoot.getElementById("max_history").addEventListener("change", () => this._updateConfig());
     this.shadowRoot.getElementById("display_mode").addEventListener("change", () => this._updateConfig());
+    this.shadowRoot.getElementById("theme_mode").addEventListener("change", () => this._updateConfig());
     this.shadowRoot.getElementById("profileSelect").addEventListener("change", event => {
       const selected = this._profiles.find(profile => profile.entry_id === event.target.value);
       if (selected) this._applyProfile(selected);
@@ -538,9 +542,11 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const name = this.shadowRoot.getElementById("name");
     const maxHistory = this.shadowRoot.getElementById("max_history");
     const displayMode = this.shadowRoot.getElementById("display_mode");
+    const themeMode = this.shadowRoot.getElementById("theme_mode");
     if (name && name !== this.shadowRoot.activeElement) name.value = this._config.name || "";
     if (maxHistory && maxHistory !== this.shadowRoot.activeElement) maxHistory.value = this._config.max_history || 8;
     if (displayMode && displayMode !== this.shadowRoot.activeElement) displayMode.value = this._config.display_mode || "balanced";
+    if (themeMode && themeMode !== this.shadowRoot.activeElement) themeMode.value = this._config.theme_mode || "auto";
 
     const profileBox = this.shadowRoot.getElementById("profileBox");
     const profileSelect = this.shadowRoot.getElementById("profileSelect");
@@ -586,7 +592,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const name = this.shadowRoot.getElementById("name").value.trim() || "EV Charge Tracker";
     const maxHistory = Math.min(50, Math.max(1, Number(this.shadowRoot.getElementById("max_history").value || 8)));
     const displayMode = this.shadowRoot.getElementById("display_mode").value || "balanced";
-    const next = { ...this._config, name, max_history: maxHistory, display_mode: displayMode, entities: { ...(this._config.entities || {}) } };
+    const themeMode = this.shadowRoot.getElementById("theme_mode").value || "auto";
+    const next = { ...this._config, name, max_history: maxHistory, display_mode: displayMode, theme_mode: themeMode, entities: { ...(this._config.entities || {}) } };
     if (changedKey) {
       if (changedValue) next.entities[changedKey] = changedValue;
       else delete next.entities[changedKey];
