@@ -297,7 +297,7 @@ class EVChargeTrackerCard extends HTMLElement {
         .state-charging + .vehicle-state i { background:var(--success-color,#42a66b); }
         .state-error + .vehicle-state i { background:var(--warning-color,#d69b32); }
         @keyframes energy-flow { to { stroke-dashoffset:-26; } }
-        @media(prefers-reduced-motion:reduce) { .state-charging .energy-line { animation:none; opacity:.8; } }
+        @media(prefers-reduced-motion:reduce) { .state-charging .energy-line { animation:none; opacity:.8; } .connector,.battery-track span { transition:none!important; } }
         .vehicle-telemetry{display:flex;justify-content:flex-end;gap:18px;margin:10px 4px 0;color:var(--secondary-text-color);font-size:11px}
         .vehicle-telemetry span{display:flex;gap:6px;align-items:baseline}.vehicle-telemetry small{font-size:10px}.vehicle-telemetry b{color:var(--primary-text-color);font-weight:650;font-variant-numeric:tabular-nums}
         .mode-compact .metrics .metric:nth-child(n+5),.mode-compact .dates{display:none}.mode-balanced .metrics .metric:nth-child(n+5){display:none}
@@ -515,6 +515,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       details .field{margin:10px 0}
       #editorFeedback{min-height:18px;margin-top:8px}
       button:disabled{opacity:.55;cursor:wait}
+      input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--primary-color);outline-offset:2px}
     </style><div>
       <div id="profileBox" class="profile hidden">
         <label for="profileSelect">Perfil de carga</label>
