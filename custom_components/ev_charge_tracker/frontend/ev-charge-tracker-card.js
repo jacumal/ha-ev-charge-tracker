@@ -717,6 +717,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const displayMode = this.shadowRoot.getElementById("display_mode").value || "balanced";
     const themeMode = this.shadowRoot.getElementById("theme_mode").value || "auto";
     const next = { ...this._config, name, max_history: maxHistory, display_mode: displayMode, theme_mode: themeMode, entities: { ...(this._config.entities || {}) }, vehicle_visual: { ...(this._config.vehicle_visual || {}) } };
+    let imagePathError = false;
     ["brand","model","generation","year","trim","color","body_style","image","port_x","port_y"].forEach(key => {
       const field = this.shadowRoot.getElementById("visual_" + key);
       if (!field) return;
@@ -724,7 +725,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       let value = field.value.trim();
       if (key === "image") {
         const validPath = new RegExp("^/local/ev-charge-tracker/[A-Za-z0-9_-][A-Za-z0-9._-]*[.](png|webp)$", "i").test(value) && !value.includes("..");
-        if (value && !validPath) { field.setCustomValidity("Usa una ruta /local/ev-charge-tracker válida con extensión PNG o WebP."); value = ""; }
+        if (value && !validPath) { field.setCustomValidity("Usa una ruta /local/ev-charge-tracker válida con extensión PNG o WebP."); imagePathError = true; value = ""; }
         else field.setCustomValidity("");
       }
       if (key === "color" && !new RegExp("^#[0-9a-f]{6}$", "i").test(value)) value = "#71869A";
@@ -743,7 +744,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     }
     this._config = next;
     const feedback = this.shadowRoot.getElementById("editorFeedback");
-    if (feedback) feedback.textContent = "Cambios preparados. Pulsa Guardar en Home Assistant para conservarlos.";
+    if (feedback) feedback.textContent = imagePathError
+      ? "La ruta de imagen no es válida. Usa /local/ev-charge-tracker/nombre.png o .webp."
+      : "Cambios preparados. Pulsa Guardar en Home Assistant para conservarlos.";
     this._syncControls();
     this._fireConfigChanged();
   }
