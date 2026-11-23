@@ -130,7 +130,9 @@ class EVChargeTrackerCard extends HTMLElement {
       const state = this._state(entityId);
       if (!state || ["unknown", "unavailable", "none"].includes(state.state)) return null;
       const timestamp = Date.parse(state.last_updated || state.last_changed || "");
-      return Number.isFinite(timestamp) ? Math.max(0, (Date.now() - timestamp) / 60000) : null;
+      if (!Number.isFinite(timestamp)) return null;
+      const age = (Date.now() - timestamp) / 60000;
+      return age < -5 ? null : Math.max(0, age);
     };
     const socAgeMinutes = sourceAgeMinutes(e.current_soc);
     const odometerAgeMinutes = sourceAgeMinutes(e.odometer);
