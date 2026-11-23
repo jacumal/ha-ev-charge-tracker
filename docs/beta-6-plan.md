@@ -20,6 +20,10 @@ The vehicle is the visual hero, not a small thumbnail. The card must remain read
 - Never silently accept NC/ND, unknown, missing or unrecognized license metadata.
 - Preserve creator/credit, license name, license URL and Commons file-description page with the selected image.
 - Show attribution in the editor preview and on the card.
+- Store the selected image and its attribution in a per-vehicle map inside the Lovelace card configuration, not as one global integration image.
+- Use a stable vehicle identity (brand/model when available, otherwise vehicle name) so charger profiles belonging to the same vehicle reuse the same selection.
+- Keep each vehicle's image independent when a user configures multiple EVs, and allow changing the selection at any time.
+- Prefill the gallery search from the selected vehicle identity; preserve a user's manually edited search query.
 - Keep local PNG/WebP image paths supported as a manual fallback.
 - Do not bundle third-party image binaries into the integration repository or imply that all Commons images are transparent.
 - Commons API failure, no results, missing metadata and image load failure must leave the existing local/fallback vehicle visual usable.
@@ -40,8 +44,11 @@ The vehicle is the visual hero, not a small thumbnail. The card must remain read
 
 - [ ] Commons search returns only recognized free-license results.
 - [ ] Search results display thumbnail, title, creator and license.
-- [ ] Selecting an image stores the image URL and all attribution fields in the Lovelace card configuration.
-- [ ] Selected image survives editor close/reopen and Home Assistant restart.
+- [ ] Selecting an image stores the image URL and all attribution fields in the selected vehicle's Lovelace configuration.
+- [ ] Two different vehicles can retain different images in the same user's dashboard.
+- [ ] Multiple charger profiles for the same vehicle reuse that vehicle's image selection.
+- [ ] Switching profiles restores the correct image and gallery search identity.
+- [ ] Selected images survive editor close/reopen and Home Assistant restart.
 - [ ] Attribution links point to the Commons file page.
 - [ ] Unlicensed/unknown-license images are excluded.
 - [ ] Malformed URLs and non-Wikimedia hosts are rejected.
