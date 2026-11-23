@@ -9,7 +9,7 @@ This checklist tracks the work defined in [beta-5-plan.md](beta-5-plan.md). It i
 - [ ] Current precise SOC mapping verified end-to-end.
 - [ ] Odometer mapping verified end-to-end.
 - [x] Prominent live SOC and odometer presentation.
-- [ ] Freshness/availability states; no fabricated zero values.
+- [x] Freshness/availability states; stale primary telemetry is hidden rather than presented as current, and invalid values are not replaced with zero.
 - [x] Optional range entity only; no guessed range calculations (configurable from profile options and surfaced to Lovelace).
 - [ ] Automated tests for missing, unavailable and changing telemetry.
 
@@ -25,7 +25,7 @@ This checklist tracks the work defined in [beta-5-plan.md](beta-5-plan.md). It i
 ## Vehicle identity
 - [x] Live preview while editing identity fields.
 - [x] Local image path guidance and preview (manual copy to /config/www; no upload control).
-- [x] Transparent PNG/WebP path validation and fallback silhouette.
+- [x] Local PNG/WebP path validation and fallback silhouette; transparency is recommended in the editor guidance but the alpha channel is not inspected.
 - [x] Visual port-anchor adjustment controls.
 - [x] Correct vehicle/profile context shown.
 - [x] Shared identity remains consistent across charger profiles (registry regression test).
