@@ -293,8 +293,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                     errors={"base": "invalid_vehicle_color"},
                 )
             if image and (
-                not image.startswith("/local/ev-charge-tracker/")
-                or not re.search(r"\.(png|webp)$", image, re.IGNORECASE)
+                not re.fullmatch(r"/local/ev-charge-tracker/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)", image, re.IGNORECASE)
                 or ".." in image
             ):
                 return self.async_show_form(
