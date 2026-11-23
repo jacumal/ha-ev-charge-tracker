@@ -27,6 +27,7 @@ The automated candidate checks do not close these live-instance gates. Do not tr
 - [ ] Configure make/model/generation/year/trim/body style/color and verify they survive restart.
 - [ ] Add a transparent PNG/WebP under `www/ev-charge-tracker/` and verify it loads through `/local/ev-charge-tracker/` in light and dark themes.
 - [ ] Verify fallback silhouette when no custom image is configured.
+- [ ] Adjust horizontal/vertical charge-port anchors for a custom image and confirm cable alignment.
 - [ ] Verify cable states: disconnected, connected-but-idle (using the optional plugged sensor), charging with animated energy flow, completed and attention/error.
 - [ ] Verify reduced-motion preference disables continuous cable animation.
 - [ ] Confirm the live battery SOC and odometer values are auto-mapped from the selected profile and displayed correctly.
