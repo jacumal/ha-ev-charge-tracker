@@ -26,6 +26,14 @@ def test_gallery_filters_to_recognized_free_licenses():
     assert "!allowed.test(license)" in source
 
 
+def test_gallery_selection_is_stored_per_vehicle_not_globally():
+    source = CARD.read_text(encoding="utf-8")
+    assert "vehicle_visuals" in source
+    assert "_profileVisualKey(profile)" in source
+    assert "next.vehicle_visuals = {" in source
+    assert "const suggestedQuery =" in source
+
+
 def test_selected_image_keeps_attribution_metadata():
     source = CARD.read_text(encoding="utf-8")
     for field in (
