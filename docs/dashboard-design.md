@@ -130,7 +130,7 @@ is still required for frontend rendering, editor persistence and responsive them
 
 The card includes a compact, secondary vehicle visual below the header; battery, energy, cost and history remain the primary information. Vehicle appearance is configured in **Settings → Devices & services → EV Charge Tracker → Configure → Vehicle appearance** and shared across charger profiles for the same vehicle.
 
-The profile stores brand, model, generation, model year, trim, body style and HEX body color. A small local SVG silhouette gallery provides generic SUV/crossover, sedan, hatchback, van and pickup shapes. For a model-accurate image, users may place their own transparent PNG or WebP in /config/www/ev-charge-tracker/ and set its /local/ev-charge-tracker/... path. If the file is absent or fails to load, the card falls back to the colored SVG silhouette. No remote image API or paid image service is required.
+The profile stores brand, model, generation, model year, trim, body style and HEX body color. A small local SVG silhouette gallery provides generic SUV/crossover, sedan, hatchback, van and pickup shapes. For a model-accurate image, users may place their own transparent PNG or WebP in /config/www/ev-charge-tracker/ and set its /local/ev-charge-tracker/... path. If the file is absent or fails to load, the card falls back to the colored SVG silhouette. Custom images expose horizontal and vertical port-anchor percentages so the cable can be aligned with different vehicle images. No remote image API or paid image service is required.
 
 An SVG cable/port overlay reflects the actual lifecycle state:
 - Charging: cable plugged in and animated energy flow.
