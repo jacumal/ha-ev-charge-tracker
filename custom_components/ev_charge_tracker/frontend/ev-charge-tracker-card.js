@@ -28,7 +28,7 @@ class EVChargeTrackerCard extends HTMLElement {
       const profile = (result?.profiles || []).find(item => item.entry_id === entryId);
       if (!profile || !this.config || this.config.profile_entry_id !== entryId) return;
       const next = { ...this.config, entities: { ...(this.config.entities || {}) } };
-      if (!next.profile_manual_override) next.entities = { ...next.entities, ...(profile.entities || {}) };
+      if (!next.profile_manual_override) next.entities = { ...(profile.entities || {}) };
       if (!next.vehicle_visual_override) next.vehicle_visual = profile.vehicle_visual || next.vehicle_visual || {};
       this.config = next;
       this._render();
