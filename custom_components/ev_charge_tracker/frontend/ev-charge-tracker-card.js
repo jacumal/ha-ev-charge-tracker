@@ -147,7 +147,7 @@ class EVChargeTrackerCard extends HTMLElement {
       van: "M23 64 L31 34 Q34 27 45 25 L174 25 Q188 25 196 39 L212 54 L215 77 L23 77 Z",
       pickup: "M22 62 L32 43 Q37 36 53 35 L72 21 L132 21 L145 37 L187 37 L208 54 L214 77 L22 77 Z",
     };
-    const fallbackMarkup = '<svg class="vehicle-image fallback" viewBox="0 0 240 110" role="img" aria-label="' + this._escape(vehicleLabel) + '">' +
+    const fallbackMarkup = '<svg class="vehicle-image fallback" viewBox="0 0 260 110" role="img" aria-label="' + this._escape(vehicleLabel) + '">' +
       '<path class="vehicle-body" d="' + bodyPaths[bodyStyle] + '"/>' +
       '<path class="vehicle-window" d="M70 39 L87 24 Q91 21 101 21 L147 22 Q158 23 166 36 Z"/>' +
       '<path class="vehicle-detail" d="M28 64 H209 M72 39 L70 62 M167 39 L170 62"/>' +
@@ -162,12 +162,12 @@ class EVChargeTrackerCard extends HTMLElement {
         ? '<img class="vehicle-image custom" src="' + this._escape(customImage) + '" alt="' + this._escape(vehicleLabel) + '" loading="lazy">'
         : fallbackMarkup) +
       '<svg class="cable-overlay" viewBox="0 0 260 110" aria-hidden="true">' +
-        '<path class="cable-shadow" d="M174 48 C211 45 190 91 236 91"/>' +
-        '<path class="cable-line" d="M174 48 C211 45 190 91 236 91"/>' +
-        '<path class="energy-line" d="M174 48 C211 45 190 91 236 91"/>' +
+        '<path class="cable-shadow" d="' + cablePath + '"/>' +
+        '<path class="cable-line" d="' + cablePath + '"/>' +
+        '<path class="energy-line" d="' + cablePath + '"/>' +
         '<g class="connector connector-free" transform="translate(232 82) rotate(8)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
-        '<g class="connector connector-plug" transform="translate(166 30) rotate(90)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
-        '<circle class="charge-port" cx="174" cy="48" r="4"/>' +
+        '<g class="connector connector-plug" transform="translate(' + (portX - 8) + ' ' + (portY - 18) + ') rotate(90)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
+        '<circle class="charge-port" cx="' + portX + '" cy="' + portY + '" r="4"/>' +
       '</svg></div><div class="vehicle-state"><i></i>' + this._escape(visualStateLabels[visualState]) + '</div></div>';
     const diagnostic = this._attr(e.history, "diagnostic", "");
     const record = current || latest || {};
