@@ -54,7 +54,7 @@
         "title": "Ajustes del perfil",
         "description": "Elige qué parte del perfil quieres modificar. Los cambios de sensores no eliminan las sesiones guardadas.",
         "data": {
-          "section": "Identidad visual del vehículo"
+          "section": "Sección que quieres editar"
         }
       },
       "periods": {
