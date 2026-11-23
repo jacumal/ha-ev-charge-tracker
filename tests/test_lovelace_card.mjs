@@ -224,3 +224,17 @@ test("positions cable and connector using the vehicle-specific port anchor", () 
   assert.match(html, /M143 33 C/);
 });
 
+
+test("flags contradictory charging and unplugged signals as an attention state", () => {
+  const html = createCard(
+    { entities: { status: "sensor.status", plugged: "binary_sensor.plugged" } },
+    {
+      "sensor.status": { state: "charging", attributes: {} },
+      "binary_sensor.plugged": { state: "off", attributes: {} },
+    },
+  );
+  assert.match(html, /state-error/);
+  assert.match(html, /Carga activa con cable desconectado/);
+  assert.doesNotMatch(html, /energy-flow/);
+});
+
