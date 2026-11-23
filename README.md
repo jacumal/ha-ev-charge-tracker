@@ -4,7 +4,7 @@ Universal EV charging session tracker for Home Assistant.
 
 Track charging sessions, delivered energy, battery state of charge (SOC), mileage, costs and history across multiple electric vehicles and chargers. The integration is designed to work with existing Home Assistant entities, independently of vehicle and charger brands.
 
-**Project status:** beta `0.1.0-beta.3` candidate. This version includes the bundled responsive Lovelace card with per-session energy and cost charts, profile discovery and manual entity mapping, plus a tariff options flow that shows only the selected price source field (manual price or Home Assistant sensor) for each period, and a vehicle thumbnail with animated cable/charging states. The session coordinator, persistent history, fixed/dynamic pricing and one-to-three-period tariff engine are covered by automated tests. It is a beta, not a production-ready release: live Home Assistant frontend/config-flow validation and final tagged-package installation checks remain pending. See the [implementation roadmap](docs/roadmap.md) and [beta checklist](docs/beta-checklist.md).
+**Project status:** beta `0.1.0-beta.4` candidate on `chore/prepare-beta-4-release`, based on the complete beta.3 implementation merged to `main`. This candidate includes the responsive Lovelace card with per-session energy and cost charts, configurable vehicle identity and thumbnail, animated cable/charging states, live SOC and odometer, profile discovery and manual entity mapping, plus one-to-three-period tariffs with manual or Home Assistant sensor price sources. This remains a beta, not a production-ready release: live Home Assistant frontend/config-flow validation, real charging-session checks and final tagged-package installation checks remain release gates. See the [implementation roadmap](docs/roadmap.md), [beta checklist](docs/beta-checklist.md) and [beta.4 release notes](docs/release-notes-beta-4.md).
 
 ## Design principles
 
@@ -21,7 +21,8 @@ Track charging sessions, delivered energy, battery state of charge (SOC), mileag
 - [Lovelace dashboard design](docs/dashboard-design.md)
 - [Implementation roadmap and status](docs/roadmap.md)
 - [Beta validation checklist](docs/beta-checklist.md)
-- [Beta.3 release notes](docs/release-notes-beta-3.md)
+- [Beta.4 candidate release notes](docs/release-notes-beta-4.md)
+- [Previous beta.3 release notes](docs/release-notes-beta-3.md)
 
 ## Planned capabilities
 
@@ -58,7 +59,7 @@ The first development increment is intentionally limited to one charging profile
 - Immediate or odometer-increase finalization.
 - Persistent session state and up to 500 history records.
 
-Power-based session detection, country-specific tariff presets, aggregate day/week/month statistics and complete release packaging remain outside beta.3. The bundled card supports profile-aware setup and stable editor controls; beta.3 adds responsive energy/cost charts. Per-period dynamic price sensors and the conditional manual/sensor tariff editor are implemented and covered by automated tests, but still require controlled end-to-end validation in a real Home Assistant instance. Manual finalization is available through a dedicated button entity when selected in the profile. Do not treat this beta as production-validated or rely on it as the sole record of real charging sessions until the real-HA checklist has been completed.
+Power-based session detection, country-specific tariff presets, aggregate day/week/month statistics and complete release packaging remain outside the current beta.4 scope. The bundled card supports profile-aware setup and stable editor controls; responsive energy/cost charts were introduced in beta.3 and are retained in beta.4. Per-period dynamic price sensors and the conditional manual/sensor tariff editor are implemented and covered by automated tests, but still require controlled end-to-end validation in a real Home Assistant instance. Manual finalization is available through a dedicated button entity when selected in the profile. Do not treat this beta as production-validated or rely on it as the sole record of real charging sessions until the real-HA checklist has been completed.
 
 
 The tariff engine supports one to three periods, weekday selection, overnight boundaries, schedule validation, and estimated allocation of sampled energy deltas. The coordinator now calls this engine when tariff periods are present in the profile configuration and persists the resulting per-period breakdown. The schedule editor is available from the profile options. Its end-to-end behavior still requires controlled Home Assistant testing. See the functional specification for the target behavior.
