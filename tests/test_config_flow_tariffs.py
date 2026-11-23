@@ -134,13 +134,12 @@ def test_sensor_edit_preserves_profile_identity_tariffs_and_visual_options():
             "visual_port_x": 58,
         },
     )
-    flow = object.__new__(EVChargeTrackerOptionsFlow)
-    flow.hass = SimpleNamespace(
-        config_entries=SimpleNamespace(
-            async_get_known_entry=lambda entry_id: config_entry if entry_id == config_entry.entry_id else None
-        )
-    )
-    flow._config_entry_id = config_entry.entry_id
+    class TestOptionsFlow(EVChargeTrackerOptionsFlow):
+        @property
+        def config_entry(self):
+            return config_entry
+
+    flow = TestOptionsFlow()
     flow.async_create_entry = lambda **kwargs: kwargs
 
     result = asyncio.run(flow.async_step_profile({
