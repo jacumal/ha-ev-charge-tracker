@@ -454,6 +454,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         <label for="profileSelect">Perfil de carga</label>
         <select id="profileSelect"></select>
         <div id="profileHint" class="hint"></div>
+        <button id="refreshProfiles" type="button">Actualizar perfiles</button>
         <button id="manualToggle" type="button">Editar entidades manualmente</button>
       </div>
       <label class="field">Nombre visible<input id="name" placeholder="Mi vehículo"></label>
@@ -468,6 +469,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const selected = this._profiles.find(profile => profile.entry_id === event.target.value);
       if (selected) this._applyProfile(selected);
     });
+    this.shadowRoot.getElementById("refreshProfiles").addEventListener("click", () => this._loadProfiles(true));
     this.shadowRoot.getElementById("manualToggle").addEventListener("click", () => {
       this._manualMode = !this._manualMode;
       this._syncControls();
@@ -482,8 +484,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     this._syncControls();
   }
 
-  async _loadProfiles() {
-    if (!this._hass || this._profilesLoaded || this._profileRequest || typeof this._hass.callWS !== "function") return;
+  async _loadProfiles(force = false) {
+    if (!this._hass || (!force && this._profilesLoaded) || this._profileRequest || typeof this._hass.callWS !== "function") return;
     this._profileRequest = true;
     try {
       const result = await this._hass.callWS({ type: "ev_charge_tracker/profiles" });
@@ -501,6 +503,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         this._manualMode = true;
       }
       this._syncControls();
+      const refresh = this.shadowRoot?.getElementById("refreshProfiles");
+      if (refresh) refresh.textContent = "Perfiles actualizados";
     } catch (error) {
       // Keep manual configuration available if the backend profile API is unavailable.
       this._profilesLoaded = true;
