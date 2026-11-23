@@ -214,3 +214,13 @@ test("does not interpret an unavailable cable sensor as physically disconnected"
   assert.doesNotMatch(html, /Cable desconectado/);
 });
 
+
+test("positions cable and connector using the vehicle-specific port anchor", () => {
+  const html = createCard(
+    { vehicle_visual: { visual_port_x: 55, visual_port_y: 30 }, entities: { status: "sensor.status" } },
+    { "sensor.status": { state: "charging", attributes: {} } },
+  );
+  assert.match(html, /cx="143" cy="33"/);
+  assert.match(html, /M143 33 C/);
+});
+
