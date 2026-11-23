@@ -6,7 +6,7 @@
 
 The Lovelace card is part of this integration's repository and distribution. It is not a separate project and must not require users to install Bubble Card.
 
-The frontend card is a custom JavaScript module bundled with the integration under `custom_components/ev_charge_tracker/frontend/`. The integration exposes it at `/ev_charge_tracker/ev-charge-tracker-card.js`. The resource must currently be added in Settings → Dashboards → Resources.
+The frontend card is a custom JavaScript module bundled with the integration under `custom_components/ev_charge_tracker/frontend/`. The integration exposes it at `/ev_charge_tracker/ev-charge-tracker-card.js`. The resource is added once in Settings → Dashboards → Resources with the stable URL `/ev_charge_tracker/ev-charge-tracker-card.js`. The integration serves the module without long-lived cache headers so updates do not require changing a manual `?v=` query string.
 
 The card's visual language should take inspiration from Bubble Card and Apple design, but its implementation and assets are owned by this project. The integration's backend must remain fully functional if the user chooses not to use the card.
 
