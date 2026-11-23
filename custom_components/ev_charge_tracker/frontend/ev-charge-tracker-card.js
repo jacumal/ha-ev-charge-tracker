@@ -159,6 +159,7 @@ class EVChargeTrackerCard extends HTMLElement {
     const validSoc = currentSoc !== null && currentSoc >= 0 && currentSoc <= 100 && socAgeMinutes !== null && socAgeMinutes <= 180;
     const validOdometer = odometer !== null && odometer >= 0 && odometerAgeMinutes !== null && odometerAgeMinutes <= 180;
     const validRange = rangeValue !== null && rangeValue >= 0 && rangeAgeMinutes !== null && rangeAgeMinutes <= 180;
+    const hasRangeSensor = Boolean(e.range);
     const primaryAges = [e.current_soc ? socAgeMinutes : null, e.odometer ? odometerAgeMinutes : null].filter(age => age !== null);
     const telemetryAgeMinutes = primaryAges.length ? Math.max(...primaryAges) : null;
     const freshnessParts = [];
@@ -328,6 +329,9 @@ class EVChargeTrackerCard extends HTMLElement {
         .vehicle-telemetry span{display:flex;gap:6px;align-items:baseline}.vehicle-telemetry small{font-size:10px}.vehicle-telemetry b{color:var(--primary-text-color);font-weight:650;font-variant-numeric:tabular-nums}
         .mode-compact .metrics .metric:nth-child(n+5),.mode-compact .dates{display:none}.mode-balanced .metrics .metric:nth-child(n+5){display:none}
         .live-hero { display:grid; grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr); gap:18px; align-items:center; margin-top:16px; padding:20px; border-radius:22px; background:linear-gradient(135deg,color-mix(in srgb,var(--primary-color) 10%,var(--card-background-color)),var(--secondary-background-color) 72%); border:1px solid color-mix(in srgb,var(--primary-color) 12%,transparent); }
+        .live-hero.with-range{grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr) 1px minmax(0,1fr);gap:12px}
+        .live-range-column{min-width:0}.live-range-column .odo-reading{font-size:clamp(20px,4vw,29px)}
+        @media(max-width:520px){.live-hero.with-range{gap:8px;padding:12px}.live-hero.with-range .odo-reading{font-size:19px}.live-hero.with-range .live-label{font-size:8px}.live-hero.with-range .live-foot{font-size:9px}}
         .live-battery,.live-odometer { min-width:0; }
         .live-label { color:var(--secondary-text-color); font-size:10px; font-weight:750; letter-spacing:.14em; }
         .live-reading { margin-top:5px; font-size:clamp(34px,7vw,48px); line-height:1.05; font-weight:760; letter-spacing:-.065em; font-variant-numeric:tabular-nums; }
@@ -426,14 +430,14 @@ class EVChargeTrackerCard extends HTMLElement {
             </div>
           </div>
           ${vehicleMarkup}
-          ${hasLiveTelemetry ? `<section class="live-hero vehicle-telemetry" aria-label="Telemetría actual del vehículo">
+          ${hasLiveTelemetry ? `<section class="live-hero vehicle-telemetry ${hasRangeSensor ? "with-range" : ""}" aria-label="Telemetría actual del vehículo">
             <div class="live-battery">
               <div class="live-label">BATERÍA ACTUAL</div>
               <div class="live-reading">${validSoc ? this._fmt(currentSoc,1) + "<small>%</small>" : "—"}</div>
               <div class="battery-track"><span style="width:${validSoc ? currentSoc : 0}%"></span></div>
-              ${validRange ? `<div class="live-range">Autonomía indicada · <strong>${this._fmt(rangeValue,0)} ${this._escape(rangeUnit)}</strong></div>` : ""}
             </div>
             <div class="live-divider" aria-hidden="true"></div>
+            ${hasRangeSensor ? `<div class="live-range-column"><div class="live-label">AUTONOMÍA</div><div class="odo-reading">${validRange ? this._fmt(rangeValue,0) : "—"} <small>${this._escape(rangeUnit)}</small></div><div class="live-foot">${validRange ? "Indicada por el vehículo" : "Autonomía no disponible"}</div></div><div class="live-divider" aria-hidden="true"></div>` : ""}
             <div class="live-odometer">
               <div class="live-label">KILOMETRAJE</div>
               <div class="odo-reading">${validOdometer ? this._fmt(odometer,0) : "—"} <small>${this._escape(odometerUnit)}</small></div>
@@ -679,6 +683,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     if(!item) return;
     const next={...this._config,vehicle_visual:{...(this._config.vehicle_visual||{})}};
     Object.assign(next.vehicle_visual,{visual_image:item.image,visual_image_credit:item.author,visual_image_license:item.license,visual_image_license_url:item.licenseUrl,visual_image_page:item.page,visual_image_source:"Wikimedia Commons"});
+    next.vehicle_visual_override = true;
     this._config=next;
     const input=this.shadowRoot.getElementById("visual_image"); if(input) input.value=item.image;
     this._updateConfig();
