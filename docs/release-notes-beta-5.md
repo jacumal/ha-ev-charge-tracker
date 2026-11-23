@@ -10,8 +10,11 @@
 - During charging, the animated energy flow is confined to the cable. The vehicle body remains visually static.
 - Respects the operating system/browser reduced-motion preference.
 - Adds editor controls and live preview for vehicle identity, local PNG/WebP paths, fallback silhouette and charge-port position. Transparency is recommended but the alpha channel is not inspected.
-- Retains session energy/cost charts, partial-cost indication and historical session list in the appropriate display modes.
+- Redesigns the latest-session summary around delivered energy and SOC progression, with clearer duration, cost, tariff allocation and an explicit explanation when cost is partial.
+- Refreshes the energy/cost charts and historical session rows with responsive layouts, session-level energy indicators and distinct partial/unknown values.
 - Refreshes the selected profile in existing cards while preserving manual entity and card-specific visual overrides.
+- The editor distinguishes pending configuration changes from profile-refresh success and instructs the user to save in Lovelace. Home Assistant does not expose a reliable save-completion callback to the custom editor, so it never reports persistence success prematurely.
+- CI validates the HACS integration directory, metadata, frontend asset and generated ZIP archive structure.
 - Exposes diagnostic metadata for the configured EVSE energy source to help distinguish missing, unavailable, stale and invalid readings.
 
 ## Upgrade
@@ -20,6 +23,6 @@ Update the integration files through HACS or the repository installation method,
 
 ## Known limitations
 
-- Automated CI verifies source syntax and card behavior, but cannot validate rendering in every Home Assistant theme/browser combination.
+- Automated CI verifies source syntax, card behavior and HACS package structure, but cannot validate rendering in every Home Assistant theme/browser combination or perform an actual HACS installation.
 - A real Home Assistant installation and a complete physical charging session are still required to validate the live entity mapping, cable sensor semantics, tariff allocation and persisted history end to end.
 - Vehicle image assets remain user-provided local PNG/WebP files; no external image service is used.
