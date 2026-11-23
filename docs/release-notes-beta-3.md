@@ -4,7 +4,7 @@
 
 - Add per-vehicle visual identity fields: brand, model, generation, model year, trim, body style and body color. Visual identity is shared by all charger profiles belonging to the same vehicle.
 - Add a compact secondary vehicle thumbnail to the Lovelace card, with a transparent built-in silhouette fallback and optional user-supplied transparent PNG/WebP stored locally under `www/ev-charge-tracker/`.
-- Add an SVG charging-cable overlay with distinct disconnected, connected-but-idle, charging/energy-flow, completed and attention states. The optional cable-connected binary sensor distinguishes a physically connected vehicle from a disconnected one; without it, the card does not claim to know the plug state.
+- Add an SVG charging-cable overlay with distinct disconnected, connected-but-idle, charging/energy-flow, completed and attention states. Custom image users can adjust the horizontal and vertical charge-port anchor in the vehicle appearance options. The optional cable-connected binary sensor distinguishes a physically connected vehicle from a disconnected one; without it, the card does not claim to know the plug state.
 - Respect reduced-motion preferences and avoid remote image APIs or mandatory paid services.
 - Expose live battery SOC and odometer from the profile-selected source entities without creating duplicate tracker sensors.
 
