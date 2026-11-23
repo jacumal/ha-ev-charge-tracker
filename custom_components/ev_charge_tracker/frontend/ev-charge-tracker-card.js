@@ -16,6 +16,27 @@ class EVChargeTrackerCard extends HTMLElement {
     // Home Assistant may assign hass after setConfig, before the shadow root
     // exists. _render creates the root when needed, so do not guard on it.
     if (this.config) this._render();
+    this._syncSelectedProfile();
+  }
+
+  async _syncSelectedProfile() {
+    const entryId = this.config?.profile_entry_id;
+    if (!entryId || !this._hass || typeof this._hass.callWS !== "function" || this._profileSyncPromise) return;
+    if (this._profileSyncAt && Date.now() - this._profileSyncAt < 30000) return;
+    this._profileSyncAt = Date.now();
+    this._profileSyncPromise = this._hass.callWS({ type: "ev_charge_tracker/profiles" }).then(result => {
+      const profile = (result?.profiles || []).find(item => item.entry_id === entryId);
+      if (!profile || !this.config || this.config.profile_entry_id !== entryId) return;
+      const next = { ...this.config, entities: { ...(this.config.entities || {}) } };
+      if (!next.profile_manual_override) next.entities = { ...next.entities, ...(profile.entities || {}) };
+      next.vehicle_visual = profile.vehicle_visual || next.vehicle_visual || {};
+      this.config = next;
+      this._render();
+    }).catch(() => {
+      // The card keeps its last known profile configuration while HA is offline.
+    }).finally(() => {
+      this._profileSyncPromise = null;
+    });
   }
 
   getCardSize() { return 5; }
