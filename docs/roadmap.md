@@ -63,11 +63,13 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [x] Visual editor and native Home Assistant entity pickers for semantic entity mappings.
 - [x] Add responsive per-session energy and cost charts using persisted history only; partial costs are visually distinguished and missing values are omitted.
 - [x] Refresh the visual editor while retaining automatic profile discovery, explicit multi-profile selection and manual entity overrides.
+- [x] Add per-vehicle visual identity (brand, model, generation, year, trim, color and body style), shared across charger profiles.
+- [x] Add a compact transparent vehicle thumbnail, local silhouette gallery, user-supplied PNG/WebP support and animated cable/energy states.
 - [ ] Validate latest-charge summary, charts, history, tariff breakdown and missing-data states against a live HA frontend.
 - [ ] Verify mobile/desktop and light/dark layouts in a real HA instance.
 - [ ] Publish installation guidance and verified screenshots.
 
-**Status: Partial.** Card code and visual-editor support are present; browser/frontend validation in Home Assistant remains pending.
+**Status: Implementation complete on PR #13; CI and live Home Assistant validation remain pending.** The new vehicle thumbnail, local image fallback, optional plugged-state sensor and cable animation are covered by regression tests; browser/frontend validation in Home Assistant remains pending.
 
 ## 6. Quality, documentation and release
 - [x] GitHub Actions: Python compilation, JavaScript syntax/behavior checks, translation validation, module import and pytest.
@@ -82,7 +84,7 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [ ] Verify HACS release packaging and installation from a versioned tag.
 - [ ] Publish the beta after PR review, green CI and packaging checks.
 
-**Status: Beta.3 candidate implementation complete; final CI and tagged-package verification remain release gates.** Live Home Assistant validation remains a separate gate before production use.
+**Status: Beta.3 implementation is being consolidated in PR #13.** Final CI, tagged-package verification and live Home Assistant validation remain release gates.
 
 ## 7. Battery care, parked monitoring and safety advice (new scope)
 Source: user-provided transcript screenshots, approximately 09:36–15:06. These are video-derived recommendations, not verified manufacturer instructions.
