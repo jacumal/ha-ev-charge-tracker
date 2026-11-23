@@ -741,7 +741,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const visual = profile?.vehicle_visual || {};
     const identity = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") ||
       profile?.vehicle_name || profile?.entry_id || "manual";
-    return String(identity).normalize("NFKD").replace(/[\\u0300-\\u036f]/g, "")
+    return String(identity).normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
       .toLocaleLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "manual";
   }
 
@@ -765,6 +765,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     }
     this._config = next;
     this._manualMode = false;
+    this._galleryQueryEdited = false;
     this._syncControls();
     if (emit) this._fireConfigChanged();
   }
