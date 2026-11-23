@@ -169,7 +169,9 @@
           "visual_trim": "Acabado",
           "visual_color": "Color de carrocería (HEX)",
           "visual_body_style": "Tipo de carrocería",
-          "visual_image": "Imagen propia (ruta /local/…)"
+          "visual_image": "Imagen propia (ruta /local/…)",
+          "visual_port_x": "Posición horizontal del puerto (%)",
+          "visual_port_y": "Posición vertical del puerto (%)"
         },
         "data_description": {
           "visual_brand": "Fabricante del vehículo.",
@@ -179,7 +181,9 @@
           "visual_trim": "Acabado, batería o versión.",
           "visual_color": "Color hexadecimal de la carrocería para la silueta de respaldo.",
           "visual_body_style": "Define la silueta de respaldo cuando no se aporta una imagen propia.",
-          "visual_image": "Ruta local, por ejemplo /local/ev-charge-tracker/leapmotor-c10.webp. Guarda primero el archivo en la carpeta www/ev-charge-tracker."
+          "visual_image": "Ruta local, por ejemplo /local/ev-charge-tracker/leapmotor-c10.webp. Guarda primero el archivo en la carpeta www/ev-charge-tracker.",
+          "visual_port_x": "Coordenada horizontal del centro de la toma sobre la imagen (0–100 %). Ajusta este punto para que el cable coincida con la ubicación real del puerto.",
+          "visual_port_y": "Coordenada vertical del centro de la toma sobre la imagen (0–100 %). Ajusta este punto para imágenes propias con otra perspectiva."
         }
       }
     },
