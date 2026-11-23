@@ -66,7 +66,7 @@ jobs:
           hacs = json.loads((root / "hacs.json").read_text())
           manifest_path = root / "custom_components/ev_charge_tracker/manifest.json"
           manifest = json.loads(manifest_path.read_text())
-          assert hacs.get("name") == manifest.get("name") == "EV Charge Tracker"
+          assert hacs.get("name") == manifest.get("name") == "ChargeTrack"
           assert manifest.get("domain") == "ev_charge_tracker"
           assert manifest.get("version") == "0.1.0-beta.6"
           assert manifest.get("config_flow") is True
