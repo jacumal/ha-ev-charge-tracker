@@ -253,6 +253,17 @@ class EVChargeTrackerCard extends HTMLElement {
         .state-error + .vehicle-state i { background:var(--warning-color,#d69b32); }
         @keyframes energy-flow { to { stroke-dashoffset:-26; } }
         @media(prefers-reduced-motion:reduce) { .state-charging .energy-line { animation:none; opacity:.8; } }
+        .live-hero { display:grid; grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr); gap:18px; align-items:center; margin-top:16px; padding:20px; border-radius:22px; background:linear-gradient(135deg,color-mix(in srgb,var(--primary-color) 10%,var(--card-background-color)),var(--secondary-background-color) 72%); border:1px solid color-mix(in srgb,var(--primary-color) 12%,transparent); }
+        .live-battery,.live-odometer { min-width:0; }
+        .live-label { color:var(--secondary-text-color); font-size:10px; font-weight:750; letter-spacing:.14em; }
+        .live-reading { margin-top:5px; font-size:clamp(34px,7vw,48px); line-height:1.05; font-weight:760; letter-spacing:-.065em; font-variant-numeric:tabular-nums; }
+        .live-reading small { margin-left:3px; font-size:.48em; font-weight:650; letter-spacing:-.02em; }
+        .battery-track { height:7px; margin-top:13px; overflow:hidden; border-radius:10px; background:color-mix(in srgb,var(--primary-text-color) 12%,transparent); }
+        .battery-track span { display:block; height:100%; border-radius:inherit; background:var(--success-color,var(--primary-color)); transition:width .55s cubic-bezier(.2,.8,.2,1); }
+        .live-divider { width:1px; height:62px; background:var(--divider-color); }
+        .odo-reading { margin-top:9px; overflow-wrap:anywhere; font-size:clamp(22px,5vw,31px); line-height:1.12; font-weight:730; letter-spacing:-.055em; font-variant-numeric:tabular-nums; }
+        .odo-reading small { font-size:13px; color:var(--secondary-text-color); font-weight:600; letter-spacing:0; }
+        .live-foot { margin-top:9px; color:var(--secondary-text-color); font-size:10px; line-height:1.35; }
         .latest { margin-top:20px; padding:18px; border-radius:20px; background:var(--secondary-background-color); }
         .charts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:18px; }
         .chart-card { min-width:0; padding:14px; border-radius:17px; background:var(--secondary-background-color); }
@@ -289,9 +300,9 @@ class EVChargeTrackerCard extends HTMLElement {
         .row-value small { display:block; margin-top:3px; color:var(--secondary-text-color); font-size:10px; font-weight:400; }
         .empty { padding:18px 4px; color:var(--secondary-text-color); font-size:13px; }
         .diagnostic { margin-top:13px; color:var(--secondary-text-color); font-size:11px; line-height:1.4; }
-        @media(max-width:520px) { .charts{grid-template-columns:1fr;gap:9px}.chart-card{padding:12px}.bars{height:78px} }
+        @media(max-width:520px) { .charts{grid-template-columns:1fr;gap:9px}.chart-card{padding:12px}.bars{height:78px}.live-hero{gap:12px;padding:16px}.live-reading{font-size:36px}.odo-reading{font-size:23px} }
         @media(max-width:520px) { .vehicle-visual{gap:8px;padding:8px}.vehicle-caption{flex-basis:36%}.vehicle-stage{height:76px}.vehicle-state{font-size:9px} }
-        @media(max-width:420px) { .wrap{padding:15px}.ring{width:72px;height:72px}.ring span{font-size:19px}.metric{padding:10px 8px}.metric strong{font-size:17px}.row{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) minmax(0,.8fr)}.vehicle-caption{flex-basis:40%}.vehicle-stage{height:68px}.vehicle-state{font-size:8px} }
+        @media(max-width:420px) { .wrap{padding:15px}.ring{width:72px;height:72px}.ring span{font-size:19px}.metric{padding:10px 8px}.metric strong{font-size:17px}.row{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) minmax(0,.8fr)}.vehicle-caption{flex-basis:40%}.vehicle-stage{height:68px}.vehicle-state{font-size:8px}.live-hero{padding:14px;gap:10px}.live-reading{font-size:31px}.odo-reading{font-size:20px}.live-label{font-size:9px} }
       </style>
       <ha-card>
         <div class="wrap">
@@ -302,10 +313,20 @@ class EVChargeTrackerCard extends HTMLElement {
             </div>
           </div>
           ${vehicleMarkup}
-          ${hasLiveTelemetry ? `<div class="metrics live-metrics">
-            <div class="metric"><strong>${currentSoc === null ? "—" : this._fmt(currentSoc,1) + "%"}</strong><span>Batería actual</span></div>
-            <div class="metric"><strong>${odometer === null ? "—" : this._fmt(odometer,0) + " " + this._escape(odometerUnit)}</strong><span>Odómetro</span></div>
-          </div>` : ""}
+          ${hasLiveTelemetry ? `<section class="live-hero" aria-label="Estado actual del vehículo">
+            <div class="live-battery">
+              <div class="live-label">BATERÍA ACTUAL</div>
+              <div class="live-reading">${currentSoc === null || currentSoc < 0 || currentSoc > 100 ? "—" : this._fmt(currentSoc,1) + '<small>%</small>'}</div>
+              <div class="battery-track" role="img" aria-label="Nivel de batería"><span style="width:${currentSoc !== null && currentSoc >= 0 && currentSoc <= 100 ? currentSoc : 0}%"></span></div>
+              <div class="live-foot">${currentSoc === null ? "Lectura no disponible" : "Nivel de carga en tiempo real"}</div>
+            </div>
+            <div class="live-divider"></div>
+            <div class="live-odometer">
+              <div class="live-label">ODÓMETRO</div>
+              <div class="odo-reading">${odometer === null || odometer < 0 ? "—" : this._fmt(odometer,0)}<small> ${this._escape(odometerUnit)}</small></div>
+              <div class="live-foot">${odometer === null ? "Lectura no disponible" : "Distancia total recorrida"}</div>
+            </div>
+          </section>` : ""}
           <div class="latest">
             <div class="section-title">${current ? "Carga actual" : "Resumen de la última carga"}</div>
             <div class="rings">
