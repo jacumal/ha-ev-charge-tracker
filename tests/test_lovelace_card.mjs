@@ -145,3 +145,97 @@ test("shows live battery SOC and odometer from the selected profile entities", (
   assert.match(html, /Odómetro/);
   assert.match(html, /12\.345 km/);
 });
+
+test("renders a transparent vehicle silhouette and cable state without a custom image", () => {
+  const html = createCard(
+    { name: "Leapmotor C10", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10", visual_color: "#AABBCC", visual_body_style: "suv" }, entities: { status: "sensor.status" } },
+    { "sensor.status": { state: "idle", attributes: {} } },
+  );
+  assert.match(html, /vehicle-visual/);
+  assert.match(html, /Leapmotor C10/);
+  assert.match(html, /vehicle-body/);
+  assert.match(html, /state-unknown/);
+  assert.match(html, /Conexión sin monitorizar/);
+});
+
+test("animates energy flow only while charging and supports local transparent images", () => {
+  const html = createCard(
+    { vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10", visual_image: "/local/ev-charge-tracker/c10.webp" }, entities: { status: "sensor.status" } },
+    { "sensor.status": { state: "charging", attributes: {} } },
+  );
+  assert.ok(html.includes("c10.webp"));
+  assert.match(html, /state-charging/);
+  assert.match(html, /energy-flow/);
+});
+
+test("distinguishes connected idle and error vehicle states", () => {
+  const connected = createCard(
+    { vehicle_visual: {}, entities: { status: "sensor.status", plugged: "binary_sensor.plugged" } },
+    { "sensor.status": { state: "idle", attributes: {} }, "binary_sensor.plugged": { state: "on", attributes: {} } },
+  );
+  const error = createCard(
+    { entities: { status: "sensor.status" } },
+    { "sensor.status": { state: "needs_attention", attributes: {} } },
+  );
+  assert.match(connected, /state-connected/);
+  assert.match(connected, /Cable conectado/);
+  assert.match(error, /state-error/);
+  assert.match(error, /requiere atención/);
+});
+
+
+test("keeps the vehicle in completed state after the live charging sensor returns to idle", () => {
+  const html = createCard(
+    { entities: { status: "sensor.status", history: "sensor.history" } },
+    {
+      "sensor.status": { state: "idle", attributes: {} },
+      "sensor.history": { state: "1", attributes: {
+        current_session: null,
+        latest_session: { status: "completed", completed_at: "2026-11-23T07:00:00Z" },
+        sessions: [],
+      } },
+    },
+  );
+  assert.match(html, /state-completed/);
+  assert.match(html, /Carga finalizada/);
+});
+
+
+test("does not interpret an unavailable cable sensor as physically disconnected", () => {
+  const html = createCard(
+    { entities: { status: "sensor.status", plugged: "binary_sensor.plugged" } },
+    {
+      "sensor.status": { state: "idle", attributes: {} },
+      "binary_sensor.plugged": { state: "unavailable", attributes: {} },
+    },
+  );
+  assert.match(html, /state-unknown/);
+  assert.match(html, /Conexión no disponible/);
+  assert.doesNotMatch(html, /Cable desconectado/);
+});
+
+
+test("positions cable and connector using the vehicle-specific port anchor", () => {
+  const html = createCard(
+    { vehicle_visual: { visual_port_x: 55, visual_port_y: 30 }, entities: { status: "sensor.status" } },
+    { "sensor.status": { state: "charging", attributes: {} } },
+  );
+  assert.match(html, /cx="143" cy="33"/);
+  assert.match(html, /M143 33 C/);
+});
+
+
+test("flags contradictory charging and unplugged signals as an attention state", () => {
+  const html = createCard(
+    { entities: { status: "sensor.status", plugged: "binary_sensor.plugged" } },
+    {
+      "sensor.status": { state: "charging", attributes: {} },
+      "binary_sensor.plugged": { state: "off", attributes: {} },
+    },
+  );
+  assert.match(html, /state-error/);
+  assert.match(html, /Carga activa con cable desconectado/);
+  assert.match(html, /class="vehicle-stage state-error"/);
+  assert.doesNotMatch(html, /class="vehicle-stage state-charging"/);
+});
+

@@ -108,6 +108,76 @@ class EVChargeTrackerCard extends HTMLElement {
     const history = this._attr(e.history, "sessions", []);
     const current = this._attr(e.history, "current_session", null);
     const latest = this._attr(e.history, "latest_session", null);
+    const pluggedState = this._state(e.plugged);
+    const hasPluggedSensor = Boolean(e.plugged);
+    const hasPluggedReading = Boolean(
+      pluggedState && !["unknown", "unavailable", "none"].includes(pluggedState.state)
+    );
+    const pluggedValue = hasPluggedReading ? String(pluggedState.state).toLowerCase() : "";
+    const cableConnected = ["on", "true", "1", "connected", "plugged"].includes(pluggedValue);
+    const cableDisconnected = ["off", "false", "0", "disconnected", "unplugged"].includes(pluggedValue);
+    const inconsistentConnection = charging && hasPluggedReading && !cableConnected;
+    const statusLabel = inconsistentConnection ? "Señales contradictorias" : (statusLabels[status] || status);
+    const vehicle = this.config.vehicle_visual || {};
+    const visualColor = /^#[0-9a-f]{6}$/i.test(vehicle.visual_color || "") ? vehicle.visual_color : "#71869A";
+    const bodyStyle = ["suv", "sedan", "hatchback", "van", "pickup"].includes(vehicle.visual_body_style) ? vehicle.visual_body_style : "suv";
+    const customImage = typeof vehicle.visual_image === "string" &&
+      /^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(vehicle.visual_image) &&
+      !vehicle.visual_image.includes("..") ? vehicle.visual_image : "";
+    const portXValue = vehicle.visual_port_x == null || vehicle.visual_port_x === "" ? 67 : Number(vehicle.visual_port_x);
+    const portYValue = vehicle.visual_port_y == null || vehicle.visual_port_y === "" ? 44 : Number(vehicle.visual_port_y);
+    const portX = Math.round((Number.isFinite(portXValue) ? Math.min(100, Math.max(0, portXValue)) : 67) * 2.6);
+    const portY = Math.round((Number.isFinite(portYValue) ? Math.min(100, Math.max(0, portYValue)) : 44) * 1.1);
+    const cablePath = "M" + portX + " " + portY + " C" +
+      Math.min(250, portX + 37) + " " + Math.max(0, portY - 3) + " " +
+      Math.min(250, portX + 16) + " 91 236 91";
+    const lastChargeCompleted = Boolean(
+      !current && latest && (latest.status === "completed" || latest.completed_at || latest.ended_at)
+    );
+    const visualState = statusWarning || inconsistentConnection ? "error" : charging ? "charging" :
+      (hasPluggedReading && cableConnected ? "connected" :
+      ((status === "completed" || lastChargeCompleted) ? "completed" :
+      (hasPluggedReading && cableDisconnected ? "disconnected" : "unknown")));
+    const visualStateLabels = {
+      disconnected: "Cable desconectado",
+      unknown: hasPluggedSensor ? "Conexión no disponible" : "Conexión sin monitorizar",
+      connected: lastChargeCompleted ? "Carga finalizada · Cable conectado" : "Cable conectado · En espera",
+      charging: "Cargando · Flujo de energía activo",
+      completed: "Carga finalizada",
+      error: inconsistentConnection ? "Carga activa con cable desconectado" : "Estado que requiere atención",
+    };
+    const vehicleLabel = [vehicle.visual_brand, vehicle.visual_model].filter(Boolean).join(" ") ||
+      this.config.vehicle_name || this.config.vehicle || this.config.name || "EV Charge Tracker";
+    const vehicleDetails = [vehicle.visual_generation, vehicle.visual_year, vehicle.visual_trim].filter(Boolean).join(" · ");
+    const bodyPaths = {
+      suv: "M24 65 L32 45 Q36 39 48 37 L66 22 Q72 17 88 17 L151 17 Q163 17 171 27 L190 43 Q204 47 211 56 L216 70 L209 78 L24 78 Z",
+      sedan: "M22 65 L31 49 Q36 43 52 41 L76 25 Q83 20 99 20 L151 22 Q165 23 174 35 L194 45 Q207 49 214 61 L214 77 L22 77 Z",
+      hatchback: "M25 65 L34 45 Q40 39 56 37 L73 22 Q80 17 97 17 L147 18 Q160 19 169 32 L190 43 Q207 49 213 62 L213 77 L25 77 Z",
+      van: "M23 64 L31 34 Q34 27 45 25 L174 25 Q188 25 196 39 L212 54 L215 77 L23 77 Z",
+      pickup: "M22 62 L32 43 Q37 36 53 35 L72 21 L132 21 L145 37 L187 37 L208 54 L214 77 L22 77 Z",
+    };
+    const fallbackMarkup = '<svg class="vehicle-image fallback" viewBox="0 0 260 110" role="img" aria-label="' + this._escape(vehicleLabel) + '">' +
+      '<path class="vehicle-body" d="' + bodyPaths[bodyStyle] + '"/>' +
+      '<path class="vehicle-window" d="M70 39 L87 24 Q91 21 101 21 L147 22 Q158 23 166 36 Z"/>' +
+      '<path class="vehicle-detail" d="M28 64 H209 M72 39 L70 62 M167 39 L170 62"/>' +
+      '<circle class="vehicle-wheel" cx="66" cy="77" r="13"/><circle class="vehicle-wheel" cx="177" cy="77" r="13"/>' +
+      '<circle class="vehicle-hub" cx="66" cy="77" r="5"/><circle class="vehicle-hub" cx="177" cy="77" r="5"/>' +
+      '</svg>';
+    const vehicleMarkup = '<div class="vehicle-visual">' +
+      '<div class="vehicle-caption"><strong>' + this._escape(vehicleLabel) + '</strong>' +
+      (vehicleDetails ? '<small>' + this._escape(vehicleDetails) + '</small>' : '') + '</div>' +
+      '<div class="vehicle-stage state-' + visualState + '" style="--vehicle-color:' + visualColor + '">' +
+      (customImage
+        ? '<img class="vehicle-image custom" src="' + this._escape(customImage) + '" alt="' + this._escape(vehicleLabel) + '" loading="lazy">'
+        : fallbackMarkup) +
+      '<svg class="cable-overlay" viewBox="0 0 260 110" aria-hidden="true">' +
+        '<path class="cable-shadow" d="' + cablePath + '"/>' +
+        '<path class="cable-line" d="' + cablePath + '"/>' +
+        '<path class="energy-line" d="' + cablePath + '"/>' +
+        '<g class="connector connector-free" transform="translate(232 82) rotate(8)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
+        '<g class="connector connector-plug" transform="translate(' + (portX - 8) + ' ' + (portY - 18) + ') rotate(90)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
+        '<circle class="charge-port" cx="' + portX + '" cy="' + portY + '" r="4"/>' +
+      '</svg></div><div class="vehicle-state"><i></i>' + this._escape(visualStateLabels[visualState]) + '</div></div>';
     const diagnostic = this._attr(e.history, "diagnostic", "");
     const record = current || latest || {};
     const currency = this._attr(e.cost, "currency", this._state(e.cost)?.attributes?.unit_of_measurement || "EUR");
@@ -147,6 +217,42 @@ class EVChargeTrackerCard extends HTMLElement {
         .dot { width:7px; height:7px; border-radius:50%; background:var(--success-color,#43a66b); }
         .status.active .dot { background:var(--state-active-color,var(--primary-color)); box-shadow:0 0 0 4px color-mix(in srgb,var(--primary-color) 15%,transparent); }
         .status.warn .dot { background:var(--warning-color,#d69b32); }
+        .vehicle-visual { display:flex; align-items:center; gap:12px; margin-top:13px; padding:9px 12px; border-radius:16px; background:var(--secondary-background-color); min-width:0; }
+        .vehicle-caption { flex:0 0 34%; min-width:0; }
+        .vehicle-caption strong { display:block; font-size:12px; font-weight:700; line-height:1.3; overflow-wrap:anywhere; }
+        .vehicle-caption small { display:block; margin-top:4px; color:var(--secondary-text-color); font-size:10px; line-height:1.3; }
+        .vehicle-stage { position:relative; flex:1; min-width:0; height:86px; }
+        .vehicle-image { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+        .vehicle-body { fill:var(--vehicle-color); opacity:.95; }
+        .vehicle-window { fill:var(--secondary-background-color); stroke:color-mix(in srgb,var(--primary-text-color) 28%,transparent); stroke-width:2; }
+        .vehicle-detail { fill:none; stroke:color-mix(in srgb,var(--primary-text-color) 36%,transparent); stroke-width:2; }
+        .vehicle-wheel { fill:var(--primary-text-color); }
+        .vehicle-hub { fill:var(--secondary-background-color); }
+        .cable-overlay { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+        .cable-shadow,.cable-line,.energy-line { fill:none; stroke-linecap:round; }
+        .cable-shadow { stroke:var(--primary-text-color); stroke-width:5; opacity:.16; }
+        .cable-line { stroke:var(--secondary-text-color); stroke-width:3; }
+        .energy-line { stroke:var(--success-color,#42a66b); stroke-width:3; stroke-dasharray:5 8; opacity:0; }
+        .connector { transition:opacity .25s ease; }
+        .connector rect { fill:var(--secondary-text-color); stroke:var(--card-background-color); stroke-width:1.5; }
+        .connector path { stroke:var(--secondary-text-color); stroke-width:2; }
+        .connector-plug { opacity:0; }
+        .state-connected .connector-free,.state-charging .connector-free { opacity:0; }
+        .state-connected .connector-plug,.state-charging .connector-plug { opacity:1; }
+        .charge-port { fill:var(--secondary-background-color); stroke:var(--secondary-text-color); stroke-width:2; }
+        .state-disconnected .cable-line,.state-disconnected .cable-shadow,.state-disconnected .connector-free,.state-disconnected .energy-line,.state-disconnected .charge-port,.state-unknown .cable-line,.state-unknown .cable-shadow,.state-unknown .connector-free,.state-unknown .energy-line,.state-unknown .charge-port { opacity:.22; }
+        .state-connected .cable-line,.state-connected .connector-plug,.state-connected .charge-port { opacity:1; }
+        .state-charging .energy-line { opacity:1; animation:energy-flow 1s linear infinite; }
+        .state-charging .cable-line { stroke:var(--success-color,#42a66b); }
+        .state-completed .energy-line { opacity:0; }
+        .state-completed .charge-port { fill:var(--success-color,#42a66b); }
+        .state-error .cable-line,.state-error .connector,.state-error .charge-port { stroke:var(--warning-color,#d69b32); }
+        .vehicle-state { display:flex; align-items:center; gap:6px; color:var(--secondary-text-color); font-size:10px; margin-left:auto; }
+        .vehicle-state i { width:6px; height:6px; flex:0 0 6px; border-radius:50%; background:var(--secondary-text-color); }
+        .state-charging + .vehicle-state i { background:var(--success-color,#42a66b); }
+        .state-error + .vehicle-state i { background:var(--warning-color,#d69b32); }
+        @keyframes energy-flow { to { stroke-dashoffset:-26; } }
+        @media(prefers-reduced-motion:reduce) { .state-charging .energy-line { animation:none; opacity:.8; } }
         .latest { margin-top:20px; padding:18px; border-radius:20px; background:var(--secondary-background-color); }
         .charts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:18px; }
         .chart-card { min-width:0; padding:14px; border-radius:17px; background:var(--secondary-background-color); }
@@ -184,16 +290,18 @@ class EVChargeTrackerCard extends HTMLElement {
         .empty { padding:18px 4px; color:var(--secondary-text-color); font-size:13px; }
         .diagnostic { margin-top:13px; color:var(--secondary-text-color); font-size:11px; line-height:1.4; }
         @media(max-width:520px) { .charts{grid-template-columns:1fr;gap:9px}.chart-card{padding:12px}.bars{height:78px} }
-        @media(max-width:420px) { .wrap{padding:15px}.ring{width:72px;height:72px}.ring span{font-size:19px}.metric{padding:10px 8px}.metric strong{font-size:17px}.row{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) minmax(0,.8fr)} }
+        @media(max-width:520px) { .vehicle-visual{gap:8px;padding:8px}.vehicle-caption{flex-basis:36%}.vehicle-stage{height:76px}.vehicle-state{font-size:9px} }
+        @media(max-width:420px) { .wrap{padding:15px}.ring{width:72px;height:72px}.ring span{font-size:19px}.metric{padding:10px 8px}.metric strong{font-size:17px}.row{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) minmax(0,.8fr)}.vehicle-caption{flex-basis:40%}.vehicle-stage{height:68px}.vehicle-state{font-size:8px} }
       </style>
       <ha-card>
         <div class="wrap">
           <div class="top">
             <div><div class="eyebrow">Cargas · Última carga</div><h2>${this._escape(title)}</h2></div>
-            <div class="status ${charging ? "active" : (statusWarning ? "warn" : "")}">
-              <i class="dot"></i>${this._escape(statusLabels[status] || status)}
+            <div class="status ${charging && !inconsistentConnection ? "active" : (statusWarning || inconsistentConnection) ? "warn" : ""}">
+              <i class="dot"></i>${this._escape(statusLabel)}
             </div>
           </div>
+          ${vehicleMarkup}
           ${hasLiveTelemetry ? `<div class="metrics live-metrics">
             <div class="metric"><strong>${currentSoc === null ? "—" : this._fmt(currentSoc,1) + "%"}</strong><span>Batería actual</span></div>
             <div class="metric"><strong>${odometer === null ? "—" : this._fmt(odometer,0) + " " + this._escape(odometerUnit)}</strong><span>Odómetro</span></div>
@@ -250,6 +358,17 @@ class EVChargeTrackerCard extends HTMLElement {
           ${diagnostic ? `<div class="diagnostic">${this._escape(diagnostic)}</div>` : ""}
         </div>
       </ha-card>`;
+    const customVehicleImage = typeof this.shadowRoot.querySelector === "function"
+      ? this.shadowRoot.querySelector(".vehicle-image.custom") : null;
+    if (customVehicleImage) customVehicleImage.addEventListener("error", () => {
+      customVehicleImage.replaceWith(this._createFallbackVehicle(fallbackMarkup));
+    }, { once: true });
+  }
+
+  _createFallbackVehicle(markup) {
+    const template = document.createElement("template");
+    template.innerHTML = markup;
+    return template.content.firstElementChild;
   }
 
   _escape(value) {
@@ -294,7 +413,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const fields = [
       ["status","Estado de carga"],["energy","Energía de la carga"],["cost","Coste de la carga"],
       ["soc_start","Batería al inicio"],["soc_end","Batería al final"],["soc_increase","Aumento de batería"],
-      ["current_soc","Batería actual"],["odometer","Odómetro"],
+      ["current_soc","Batería actual"],["odometer","Odómetro"],["plugged","Cable conectado"],
       ["duration","Duración"],["history","Histórico de cargas"],
     ];
     this.shadowRoot.innerHTML = `<style>
@@ -377,6 +496,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       name: profile.vehicle_name || this._config.name || "EV Charge Tracker",
       profile_entry_id: profile.entry_id,
       entities: { ...(this._config.entities || {}), ...(profile.entities || {}) },
+      vehicle_visual: profile.vehicle_visual || this._config.vehicle_visual || {},
     };
     for (const key of Object.keys(next.entities)) {
       if (!profile.entities?.[key]) delete next.entities[key];

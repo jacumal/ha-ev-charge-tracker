@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 import voluptuous as vol
 from voluptuous import All, Coerce, Range
 
@@ -14,6 +16,10 @@ from .profile_registry import build_profile_identity, find_resource_conflicts
 
 from .const import (
     CONF_CHARGER_NAME,
+    CONF_PLUGGED_ENTITY,
+    CONF_VISUAL_BRAND, CONF_VISUAL_MODEL, CONF_VISUAL_GENERATION,
+    CONF_VISUAL_YEAR, CONF_VISUAL_TRIM, CONF_VISUAL_COLOR,
+    CONF_VISUAL_BODY_STYLE, CONF_VISUAL_IMAGE, CONF_VISUAL_PORT_X, CONF_VISUAL_PORT_Y,
     CONF_CHARGING_ENTITY,
     CONF_ENERGY_ENTITY,
     CONF_POWER_ENTITY,
@@ -99,6 +105,9 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_ENERGY_ENTITY): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor")
                 ),
+                vol.Optional(CONF_PLUGGED_ENTITY): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="binary_sensor")
+                ),
                 vol.Optional(CONF_POWER_ENTITY): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor")
                 ),
@@ -182,6 +191,8 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                 return await self.async_step_profile()
             if user_input["section"] == "tariffs":
                 return await self.async_step_tariffs()
+            if user_input["section"] == "vehicle":
+                return await self.async_step_vehicle_visual()
             return await self.async_step_units()
         schema = vol.Schema({
             vol.Required("section", default="profile"): selector.SelectSelector(
@@ -190,6 +201,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                         {"value": "profile", "label": "Sensores y comportamiento"},
                         {"value": "tariffs", "label": "Tarifas eléctricas"},
                         {"value": "units", "label": "Unidades y moneda"},
+                        {"value": "vehicle", "label": "Identidad visual del vehículo"},
                     ],
                     mode=selector.SelectSelectorMode.LIST,
                 )
@@ -224,6 +236,9 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             ),
             vol.Required(CONF_ENERGY_ENTITY, default=current[CONF_ENERGY_ENTITY]): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor")
+            ),
+            vol.Optional(CONF_PLUGGED_ENTITY, default=current.get(CONF_PLUGGED_ENTITY)): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="binary_sensor")
             ),
             vol.Optional(CONF_POWER_ENTITY, default=current.get(CONF_POWER_ENTITY)): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor")
@@ -262,6 +277,75 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                     mode=selector.SelectSelectorMode.LIST,
                 )
             ),
+        })
+
+
+    async def async_step_vehicle_visual(self, user_input=None):
+        """Edit vehicle identity and its local transparent thumbnail."""
+        current = {**self.config_entry.data, **self.config_entry.options}
+        if user_input is not None:
+            color = (user_input.get(CONF_VISUAL_COLOR) or "").strip()
+            image = (user_input.get(CONF_VISUAL_IMAGE) or "").strip()
+            if color and not re.fullmatch(r"#[0-9a-fA-F]{6}", color):
+                return self.async_show_form(
+                    step_id="vehicle_visual",
+                    data_schema=self._vehicle_visual_schema(current),
+                    errors={"base": "invalid_vehicle_color"},
+                )
+            if image and (
+                not re.fullmatch(r"/local/ev-charge-tracker/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)", image, re.IGNORECASE)
+                or ".." in image
+            ):
+                return self.async_show_form(
+                    step_id="vehicle_visual",
+                    data_schema=self._vehicle_visual_schema(current),
+                    errors={"base": "invalid_vehicle_image"},
+                )
+            user_input[CONF_VISUAL_COLOR] = color.upper() if color else ""
+            user_input[CONF_VISUAL_IMAGE] = image
+            # Do not let untouched defaults on another charger profile overwrite
+            # the shared vehicle appearance stored by its sibling profile.
+            for key, default in (
+                (CONF_VISUAL_COLOR, "#71869A"),
+                (CONF_VISUAL_BODY_STYLE, "suv"),
+                (CONF_VISUAL_PORT_X, 67),
+                (CONF_VISUAL_PORT_Y, 44),
+            ):
+                if user_input.get(key) == default and current.get(key) is None:
+                    user_input.pop(key, None)
+            return self.async_create_entry(
+                title="", data={**self.config_entry.options, **user_input}
+            )
+        return self.async_show_form(
+            step_id="vehicle_visual",
+            data_schema=self._vehicle_visual_schema(current),
+        )
+
+    @staticmethod
+    def _vehicle_visual_schema(current):
+        """Build optional vehicle identity fields without changing profile IDs."""
+        return vol.Schema({
+            vol.Optional(CONF_VISUAL_BRAND, default=current.get(CONF_VISUAL_BRAND, "")): str,
+            vol.Optional(CONF_VISUAL_MODEL, default=current.get(CONF_VISUAL_MODEL, "")): str,
+            vol.Optional(CONF_VISUAL_GENERATION, default=current.get(CONF_VISUAL_GENERATION, "")): str,
+            vol.Optional(CONF_VISUAL_YEAR, default=current.get(CONF_VISUAL_YEAR, "")): str,
+            vol.Optional(CONF_VISUAL_TRIM, default=current.get(CONF_VISUAL_TRIM, "")): str,
+            vol.Optional(CONF_VISUAL_COLOR, default=current.get(CONF_VISUAL_COLOR, "#71869A")): str,
+            vol.Optional(CONF_VISUAL_BODY_STYLE, default=current.get(CONF_VISUAL_BODY_STYLE, "suv")): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                        {"value": "suv", "label": "SUV / Crossover"},
+                        {"value": "sedan", "label": "Berlina"},
+                        {"value": "hatchback", "label": "Compacto"},
+                        {"value": "van", "label": "Monovolumen / Furgoneta"},
+                        {"value": "pickup", "label": "Pick-up"},
+                    ],
+                    mode=selector.SelectSelectorMode.LIST,
+                )
+            ),
+            vol.Optional(CONF_VISUAL_IMAGE, default=current.get(CONF_VISUAL_IMAGE, "")): str,
+            vol.Optional(CONF_VISUAL_PORT_X, default=current.get(CONF_VISUAL_PORT_X, 67)): All(Coerce(float), Range(min=0, max=100)),
+            vol.Optional(CONF_VISUAL_PORT_Y, default=current.get(CONF_VISUAL_PORT_Y, 44)): All(Coerce(float), Range(min=0, max=100)),
         })
 
     async def async_step_units(self, user_input=None):

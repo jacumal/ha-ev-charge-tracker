@@ -64,7 +64,7 @@ Preserve this information hierarchy while improving responsive behavior and ensu
 
 ## Entity contract for the card
 
-The card receives entity IDs through its Lovelace configuration; it does not hard-code installation-specific IDs. Its visual editor accepts the eight semantic entity mappings. The history entity supplies persistent `sessions`, `current_session`, `latest_session` and `diagnostic` attributes.
+The card receives entity IDs through its Lovelace configuration; it does not hard-code installation-specific IDs. Its visual editor accepts semantic entity mappings for status, energy, cost, SOC start/end/increase, live SOC, odometer, optional plugged state, duration and history. The history entity supplies persistent `sessions`, `current_session`, `latest_session` and `diagnostic` attributes.
 
 Prefer a compact set of well-defined integration entities plus a structured history source. The card should support selecting the vehicle/profile it displays and explain configuration errors clearly.
 
@@ -99,7 +99,7 @@ The initial implementation is responsive and uses Home Assistant theme variables
 Remaining acceptance checks before real charging:
 - Verify card registration and rendering in a real Home Assistant frontend.
 - Check dark/light themes, narrow mobile widths, long profile names and empty history.
-- Verify the visual editor's entity pickers populate and persist all eight mappings in the Lovelace editor.
+- Verify the visual editor's entity pickers populate and persist all configured mappings, including the optional plugged-state entity, in the Lovelace editor.
 - Confirm current and completed session presentation against the coordinator's actual lifecycle states, including missing, unknown and unavailable status entities.
 - Confirm the history list and cost-quality labels with complete, partial and unknown cost records.
 - Verify resource loading after an integration update and restart.
@@ -121,5 +121,22 @@ session records as the history list; no additional recorder statistics or helper
 are required.
 
 The card editor receives a visual refresh while preserving the profile discovery,
-profile selection and eight semantic entity mappings. Live Home Assistant testing
+profile selection and all supported semantic entity mappings. Live Home Assistant testing
 is still required for frontend rendering, editor persistence and responsive themes.
+
+
+
+## Vehicle identity thumbnail and charge activity
+
+The card includes a compact, secondary vehicle visual below the header; battery, energy, cost and history remain the primary information. Vehicle appearance is configured in **Settings → Devices & services → EV Charge Tracker → Configure → Vehicle appearance** and shared across charger profiles for the same vehicle.
+
+The profile stores brand, model, generation, model year, trim, body style and HEX body color. A small local SVG silhouette gallery provides generic SUV/crossover, sedan, hatchback, van and pickup shapes. For a model-accurate image, users may place their own transparent PNG or WebP in /config/www/ev-charge-tracker/ and set its /local/ev-charge-tracker/... path. If the file is absent or fails to load, the card falls back to the colored SVG silhouette. Custom images expose horizontal and vertical port-anchor percentages so the cable can be aligned with different vehicle images. No remote image API or paid image service is required.
+
+An SVG cable/port overlay reflects the actual lifecycle state:
+- Charging: cable plugged in and animated energy flow.
+- Connected but idle: connector visibly seated at the vehicle port, using the optional cable-connected binary sensor.
+- Disconnected: connector shown detached/faded only when the plugged sensor reports OFF.
+- Completed: the latest persisted completed session is indicated after the live status returns to idle.
+- Error/unknown: attention and unavailable cable telemetry are kept distinct; unknown/unavailable is never interpreted as physically disconnected.
+
+The animation respects the reduced-motion accessibility preference. Without a plugged-state sensor, the card explicitly says that cable connection is not monitored.

@@ -4,7 +4,7 @@ Universal EV charging session tracker for Home Assistant.
 
 Track charging sessions, delivered energy, battery state of charge (SOC), mileage, costs and history across multiple electric vehicles and chargers. The integration is designed to work with existing Home Assistant entities, independently of vehicle and charger brands.
 
-**Project status:** beta `0.1.0-beta.3` candidate. This version includes the bundled responsive Lovelace card with per-session energy and cost charts, profile discovery and manual entity mapping, plus a tariff options flow that shows only the selected price source field (manual price or Home Assistant sensor) for each period. The session coordinator, persistent history, fixed/dynamic pricing and one-to-three-period tariff engine are covered by automated tests. It is a beta, not a production-ready release: live Home Assistant frontend/config-flow validation and final tagged-package installation checks remain pending. See the [implementation roadmap](docs/roadmap.md) and [beta checklist](docs/beta-checklist.md).
+**Project status:** beta `0.1.0-beta.3` candidate. This version includes the bundled responsive Lovelace card with per-session energy and cost charts, profile discovery and manual entity mapping, plus a tariff options flow that shows only the selected price source field (manual price or Home Assistant sensor) for each period, and a vehicle thumbnail with animated cable/charging states. The session coordinator, persistent history, fixed/dynamic pricing and one-to-three-period tariff engine are covered by automated tests. It is a beta, not a production-ready release: live Home Assistant frontend/config-flow validation and final tagged-package installation checks remain pending. See the [implementation roadmap](docs/roadmap.md) and [beta checklist](docs/beta-checklist.md).
 
 ## Design principles
 
@@ -33,13 +33,13 @@ Track charging sessions, delivered energy, battery state of charge (SOC), mileag
 - Duration, electricity cost, history and diagnostics.
 - Multiple vehicles, chargers and charging profiles.
 - Guided graphical sensor setup with explanations, unit validation and examples.
-- A bundled custom Lovelace card with a visual editor and native Home Assistant entity pickers for the eight semantic entity mappings. No separate Bubble Card installation is required; frontend behavior still needs real-HA validation.
+- A bundled custom Lovelace card with a visual editor, native Home Assistant entity pickers, live SOC/odometer, per-session charts and a secondary vehicle thumbnail with animated cable/energy states. No separate Bubble Card installation is required; frontend behavior still needs real-HA validation.
 
 ## Development
 
 The first reference setup is a Leapmotor C10 with a V2C charger. It is a test environment only; the core design must remain generic.
 
-The Lovelace card is included in this integration repository and served by the integration. Its editor discovers configured profiles through an authenticated Home Assistant WebSocket command, automatically selects a sole profile, and offers a selector when multiple profiles exist. The eight card entities are resolved from the integration entity registry; manual mapping remains available.
+The Lovelace card is included in this integration repository and served by the integration. Its editor discovers configured profiles through an authenticated Home Assistant WebSocket command, automatically selects a sole profile, and offers a selector when multiple profiles exist. The profile-linked card entities (status, energy, cost, SOC start/end/increase, live SOC, odometer, optional plugged state, duration and history) are resolved from the integration entity registry; manual mapping remains available.
 
 Contributions, feature requests and bug reports are welcome. The architecture and sensor contract are still being defined, so interfaces may change before the first release.
 

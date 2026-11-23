@@ -4,6 +4,7 @@ import unittest
 
 from custom_components.ev_charge_tracker.profile_registry import (
     build_profile_identity,
+    build_profile_registry,
     find_resource_conflicts,
     normalize_profile_id,
 )
@@ -51,6 +52,30 @@ class ProfileRegistryTests(unittest.TestCase):
         candidate = {"soc_entity": "sensor.car_soc", "odometer_entity": "sensor.car_odometer"}
         self.assertEqual(find_resource_conflicts(candidate, profiles), set())
 
+
+
+    def test_vehicle_visual_identity_is_shared_across_charger_profiles(self):
+        from types import SimpleNamespace
+
+        entries = [
+            SimpleNamespace(
+                entry_id="entry_garage",
+                data={"vehicle_id": "leapmotor_c10", "charger_id": "garage", "vehicle_name": "Leapmotor C10", "charger_name": "Garaje"},
+                options={"visual_brand": "Leapmotor", "visual_model": "C10", "visual_color": "#AABBCC", "visual_body_style": "suv", "visual_port_x": 55, "visual_port_y": 30},
+            ),
+            SimpleNamespace(
+                entry_id="entry_work",
+                data={"vehicle_id": "leapmotor_c10", "charger_id": "work", "vehicle_name": "Leapmotor C10", "charger_name": "Trabajo"},
+                options={},
+            ),
+        ]
+        registry = build_profile_registry(entries)
+        garage = registry["profiles"]["entry_garage"]["vehicle_visual"]
+        work = registry["profiles"]["entry_work"]["vehicle_visual"]
+        self.assertEqual(garage["visual_model"], "C10")
+        self.assertEqual(work["visual_color"], "#AABBCC")
+        self.assertEqual(work["visual_port_x"], 55)
+        self.assertEqual(registry["vehicles"]["leapmotor_c10"]["visual"]["visual_brand"], "Leapmotor")
 
 if __name__ == "__main__":
     unittest.main()
