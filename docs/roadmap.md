@@ -151,7 +151,7 @@ Changes are developed on a feature branch and reviewed before merging to main. A
 - [x] Preserve creator, license and file-description URL with the selected image.
 - [x] Restrict remote image rendering to HTTPS upload.wikimedia.org assets; keep local PNG/WebP support.
 - [x] Promote the vehicle image into a large responsive hero and provide a three-column telemetry layout when autonomy is explicitly mapped.
-- [ ] Add automated tests for gallery license filtering, URL validation, attribution persistence and frontend regressions.
+- [x] Add automated source-contract and Lovelace tests for Commons license filtering, URL validation, attribution metadata and optional autonomy layout.
 - [ ] Complete CI and resolve any failures.
 - [ ] Validate gallery search and image selection in real Home Assistant, including save/reopen and restart.
 - [ ] Compare idle and charging screenshots against the two approved references on mobile/desktop and light/dark themes.
