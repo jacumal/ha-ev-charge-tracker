@@ -120,9 +120,8 @@ class EVChargeTrackerCard extends HTMLElement {
     const visualColor = /^#[0-9a-f]{6}$/i.test(vehicle.visual_color || "") ? vehicle.visual_color : "#71869A";
     const bodyStyle = ["suv", "sedan", "hatchback", "van", "pickup"].includes(vehicle.visual_body_style) ? vehicle.visual_body_style : "suv";
     const customImage = typeof vehicle.visual_image === "string" &&
-      vehicle.visual_image.startsWith("/local/ev-charge-tracker/") &&
-      /\.(png|webp)$/i.test(vehicle.visual_image) && !vehicle.visual_image.includes("..")
-      ? vehicle.visual_image : "";
+      /^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(vehicle.visual_image) &&
+      !vehicle.visual_image.includes("..") ? vehicle.visual_image : "";
     const lastChargeCompleted = Boolean(
       !current && latest && (latest.status === "completed" || latest.completed_at || latest.ended_at)
     );
