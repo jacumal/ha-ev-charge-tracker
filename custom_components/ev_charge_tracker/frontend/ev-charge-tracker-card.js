@@ -29,7 +29,7 @@ class EVChargeTrackerCard extends HTMLElement {
       if (!profile || !this.config || this.config.profile_entry_id !== entryId) return;
       const next = { ...this.config, entities: { ...(this.config.entities || {}) } };
       if (!next.profile_manual_override) next.entities = { ...next.entities, ...(profile.entities || {}) };
-      next.vehicle_visual = profile.vehicle_visual || next.vehicle_visual || {};
+      if (!next.vehicle_visual_override) next.vehicle_visual = profile.vehicle_visual || next.vehicle_visual || {};
       this.config = next;
       this._render();
     }).catch(() => {
@@ -608,7 +608,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       name: profile.vehicle_name || this._config.name || "EV Charge Tracker",
       profile_entry_id: profile.entry_id,
       entities: { ...(this._config.entities || {}), ...(profile.entities || {}) },
-      vehicle_visual: profile.vehicle_visual || this._config.vehicle_visual || {},
+      vehicle_visual: this._config.vehicle_visual_override ? (this._config.vehicle_visual || {}) : (profile.vehicle_visual || this._config.vehicle_visual || {}),
     };
     for (const key of Object.keys(next.entities)) {
       if (!profile.entities?.[key]) delete next.entities[key];
@@ -702,6 +702,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       }
       if (value) next.vehicle_visual[configKey] = value; else delete next.vehicle_visual[configKey];
     });
+    if (this.shadowRoot.activeElement?.id?.startsWith("visual_")) next.vehicle_visual_override = true;
     if (changedKey) {
       if (changedValue) next.entities[changedKey] = changedValue;
       else delete next.entities[changedKey];
