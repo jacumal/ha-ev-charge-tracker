@@ -458,7 +458,7 @@ class EVChargeTrackerCard extends HTMLElement {
             const itemCost = item.cost != null ? Number(item.cost) : (item.known_cost != null ? Number(item.known_cost) : null);
             const energyValid = item.energy_kwh != null && Number.isFinite(itemEnergy) && itemEnergy >= 0;
             const costValid = itemCost !== null && Number.isFinite(itemCost) && itemCost >= 0;
-            const socValid = Number.isFinite(Number(item.soc_start)) && Number.isFinite(Number(item.soc_end));
+            const socValid = item.soc_start != null && item.soc_end != null && Number.isFinite(Number(item.soc_start)) && Number.isFinite(Number(item.soc_end));
             return `
             <div class="row">
               <div class="row-main"><div class="row-date">${this._date(item.started_at)}</div><div class="row-sub">${socValid ? this._fmt(item.soc_start,0)+"% → "+this._fmt(item.soc_end,0)+"%" : "Progreso de batería no disponible"}</div></div>
