@@ -191,8 +191,11 @@ class EVChargeTrackerCard extends HTMLElement {
     const imageLicense = vehicle.visual_image_license || "";
     const imageLicenseUrl = typeof vehicle.visual_image_license_url === "string" && /^https:\/\/creativecommons\.org\/(?:licenses|publicdomain)\//i.test(vehicle.visual_image_license_url) ? vehicle.visual_image_license_url : "";
     const imagePage = typeof vehicle.visual_image_page === "string" && /^https:\/\/commons\.wikimedia\.org\/wiki\//i.test(vehicle.visual_image_page) ? vehicle.visual_image_page : "";
-    const portXValue = vehicle.visual_port_x == null || vehicle.visual_port_x === "" ? 67 : Number(vehicle.visual_port_x);
-    const portYValue = vehicle.visual_port_y == null || vehicle.visual_port_y === "" ? 44 : Number(vehicle.visual_port_y);
+    const isLeapmotorC10 = /leapmotor/i.test(vehicle.visual_brand || "") && /c10/i.test(vehicle.visual_model || "");
+    const defaultPortX = isLeapmotorC10 ? 83 : 67;
+    const defaultPortY = isLeapmotorC10 ? 57 : 44;
+    const portXValue = vehicle.visual_port_x == null || vehicle.visual_port_x === "" ? defaultPortX : Number(vehicle.visual_port_x);
+    const portYValue = vehicle.visual_port_y == null || vehicle.visual_port_y === "" ? defaultPortY : Number(vehicle.visual_port_y);
     const portX = Math.round((Number.isFinite(portXValue) ? Math.min(100, Math.max(0, portXValue)) : 67) * 2.6);
     const portY = Math.round((Number.isFinite(portYValue) ? Math.min(100, Math.max(0, portYValue)) : 44) * 1.1);
     const cablePath = "M" + portX + " " + portY + " C" +
@@ -765,7 +768,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     ["brand","model","generation","year","trim","color","body_style","image","port_x","port_y"].forEach(key => {
       const field = this.shadowRoot.getElementById("visual_" + key);
       if (field && field !== this.shadowRoot.activeElement) {
-        const defaults = { color: "#71869A", body_style: "suv", port_x: 67, port_y: 44 };
+        const isLeapmotorC10 = /leapmotor/i.test(visual.visual_brand || "") && /c10/i.test(visual.visual_model || "");
+        const defaults = { color: "#71869A", body_style: "suv", port_x: isLeapmotorC10 ? 83 : 67, port_y: isLeapmotorC10 ? 57 : 44 };
         field.value = visual["visual_" + key] ?? (defaults[key] ?? "");
       }
     });
@@ -795,10 +799,13 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const label = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") || this._config.name || "Vehículo";
       const details = [visual.visual_generation, visual.visual_year, visual.visual_trim].filter(Boolean).join(" · ");
       const image = this._validVehicleImage(visual.visual_image) ? visual.visual_image : "";
-      const rawPortX = Number(visual.visual_port_x ?? 67);
-      const rawPortY = Number(visual.visual_port_y ?? 44);
-      const portX = Number.isFinite(rawPortX) ? Math.min(100, Math.max(0, rawPortX)) : 67;
-      const portY = Number.isFinite(rawPortY) ? Math.min(100, Math.max(0, rawPortY)) : 44;
+      const isLeapmotorC10 = /leapmotor/i.test(visual.visual_brand || "") && /c10/i.test(visual.visual_model || "");
+      const defaultPortX = isLeapmotorC10 ? 83 : 67;
+      const defaultPortY = isLeapmotorC10 ? 57 : 44;
+      const rawPortX = Number(visual.visual_port_x ?? defaultPortX);
+      const rawPortY = Number(visual.visual_port_y ?? defaultPortY);
+      const portX = Number.isFinite(rawPortX) ? Math.min(100, Math.max(0, rawPortX)) : defaultPortX;
+      const portY = Number.isFinite(rawPortY) ? Math.min(100, Math.max(0, rawPortY)) : defaultPortY;
       const imageOrFallback = image
         ? '<img src="' + this._esc(image) + '" alt="' + this._esc(label) + '">'
         : '<div class="preview-fallback" aria-hidden="true">🚘</div>';
