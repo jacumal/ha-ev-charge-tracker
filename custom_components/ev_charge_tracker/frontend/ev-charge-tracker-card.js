@@ -122,11 +122,11 @@ class EVChargeTrackerCard extends HTMLElement {
       !current && latest && (latest.status === "completed" || latest.completed_at || latest.ended_at)
     );
     const visualState = statusWarning ? "error" : charging ? "charging" :
-      (status === "completed" || lastChargeCompleted) ? "completed" :
-      (hasPluggedSensor && cableConnected ? "connected" : "disconnected");
+      (hasPluggedSensor && cableConnected ? "connected" :
+      ((status === "completed" || lastChargeCompleted) ? "completed" : "disconnected"));
     const visualStateLabels = {
       disconnected: hasPluggedSensor ? "Cable desconectado" : "Conexión sin monitorizar",
-      connected: "Cable conectado · En espera",
+      connected: lastChargeCompleted ? "Carga finalizada · Cable conectado" : "Cable conectado · En espera",
       charging: "Cargando · Flujo de energía activo",
       completed: "Carga finalizada",
       error: "Estado que requiere atención",
@@ -222,11 +222,11 @@ class EVChargeTrackerCard extends HTMLElement {
         .connector rect { fill:var(--secondary-text-color); stroke:var(--card-background-color); stroke-width:1.5; }
         .connector path { stroke:var(--secondary-text-color); stroke-width:2; }
         .connector-plug { opacity:0; }
-        .state-connected .connector-free,.state-charging .connector-free,.state-completed .connector-free { opacity:0; }
-        .state-connected .connector-plug,.state-charging .connector-plug,.state-completed .connector-plug { opacity:1; }
+        .state-connected .connector-free,.state-charging .connector-free { opacity:0; }
+        .state-connected .connector-plug,.state-charging .connector-plug { opacity:1; }
         .charge-port { fill:var(--secondary-background-color); stroke:var(--secondary-text-color); stroke-width:2; }
         .state-disconnected .cable-line,.state-disconnected .cable-shadow,.state-disconnected .connector-free,.state-disconnected .energy-line,.state-disconnected .charge-port { opacity:.28; }
-        .state-connected .cable-line,.state-connected .connector,.state-connected .charge-port { opacity:1; }
+        .state-connected .cable-line,.state-connected .connector-free,.state-connected .connector-plug,.state-connected .charge-port { opacity:1; }
         .state-charging .energy-line { opacity:1; animation:energy-flow 1s linear infinite; }
         .state-charging .cable-line { stroke:var(--success-color,#42a66b); }
         .state-completed .energy-line { opacity:0; }
