@@ -270,3 +270,43 @@ test("defaults invalid or missing appearance settings to Home Assistant automati
   assert.match(fallback, /data-theme="auto"/);
   assert.match(missing, /data-theme="auto"/);
 });
+
+test("promotes live SOC and odometer into the dashboard hero", () => {
+  const html = createCard(
+    { entities: { current_soc: "sensor.soc", odometer: "sensor.odo" } },
+    {
+      "sensor.soc": { state: "87.4", last_updated: "2026-11-23T10:00:00Z", attributes: {} },
+      "sensor.odo": { state: "12345", last_updated: "2026-11-23T10:00:00Z", attributes: { unit_of_measurement: "km" } },
+    },
+  );
+  assert.match(html, /live-hero vehicle-telemetry/);
+  assert.match(html, /BATERÍA ACTUAL/);
+  assert.match(html, /87,4/);
+  assert.match(html, /KILOMETRAJE/);
+  assert.match(html, /12\.345/);
+});
+
+test("shows only an explicitly configured range sensor and does not estimate range", () => {
+  const configured = createCard(
+    { entities: { range: "sensor.range" } },
+    { "sensor.range": { state: "410", attributes: { unit_of_measurement: "km" } } },
+  );
+  const absent = createCard({ entities: { current_soc: "sensor.soc" } }, { "sensor.soc": { state: "80", attributes: {} } });
+  assert.match(configured, /Autonomía indicada/);
+  assert.match(configured, /410 km/);
+  assert.doesNotMatch(absent, /Autonomía indicada/);
+});
+
+test("does not fabricate invalid live telemetry values", () => {
+  const html = createCard(
+    { entities: { current_soc: "sensor.soc", odometer: "sensor.odo" } },
+    {
+      "sensor.soc": { state: "140", attributes: {} },
+      "sensor.odo": { state: "-1", attributes: {} },
+    },
+  );
+  assert.match(html, /BATERÍA ACTUAL/);
+  assert.match(html, /Odómetro no disponible/);
+  assert.doesNotMatch(html, /140%/);
+  assert.doesNotMatch(html, /-1 km/);
+});
