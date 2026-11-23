@@ -34,14 +34,56 @@ jobs:
           import json
           from pathlib import Path
           base = json.loads(Path("custom_components/ev_charge_tracker/strings.json").read_text())
-          base_fields = set(base["config"]["step"]["user"]["data"])
-          base_descriptions = set(base["config"]["step"]["user"]["data_description"])
+
+          def structure(value):
+              if isinstance(value, dict):
+                  return {key: structure(item) for key, item in value.items()}
+              if isinstance(value, list):
+                  return [structure(item) for item in value]
+              return type(value).__name__
+
+          expected = structure(base)
           for path in ("translations/es.json", "translations/en.json"):
               data = json.loads((Path("custom_components/ev_charge_tracker") / path).read_text())
-              step = data["config"]["step"]["user"]
-              assert set(step["data"]) == base_fields, f"{path}: field labels differ"
-              assert set(step["data_description"]) == base_descriptions, f"{path}: field descriptions differ"
-              assert data.get("options", {}).keys() == base.get("options", {}).keys(), f"{path}: options steps differ"
+              assert structure(data) == expected, f"{path}: translation keys or value types differ from strings.json"
+          PY
+      - name: Validate repository with HACS
+        uses: hacs/action@main
+        with:
+          category: integration
+          comment: false
+          ignore: topics
+      - name: Validate integration with hassfest
+        uses: home-assistant/actions/hassfest@master
+      - name: Validate HACS integration package layout
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from zipfile import ZIP_DEFLATED, ZipFile
+
+          root = Path(".")
+          hacs = json.loads((root / "hacs.json").read_text())
+          manifest_path = root / "custom_components/ev_charge_tracker/manifest.json"
+          manifest = json.loads(manifest_path.read_text())
+          assert hacs.get("name") == manifest.get("name") == "EV Charge Tracker"
+          assert manifest.get("domain") == "ev_charge_tracker"
+          assert manifest.get("version") == "0.1.0-beta.5"
+          assert manifest.get("config_flow") is True
+          frontend = root / "custom_components/ev_charge_tracker/frontend/ev-charge-tracker-card.js"
+          assert frontend.is_file() and frontend.stat().st_size > 0
+          package = Path("dist/ev-charge-tracker-beta5.zip")
+          package.parent.mkdir(exist_ok=True)
+          with ZipFile(package, "w", ZIP_DEFLATED) as archive:
+              for path in (root / "custom_components/ev_charge_tracker").rglob("*"):
+                  if path.is_file() and "__pycache__" not in path.parts and path.suffix != ".pyc":
+                      archive.write(path, path.relative_to(root))
+          with ZipFile(package) as archive:
+              names = set(archive.namelist())
+              assert "custom_components/ev_charge_tracker/manifest.json" in names
+              assert "custom_components/ev_charge_tracker/frontend/ev-charge-tracker-card.js" in names
+              assert archive.testzip() is None
+          print(f"Validated HACS package structure: {package}")
           PY
       - name: Import integration modules
         env:

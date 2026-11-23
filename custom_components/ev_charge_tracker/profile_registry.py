@@ -94,6 +94,7 @@ def build_profile_registry(config_entries: Iterable[object]) -> dict[str, dict]:
             "charging_entity": config.get("charging_entity"),
             "energy_entity": config.get("energy_entity"),
             "soc_entity": config.get("soc_entity"),
+            "range_entity": config.get("range_entity"),
             "odometer_entity": config.get("odometer_entity"),
             "power_entity": config.get("power_entity"),
             "plugged_entity": config.get("plugged_entity"),

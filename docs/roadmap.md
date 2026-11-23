@@ -122,3 +122,20 @@ Source: user-provided transcript screenshots, approximately 09:36–15:06. These
 
 ## Working rule
 Changes are developed on a feature branch and reviewed before merging to main. A checkbox closes only when implementation and tests exist; real-instance validation is tracked separately.
+
+
+## 8. Beta.5 — Apple-inspired live vehicle dashboard
+
+**Status: Implementation in progress on `feature/beta-5-apple-dashboard`.** See `docs/beta-5-plan.md` and `docs/beta-5-checklist.md` for acceptance gates.
+
+- [ ] Verify precise-SOC and odometer propagation end-to-end from profile options through WebSocket and Lovelace.
+- [x] Promote live SOC and odometer to the primary dashboard hero; validate invalid readings without fabricating zero values.
+- [x] Add optional range entity configuration and display only when explicitly mapped.
+- [x] Implement the charging-first visual refresh, charging cable states and reduced-motion support.
+- [x] Add live vehicle identity editor controls, local PNG/WebP path validation, fallback preview and configurable port anchors.
+- [x] Add recoverable profile refresh feedback and automatic selected-profile refresh for existing cards; save confirmation remains limited to the Lovelace editor's config-changed flow.
+- [ ] Add regression tests proving in-place upgrade preserves config entries, profile IDs, tariff options, manual overrides and persisted history.
+- [x] Add EVSE energy source diagnostic metadata and automated tests; diagnosis against the actual unavailable entity in the user's HA installation remains pending.
+- [ ] Complete full CI on the latest branch head and review all regressions.
+- [ ] Complete real Home Assistant validation, including frontend layouts, update-in-place and a real charge.
+

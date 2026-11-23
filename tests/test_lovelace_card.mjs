@@ -28,6 +28,23 @@ function createCard(config, states = {}) {
   return card.shadowRoot.innerHTML;
 }
 
+
+test("editor exposes live vehicle identity, image and charge-port controls", () => {
+  assert.match(source, /id="visual_brand"/);
+  assert.match(source, /id="visual_model"/);
+  assert.match(source, /id="visual_image"/);
+  assert.match(source, /id="visual_port_x"/);
+  assert.match(source, /id="visual_port_y"/);
+  assert.match(source, /setCustomValidity/);
+});
+
+test("existing cards refresh their selected profile while retaining manual entity overrides", () => {
+  assert.match(source, /_syncSelectedProfile/);
+  assert.match(source, /window\.setInterval/);
+  assert.match(source, /profile_manual_override/);
+  assert.match(source, /vehicle_visual = profile\.vehicle_visual/);
+});
+
 test("does not present an unconfigured status sensor as idle", () => {
   const html = createCard({ entities: {} });
   assert.match(html, /Estado sin configurar/);
@@ -80,7 +97,7 @@ test("clamps the history display to at most 50 records", () => {
     cost_status: "complete",
   }));
   const html = createCard(
-    { max_history: 1000, entities: { history: "sensor.history" } },
+    { max_history: 1000, display_mode: "complete", entities: { history: "sensor.history" } },
     { "sensor.history": { state: "60", attributes: { sessions } } },
   );
   assert.match(html, /50 registros/);
@@ -136,14 +153,17 @@ test("shows live battery SOC and odometer from the selected profile entities", (
   const html = createCard(
     { entities: { current_soc: "sensor.leapmotor_precise_battery", odometer: "sensor.leapmotor_odometer" } },
     {
-      "sensor.leapmotor_precise_battery": { state: "87.4", attributes: { unit_of_measurement: "%" } },
-      "sensor.leapmotor_odometer": { state: "12345", attributes: { unit_of_measurement: "km" } },
+      "sensor.leapmotor_precise_battery": { state: "87.4", last_updated: new Date().toISOString(), attributes: { unit_of_measurement: "%" } },
+      "sensor.leapmotor_odometer": { state: "12345", last_updated: new Date().toISOString(), attributes: { unit_of_measurement: "km" } },
     },
   );
-  assert.match(html, /Batería actual/);
-  assert.match(html, /87,4%/);
-  assert.match(html, /Odómetro/);
-  assert.match(html, /12\.345 km/);
+  assert.match(html, /BATERÍA ACTUAL/);
+  assert.ok(html.includes("87,4<small>%</small>"));
+  assert.match(html, /KILOMETRAJE/);
+  assert.ok(html.includes("12.345"));
+  assert.match(html, /<small>km<\/small>/);
+  assert.match(html, /vehicle-telemetry/);
+  assert.doesNotMatch(html, /Datos complementarios del vehículo/);
 });
 
 test("renders a transparent vehicle silhouette and cable state without a custom image", () => {
@@ -239,3 +259,175 @@ test("flags contradictory charging and unplugged signals as an attention state",
   assert.doesNotMatch(html, /class="vehicle-stage state-charging"/);
 });
 
+
+
+test("supports compact, balanced and complete information density in Lovelace config", () => {
+  const compact = createCard({ display_mode: "compact", entities: { status: "sensor.status" } }, { "sensor.status": { state: "idle", attributes: {} } });
+  const complete = createCard({ display_mode: "complete", entities: { status: "sensor.status" } }, { "sensor.status": { state: "idle", attributes: {} } });
+  assert.match(compact, /mode-compact/);
+  assert.doesNotMatch(compact, /Energía por carga/);
+  assert.match(complete, /Energía por carga/);
+  assert.match(complete, /Histórico de cargas/);
+});
+
+
+test("supports automatic, light and dark card appearance independently of information density", () => {
+  const automatic = createCard({ theme_mode: "auto", display_mode: "compact", entities: {} });
+  const light = createCard({ theme_mode: "light", display_mode: "balanced", entities: {} });
+  const dark = createCard({ theme_mode: "dark", display_mode: "complete", entities: {} });
+  assert.match(automatic, /data-theme="auto"/);
+  assert.match(light, /data-theme="light"/);
+  assert.match(dark, /data-theme="dark"/);
+  assert.match(dark, /--primary-text-color:#f5f5f7/);
+  assert.match(light, /--primary-text-color:#1d1d1f/);
+});
+
+test("defaults invalid or missing appearance settings to Home Assistant automatic theme", () => {
+  const fallback = createCard({ theme_mode: "sepia", entities: {} });
+  const missing = createCard({ entities: {} });
+  assert.match(fallback, /data-theme="auto"/);
+  assert.match(missing, /data-theme="auto"/);
+});
+
+test("promotes live SOC and odometer into the dashboard hero", () => {
+  const html = createCard(
+    { entities: { current_soc: "sensor.soc", odometer: "sensor.odo" } },
+    {
+      "sensor.soc": { state: "87.4", last_updated: new Date().toISOString(), attributes: {} },
+      "sensor.odo": { state: "12345", last_updated: new Date().toISOString(), attributes: { unit_of_measurement: "km" } },
+    },
+  );
+  assert.match(html, /live-hero vehicle-telemetry/);
+  assert.match(html, /BATERÍA ACTUAL/);
+  assert.match(html, /87,4/);
+  assert.match(html, /KILOMETRAJE/);
+  assert.match(html, /12\.345/);
+});
+
+
+test("hides stale SOC and odometer readings instead of presenting obsolete values", () => {
+  const staleAt = new Date(Date.now() - 181 * 60 * 1000).toISOString();
+  const html = createCard(
+    { entities: { current_soc: "sensor.soc", odometer: "sensor.odo" } },
+    {
+      "sensor.soc": { state: "87.4", last_updated: staleAt, attributes: {} },
+      "sensor.odo": { state: "12345", last_updated: staleAt, attributes: { unit_of_measurement: "km" } },
+    },
+  );
+  assert.match(html, /Batería no disponible/);
+  assert.match(html, /Odómetro no disponible/);
+  assert.doesNotMatch(html, /87,4/);
+  assert.doesNotMatch(html, /12\.345/);
+});
+
+test("shows only an explicitly configured range sensor and does not estimate range", () => {
+  const configured = createCard(
+    { entities: { range: "sensor.range" } },
+    { "sensor.range": { state: "410", last_updated: new Date().toISOString(), attributes: { unit_of_measurement: "km" } } },
+  );
+  const absent = createCard({ entities: { current_soc: "sensor.soc" } }, { "sensor.soc": { state: "80", attributes: {} } });
+  assert.match(configured, /Autonomía indicada/);
+  assert.match(configured, /410 km/);
+  assert.doesNotMatch(absent, /Autonomía indicada/);
+});
+
+
+
+test("rejects implausibly future-dated vehicle telemetry", () => {
+  const futureAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  const html = createCard(
+    { entities: { current_soc: "sensor.soc" } },
+    { "sensor.soc": { state: "88", last_updated: futureAt, attributes: {} } },
+  );
+  assert.match(html, /Batería no disponible/);
+  assert.doesNotMatch(html, /88<small>%<\/small>/);
+});
+
+test("does not display unavailable source telemetry as a numeric reading", () => {
+  const html = createCard(
+    { entities: { current_soc: "sensor.soc", odometer: "sensor.odo" } },
+    {
+      "sensor.soc": { state: "unavailable", last_updated: new Date().toISOString(), attributes: {} },
+      "sensor.odo": { state: "unknown", last_updated: new Date().toISOString(), attributes: {} },
+    },
+  );
+  assert.match(html, /Batería no disponible/);
+  assert.match(html, /Odómetro no disponible/);
+  assert.doesNotMatch(html, /<small>%<\/small>/);
+});
+
+test("does not fabricate invalid live telemetry values", () => {
+  const html = createCard(
+    { entities: { current_soc: "sensor.soc", odometer: "sensor.odo" } },
+    {
+      "sensor.soc": { state: "140", attributes: {} },
+      "sensor.odo": { state: "-1", attributes: {} },
+    },
+  );
+  assert.match(html, /BATERÍA ACTUAL/);
+  assert.match(html, /Odómetro no disponible/);
+  assert.doesNotMatch(html, /140%/);
+  assert.doesNotMatch(html, /-1 km/);
+});
+
+
+test("redesigned latest charge summary highlights delivered energy and SOC progression", () => {
+  const html = createCard(
+    { entities: { status: "sensor.status", energy: "sensor.energy", history: "sensor.history", cost: "sensor.cost", duration: "sensor.duration", soc_start: "sensor.start", soc_end: "sensor.end", soc_increase: "sensor.increase" } },
+    {
+      "sensor.status": { state: "completed", attributes: {} },
+      "sensor.energy": { state: "24.6", attributes: { unit_of_measurement: "kWh" } },
+      "sensor.cost": { state: "3.2", attributes: { cost_status: "complete", currency: "EUR" } },
+      "sensor.duration": { state: "180", attributes: {} },
+      "sensor.start": { state: "30", attributes: {} },
+      "sensor.end": { state: "80", attributes: {} },
+      "sensor.increase": { state: "50", attributes: {} },
+      "sensor.history": { state: "1", attributes: { latest_session: { started_at: "2026-11-23T08:00:00Z", ended_at: "2026-11-23T11:00:00Z" }, sessions: [] } },
+    },
+  );
+  assert.match(html, /session-energy/);
+  assert.match(html, /24,6/);
+  assert.match(html, /soc-progress/);
+  assert.match(html, /Asignación de tarifa/);
+});
+
+test("redesigned history distinguishes partial cost and never plots invalid values as positive energy", () => {
+  const html = createCard(
+    { display_mode: "complete", entities: { history: "sensor.history" } },
+    { "sensor.history": { state: "2", attributes: { sessions: [
+      { started_at: "2026-11-22T10:00:00Z", energy_kwh: 10, known_cost: 1.2, cost: null, cost_status: "partial", soc_start: 40, soc_end: 65 },
+      { started_at: "2026-11-21T10:00:00Z", energy_kwh: -5, cost: -2, cost_status: "unknown", soc_start: null, soc_end: null },
+    ] } } },
+  );
+  assert.match(html, /row-energy/);
+  assert.match(html, /Coste parcial/);
+  assert.match(html, /cost-partial/);
+  assert.match(html, /Progreso de batería no disponible/);
+  assert.match(html, /row-main/);
+});
+
+test("editor forwards config changes to Lovelace and never claims persistence before native save", () => {
+  const registry = new Map();
+  class HTMLElement {
+    dispatchEvent(event) { this.lastEvent = event; return true; }
+  }
+  class CustomEvent {
+    constructor(type, options) { this.type = type; Object.assign(this, options); }
+  }
+  runInNewContext(source, {
+    HTMLElement,
+    CustomEvent,
+    customElements: { define: (name, constructor) => registry.set(name, constructor) },
+    window: {},
+  });
+  const Editor = registry.get("ev-charge-tracker-card-editor");
+  const editor = new Editor();
+  editor._config = { name: "Mi C10", entities: { status: "sensor.status" } };
+  editor._fireConfigChanged();
+  assert.equal(editor.lastEvent.type, "config-changed");
+  assert.equal(editor.lastEvent.bubbles, true);
+  assert.equal(editor.lastEvent.composed, true);
+  assert.deepEqual(JSON.parse(JSON.stringify(editor.lastEvent.detail.config)), editor._config);
+  assert.match(source, /Cambios enviados a Lovelace, pero aún pendientes de guardar/);
+  assert.match(source, /no ofrece a esta tarjeta una confirmación fiable/);
+});

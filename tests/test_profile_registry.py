@@ -77,5 +77,18 @@ class ProfileRegistryTests(unittest.TestCase):
         self.assertEqual(work["visual_port_x"], 55)
         self.assertEqual(registry["vehicles"]["leapmotor_c10"]["visual"]["visual_brand"], "Leapmotor")
 
+
+    def test_optional_range_entity_is_preserved_in_profile_registry(self):
+        from types import SimpleNamespace
+
+        entry = SimpleNamespace(
+            entry_id="entry_range",
+            data={"vehicle_id": "c10", "charger_id": "garage", "vehicle_name": "C10", "charger_name": "Garaje"},
+            options={"range_entity": "sensor.c10_range"},
+        )
+        registry = build_profile_registry([entry])
+        self.assertEqual(registry["profiles"]["entry_range"]["range_entity"], "sensor.c10_range")
+
+
 if __name__ == "__main__":
     unittest.main()

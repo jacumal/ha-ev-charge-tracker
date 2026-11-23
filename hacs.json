@@ -1,3 +1,4 @@
 {
-  "name": "EV Charge Tracker"
+  "name": "EV Charge Tracker",
+  "render_readme": true
 }

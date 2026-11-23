@@ -75,5 +75,57 @@ class SensorValueTests(unittest.TestCase):
         self.assertEqual(sensor.extra_state_attributes["cost_status"], "partial")
 
 
+    def test_history_sensor_exposes_evse_energy_source_diagnostics(self):
+        from datetime import datetime, timezone
+        from custom_components.ev_charge_tracker.sensor import EVChargeHistorySensor
+
+        state = SimpleNamespace(
+            state="unavailable",
+            attributes={"unit_of_measurement": "kWh"},
+            last_updated=datetime.now(timezone.utc),
+        )
+        sensor = object.__new__(EVChargeHistorySensor)
+        sensor.coordinator = SimpleNamespace(
+            config={"energy_entity": "sensor.evse_energy"},
+            hass=SimpleNamespace(states=SimpleNamespace(get=lambda entity_id: state)),
+        )
+        diagnostic = sensor._energy_source_diagnostic()
+        self.assertEqual(diagnostic["energy_source_entity"], "sensor.evse_energy")
+        self.assertEqual(diagnostic["energy_source_status"], "unavailable_state")
+        self.assertEqual(diagnostic["energy_source_unit"], "kWh")
+
+
+
+    def test_history_sensor_marks_valid_fresh_evse_energy_source(self):
+        from datetime import datetime, timezone
+        from custom_components.ev_charge_tracker.sensor import EVChargeHistorySensor
+
+        state = SimpleNamespace(
+            state="12500",
+            attributes={"unit_of_measurement": "Wh"},
+            last_updated=datetime.now(timezone.utc),
+        )
+        sensor = object.__new__(EVChargeHistorySensor)
+        sensor.coordinator = SimpleNamespace(
+            config={"energy_entity": "sensor.evse_energy"},
+            hass=SimpleNamespace(states=SimpleNamespace(get=lambda entity_id: state)),
+        )
+        diagnostic = sensor._energy_source_diagnostic()
+        self.assertEqual(diagnostic["energy_source_status"], "valid")
+        self.assertEqual(diagnostic["energy_source_unit"], "Wh")
+        self.assertLessEqual(diagnostic["energy_source_age_seconds"], 1)
+
+    def test_history_sensor_reports_missing_evse_entity(self):
+        from custom_components.ev_charge_tracker.sensor import EVChargeHistorySensor
+
+        sensor = object.__new__(EVChargeHistorySensor)
+        sensor.coordinator = SimpleNamespace(
+            config={"energy_entity": "sensor.evse_energy"},
+            hass=SimpleNamespace(states=SimpleNamespace(get=lambda entity_id: None)),
+        )
+        self.assertEqual(sensor._energy_source_diagnostic()["energy_source_status"], "missing_entity")
+
+
+
 if __name__ == "__main__":
     unittest.main()
