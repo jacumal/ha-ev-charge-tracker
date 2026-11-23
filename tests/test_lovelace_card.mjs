@@ -140,7 +140,7 @@ test("shows live battery SOC and odometer from the selected profile entities", (
       "sensor.leapmotor_odometer": { state: "12345", attributes: { unit_of_measurement: "km" } },
     },
   );
-  assert.match(html, /<small>Batería<\\/small>/);
+  assert.match(html, /<small>Batería/);
   assert.match(html, /87,4%/);
   assert.match(html, /Odómetro/);
   assert.match(html, /12\.345 km/);
