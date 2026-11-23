@@ -33,6 +33,10 @@ async def websocket_get_profiles(hass, connection, msg):
             key: registry.async_get_entity_id("sensor", DOMAIN, f"{entry_id}_{key}")
             for key in SENSOR_KEYS
         }
+        # Expose the source telemetry selected in the profile as read-only card
+        # entities. These are existing HA entities, not new tracker sensors.
+        entities["current_soc"] = profile.get("soc_entity")
+        entities["odometer"] = profile.get("odometer_entity")
         profiles.append(
             {
                 "entry_id": entry_id,
