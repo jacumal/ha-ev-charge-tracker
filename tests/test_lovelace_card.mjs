@@ -183,3 +183,20 @@ test("distinguishes connected idle and error vehicle states", () => {
   assert.match(error, /requiere atención/);
 });
 
+
+test("keeps the vehicle in completed state after the live charging sensor returns to idle", () => {
+  const html = createCard(
+    { entities: { status: "sensor.status", history: "sensor.history" } },
+    {
+      "sensor.status": { state: "idle", attributes: {} },
+      "sensor.history": { state: "1", attributes: {
+        current_session: null,
+        latest_session: { status: "completed", completed_at: "2026-11-23T07:00:00Z" },
+        sessions: [],
+      } },
+    },
+  );
+  assert.match(html, /state-completed/);
+  assert.match(html, /Carga finalizada/);
+});
+
