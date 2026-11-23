@@ -759,6 +759,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     if (displayMode && displayMode !== this.shadowRoot.activeElement) displayMode.value = this._config.display_mode || "balanced";
     if (themeMode && themeMode !== this.shadowRoot.activeElement) themeMode.value = this._config.theme_mode || "auto";
     const visual = this._config.vehicle_visual || {};
+    const galleryQuery = this.shadowRoot.getElementById("galleryQuery");
+    if (galleryQuery && !galleryQuery.value) galleryQuery.value = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") || this._config.name || "";
     ["brand","model","generation","year","trim","color","body_style","image","port_x","port_y"].forEach(key => {
       const field = this.shadowRoot.getElementById("visual_" + key);
       if (field && field !== this.shadowRoot.activeElement) {
