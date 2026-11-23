@@ -371,6 +371,14 @@ class EVChargeTrackerCard extends HTMLElement {
         @media(max-width:520px) { .charts{grid-template-columns:1fr;gap:9px}.chart-card{padding:12px}.bars{height:78px}.live-hero{gap:12px;padding:16px}.live-reading{font-size:36px}.odo-reading{font-size:23px} }
         @media(max-width:520px) { .vehicle-visual{gap:8px;padding:8px}.vehicle-caption{flex-basis:36%}.vehicle-stage{height:76px}.vehicle-state{font-size:9px} }
         @media(max-width:420px) { .wrap{padding:15px}.ring{width:72px;height:72px}.ring span{font-size:19px}.metric{padding:10px 8px}.metric strong{font-size:17px}.row{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) minmax(0,.8fr)}.vehicle-caption{flex-basis:40%}.vehicle-stage{height:68px}.vehicle-state{font-size:8px}.live-hero{padding:14px;gap:10px}.live-reading{font-size:31px}.odo-reading{font-size:20px}.live-label{font-size:9px} }
+        .latest { margin-top:20px; padding:18px; border:1px solid color-mix(in srgb,var(--divider-color) 65%,transparent); border-radius:22px; background:linear-gradient(155deg,var(--secondary-background-color),color-mix(in srgb,var(--card-background-color) 78%,var(--secondary-background-color))); }
+        .latest-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.latest-heading .section-title{margin-bottom:5px}.session-state{font-size:10px;font-weight:700;letter-spacing:.04em;padding:5px 9px;border-radius:20px;background:color-mix(in srgb,var(--success-color) 13%,var(--card-background-color));color:var(--success-color)}
+        .session-energy{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:15px 0 4px}.session-energy strong{font-size:clamp(28px,6vw,38px);line-height:1;font-weight:760;letter-spacing:-.06em;font-variant-numeric:tabular-nums}.session-energy strong small{font-size:13px;letter-spacing:0;color:var(--secondary-text-color)}.session-energy span{font-size:10px;color:var(--secondary-text-color);text-align:right}
+        .soc-progress{height:9px;border-radius:20px;overflow:hidden;background:var(--divider-color);margin:12px 0 16px}.soc-progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--primary-color),var(--success-color))}
+        .session-footnote{margin-top:10px;font-size:10px;color:var(--secondary-text-color);line-height:1.4}
+        .history-head{display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px;padding-top:17px;border-top:1px solid var(--divider-color)}.history-head h3{margin:0;font-size:15px;font-weight:700}.count{font-size:11px;color:var(--secondary-text-color);padding:4px 8px;border-radius:20px;background:var(--secondary-background-color)}
+        .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 14px;align-items:center;padding:13px 14px;margin:8px 0;border:1px solid color-mix(in srgb,var(--divider-color) 65%,transparent);border-radius:15px;background:var(--secondary-background-color)}
+        .row-main{min-width:0}.row-date{font-size:12px;font-weight:700}.row-sub{margin-top:4px;font-size:10px;color:var(--secondary-text-color)}.row-stats{display:flex;gap:14px;justify-content:flex-end}.row-value{text-align:right;font-size:13px;font-weight:700;white-space:nowrap}.row-value small{display:block;margin-top:3px;color:var(--secondary-text-color);font-size:9px;font-weight:500}.row-energy{grid-column:1/-1;height:3px;border-radius:5px;background:var(--divider-color);overflow:hidden}.row-energy span{display:block;height:100%;background:var(--primary-color);border-radius:inherit}.cost-partial{color:var(--warning-color)!important}.history-empty{padding:24px 16px;text-align:center;border:1px dashed var(--divider-color);border-radius:15px;color:var(--secondary-text-color);font-size:12px;line-height:1.5}
       </style>
       <ha-card>
         <div class="wrap" data-theme="${themeMode}">
@@ -397,23 +405,23 @@ class EVChargeTrackerCard extends HTMLElement {
           </section>
           <div class="telemetry-freshness ${telemetryAgeMinutes === null ? "missing" : (freshnessParts.some(part => part.includes("no disponible") || part.includes("antiguo")) ? "stale" : "")}"><i></i>${this._escape(telemetryFreshness)}${telemetryAgeMinutes === null ? "" : " · hace " + this._fmt(telemetryAgeMinutes,0) + " min"}</div>` : ""}
           <div class="latest mode-${displayMode}">
-            <div class="section-title">${current ? "Carga actual" : "Resumen de la última carga"}</div>
-            <div class="rings">
-              ${this._socRing(socStart, "Batería inicial")}
-              ${this._socRing(socEnd, "Batería final")}
+            <div class="latest-heading">
+              <div><div class="section-title">${current ? "Sesión en curso" : "Última carga"}</div><div class="chart-subtitle">${current ? "Datos en actualización" : (record.started_at ? this._date(record.started_at) : "Resumen de sesión")}</div></div>
+              <span class="session-state">${current ? "EN CURSO" : (costStatus === "partial" ? "COSTE PARCIAL" : "RESUMEN")}</span>
             </div>
+            <div class="session-energy"><strong>${energy === null ? "—" : this._fmt(energy,2)} <small>${this._escape(energyUnit)}</small></strong><span>ENERGÍA<br>ENTREGADA</span></div>
+            <div class="rings">${this._socRing(socStart, "Batería inicial")}${this._socRing(socEnd, "Batería final")}</div>
+            <div class="soc-progress" role="img" aria-label="Progreso de batería">${socStart !== null && socEnd !== null && socStart >= 0 && socStart <= 100 && socEnd >= socStart && socEnd <= 100 ? `<span style="width:${Math.max(0,Math.min(100,socEnd-socStart))}%"></span>` : ""}</div>
             <div class="metrics">
               <div class="metric"><strong>${increase === null ? "—" : "+" + this._fmt(increase,1) + " pp"}</strong><span>Aumento batería</span></div>
               <div class="metric"><strong>${this._duration(duration)}</strong><span>Duración</span></div>
-              <div class="metric"><strong>${energy === null ? "—" : this._fmt(energy,2) + " " + energyUnit}</strong><span>Energía</span></div>
-              <div class="metric"><strong>${cost !== null ? this._fmt(cost,2) + " " + currency : (hasKnownCost ? this._fmt(knownCost,2) + " " + currency : "—")}</strong><span>${cost !== null ? "Coste total" : (hasKnownCost ? "Coste conocido · parcial" : "Coste")}</span></div>
+              <div class="metric"><strong>${cost !== null ? this._fmt(cost,2) + " " + currency : (hasKnownCost ? this._fmt(knownCost,2) + " " + currency : "—")}</strong><span>${cost !== null ? "Coste total" : (hasKnownCost ? "Coste conocido · parcial" : "Coste no disponible")}</span></div>
               <div class="metric"><strong>${({ complete: "Completo", in_progress: "En curso", partial: "Parcial", unknown: "Sin datos" })[costStatus] || "Sin datos"}</strong><span>Estado del coste</span></div>
-              <div class="metric"><strong>${!hasTariffData ? "Sin datos" : (tariffEstimated ? "Estimado" : "Precio aplicado")}</strong><span>Cálculo de tarifa</span></div>
+              <div class="metric"><strong>${!hasTariffData ? "Sin datos" : (tariffEstimated ? "Estimado" : "Precio aplicado")}</strong><span>Asignación de tarifa</span></div>
             </div>
-            <div class="dates">
-              <div class="date">Inicio<b>${start}</b></div>
-              <div class="date">Fin<b>${current && !record.ended_at ? "En curso" : end}</b></div>
-            </div>
+            <div class="dates"><div class="date">Inicio<b>${start}</b></div><div class="date">Fin<b>${current && !record.ended_at ? "En curso" : end}</b></div></div>
+            ${tariffBreakdown && Object.keys(tariffBreakdown).length ? `<div class="session-footnote">Desglose de tarifa: ${this._escape(Object.entries(tariffBreakdown).map(([period,value]) => period + " " + this._fmt(value,2) + " " + currency).join(" · "))}</div>` : ""}
+            ${costStatus === "partial" ? '<div class="session-footnote">El importe mostrado solo incluye la parte del consumo con precio conocido; el coste final puede variar.</div>' : ""}
           </div>
           ${displayMode !== "compact" ? `<div class="charts">
             <section class="chart-card" aria-label="Energía por carga">
