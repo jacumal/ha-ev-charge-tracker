@@ -35,14 +35,16 @@
           "price_entity": "Used only for sensor pricing. Must be a numeric sensor whose state is the price per kWh and unit is €/kWh. Do not select bill total, contracted power or €/MWh. The value is snapshotted at session start; unavailable or incompatible units leave cost unknown. Price changes during one session are not yet reconstructed.",
           "finalization": "Choose when to close and save a session. Odometer waits for total distance to increase. Immediate closes when charging turns OFF. Manual leaves the session pending until you press the Finalize latest charge button after checking the data.",
           "power_entity": "Optional instantaneous power sensor in W or kW. It improves tariff-period energy allocation; the energy counter remains authoritative for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate.",
-          "plugged_entity": "OPTIONAL · Binary sensor indicating that the cable is physically connected to the vehicle. It distinguishes connected-but-idle from disconnected; it does not replace the charging-state sensor."
+          "plugged_entity": "OPTIONAL · Binary sensor indicating that the cable is physically connected to the vehicle. It distinguishes connected-but-idle from disconnected; it does not replace the charging-state sensor.",
+          "range_entity": "Optional vehicle-reported range sensor, usually in km or mi. Display only; range is never calculated or inferred from SOC or consumption."
         }
       }
     },
     "error": {
       "name_required": "Enter a vehicle name and charger name.",
       "price_sensor_required": "Select a price sensor to use automatic pricing.",
-      "odometer_required": "Select an odometer sensor or choose a different finalization method."
+      "odometer_required": "Select an odometer sensor or choose a different finalization method.",
+      "resource_conflict": "The charging-state or energy-counter entity is already assigned to another profile. Each profile must use its own charging and energy entities to avoid ambiguous attribution."
     },
     "abort": {
       "already_configured": "This vehicle and charger profile is already configured.",
