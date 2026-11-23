@@ -497,7 +497,7 @@ test("card links both image source and reusable license when attribution is avai
 });
 
 test("editor clears stale license attribution when a selected image is replaced manually", () => {
-  assert.match(source, /delete next\\.vehicle_visual\\.visual_image_license_url/);
+  assert.match(source, /delete next\.vehicle_visual\.visual_image_license_url/);
   assert.match(source, /const previousImage/);
 });
 
