@@ -39,7 +39,7 @@ Track charging sessions, delivered energy, battery state of charge (SOC), mileag
 
 The first reference setup is a Leapmotor C10 with a V2C charger. It is a test environment only; the core design must remain generic.
 
-The Lovelace card is included in this integration repository and served by the integration. Its editor discovers configured profiles through an authenticated Home Assistant WebSocket command, automatically selects a sole profile, and offers a selector when multiple profiles exist. The eight card entities are resolved from the integration entity registry; manual mapping remains available.
+The Lovelace card is included in this integration repository and served by the integration. Its editor discovers configured profiles through an authenticated Home Assistant WebSocket command, automatically selects a sole profile, and offers a selector when multiple profiles exist. The profile-linked card entities (status, energy, cost, SOC start/end/increase, live SOC, odometer, optional plugged state, duration and history) are resolved from the integration entity registry; manual mapping remains available.
 
 Contributions, feature requests and bug reports are welcome. The architecture and sensor contract are still being defined, so interfaces may change before the first release.
 
