@@ -219,7 +219,7 @@ class EVChargeTrackerCard extends HTMLElement {
         h2 { margin:5px 0 0; font-size:21px; font-weight:650; letter-spacing:-.03em; }
         .status { display:inline-flex; align-items:center; gap:7px; border-radius:30px; padding:7px 11px; background:var(--secondary-background-color); color:var(--secondary-text-color); font-size:12px; white-space:nowrap; }
         .dot { width:7px; height:7px; border-radius:50%; background:var(--success-color,#43a66b); }
-        .status.active .dot { background:var(--state-active-color,var(--primary-color)); box-shadow:0 0 0 4px color-mix(in srgb,var(--primary-color) 15%,transparent); }
+        .status.active .dot { background:var(--state-active-color,var(--primary-color)); }
         .status.warn .dot { background:var(--warning-color,#d69b32); }
         .vehicle-visual { display:flex; align-items:center; gap:12px; margin-top:13px; padding:9px 12px; border-radius:16px; background:var(--secondary-background-color); min-width:0; }
         .vehicle-caption { flex:0 0 34%; min-width:0; }
