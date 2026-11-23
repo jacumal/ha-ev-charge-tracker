@@ -143,16 +143,17 @@ Changes are developed on a feature branch and reviewed before merging to main. A
 
 ## 9. Beta.6 — Free vehicle gallery and approved visual dashboard
 
-**Status: Candidate implementation in progress on `feature/beta-6-free-vehicle-gallery-card`.** Scope is intentionally limited to the Commons vehicle gallery and Lovelace presentation; no tariff, sensor, session or statistics changes are included. See `docs/beta-6-plan.md`.
+**Status: Candidate implementation in progress on `feature/beta-6-free-vehicle-gallery`.** Scope is intentionally limited to the Commons vehicle gallery and Lovelace presentation; no tariff, sensor, session or statistics changes are included. See `docs/beta-6-plan.md`.
 
 - [x] Create an isolated beta.6 branch from the beta.5 candidate.
 - [x] Add Commons image search in the card editor using the public MediaWiki API.
 - [x] Allowlist recognized CC0, Public Domain, CC BY and CC BY-SA license labels; omit unknown/unrecognized licenses.
 - [x] Preserve creator, license and file-description URL with the selected image.
 - [x] Restrict remote image rendering to HTTPS upload.wikimedia.org assets; keep local PNG/WebP support.
+- [x] Serve the bundled Lovelace module without long-lived static cache headers, so a stable resource URL can be reused after updates.
 - [x] Promote the vehicle image into a large responsive hero and provide a three-column telemetry layout when autonomy is explicitly mapped.
 - [x] Add automated source-contract and Lovelace tests for Commons license filtering, URL validation, attribution metadata and optional autonomy layout.
-- [ ] Complete CI and resolve any failures.
+- [x] Complete CI and resolve any failures (run #320, latest candidate commit `b67287d`).
 - [ ] Validate gallery search and image selection in real Home Assistant, including save/reopen and restart.
 - [ ] Compare idle and charging screenshots against the two approved references on mobile/desktop and light/dark themes.
 - [ ] Verify all beta.5 session, cost, tariff and history behavior remains unchanged.
