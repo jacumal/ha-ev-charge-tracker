@@ -56,3 +56,11 @@ def test_beta6_manifest_version():
         )
     )
     assert manifest["version"] == "0.1.0-beta.6"
+
+
+def test_lovelace_resource_uses_stable_url_without_long_lived_cache_headers():
+    init = (ROOT / "custom_components/ev_charge_tracker/__init__.py").read_text(
+        encoding="utf-8"
+    )
+    assert 'CARD_URL = "/ev_charge_tracker/ev-charge-tracker-card.js"' in init
+    assert "cache_headers=False" in init
