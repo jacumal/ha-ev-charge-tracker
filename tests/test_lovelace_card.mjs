@@ -326,9 +326,10 @@ test("shows only an explicitly configured range sensor and does not estimate ran
     { "sensor.range": { state: "410", last_updated: new Date().toISOString(), attributes: { unit_of_measurement: "km" } } },
   );
   const absent = createCard({ entities: { current_soc: "sensor.soc" } }, { "sensor.soc": { state: "80", attributes: {} } });
-  assert.match(configured, /Autonomía indicada/);
-  assert.match(configured, /410 km/);
-  assert.doesNotMatch(absent, /Autonomía indicada/);
+  assert.match(configured, /live-hero vehicle-telemetry with-range/);
+  assert.match(configured, /AUTONOMÍA/);
+  assert.match(configured, /410/);
+  assert.doesNotMatch(absent, /AUTONOMÍA/);
 });
 
 
