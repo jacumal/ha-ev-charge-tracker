@@ -137,10 +137,10 @@ def test_sensor_edit_preserves_profile_identity_tariffs_and_visual_options():
     flow = object.__new__(EVChargeTrackerOptionsFlow)
     flow.hass = SimpleNamespace(
         config_entries=SimpleNamespace(
-            async_get_entry=lambda entry_id: config_entry if entry_id == config_entry.entry_id else None
+            async_get_known_entry=lambda entry_id: config_entry if entry_id == config_entry.entry_id else None
         )
     )
-    flow.handler = config_entry.entry_id
+    flow._config_entry_id = config_entry.entry_id
     flow.async_create_entry = lambda **kwargs: kwargs
 
     result = asyncio.run(flow.async_step_profile({
