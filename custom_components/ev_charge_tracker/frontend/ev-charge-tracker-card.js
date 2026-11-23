@@ -122,8 +122,10 @@ class EVChargeTrackerCard extends HTMLElement {
     const customImage = typeof vehicle.visual_image === "string" &&
       /^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(vehicle.visual_image) &&
       !vehicle.visual_image.includes("..") ? vehicle.visual_image : "";
-    const portX = Math.round((Number.isFinite(Number(vehicle.visual_port_x)) ? Math.min(100, Math.max(0, Number(vehicle.visual_port_x))) : 67) * 2.6);
-    const portY = Math.round((Number.isFinite(Number(vehicle.visual_port_y)) ? Math.min(100, Math.max(0, Number(vehicle.visual_port_y))) : 44) * 1.1);
+    const portXValue = vehicle.visual_port_x == null || vehicle.visual_port_x === "" ? 67 : Number(vehicle.visual_port_x);
+    const portYValue = vehicle.visual_port_y == null || vehicle.visual_port_y === "" ? 44 : Number(vehicle.visual_port_y);
+    const portX = Math.round((Number.isFinite(portXValue) ? Math.min(100, Math.max(0, portXValue)) : 67) * 2.6);
+    const portY = Math.round((Number.isFinite(portYValue) ? Math.min(100, Math.max(0, portYValue)) : 44) * 1.1);
     const cablePath = "M" + portX + " " + portY + " C" +
       Math.min(250, portX + 37) + " " + Math.max(0, portY - 3) + " " +
       Math.min(250, portX + 16) + " 91 236 91";
