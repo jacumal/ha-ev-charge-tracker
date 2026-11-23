@@ -32,7 +32,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     async_register_websocket(hass)
     card_path = Path(__file__).parent / "frontend" / "ev-charge-tracker-card.js"
     await hass.http.async_register_static_paths(
-        [StaticPathConfig(CARD_URL, str(card_path), cache_headers=True)]
+        [StaticPathConfig(CARD_URL, str(card_path), cache_headers=False)]
     )
     return True
 
