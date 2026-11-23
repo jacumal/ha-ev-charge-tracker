@@ -766,7 +766,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const feedback = this.shadowRoot.getElementById("editorFeedback");
     if (feedback) feedback.textContent = imagePathError
       ? "La ruta de imagen no es válida. Usa /local/ev-charge-tracker/nombre.png o .webp."
-      : "Cambios pendientes de guardar. Pulsa Guardar en Home Assistant; este editor no recibe confirmación de que Lovelace haya persistido los cambios.";
+      : "Cambios enviados a Lovelace, pero aún pendientes de guardar. Pulsa Guardar en el editor del panel. Home Assistant no ofrece a esta tarjeta una confirmación fiable de que el guardado haya terminado.";
     this._syncControls();
     this._fireConfigChanged();
   }
