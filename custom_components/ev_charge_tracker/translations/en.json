@@ -95,7 +95,7 @@
       },
       "profile": {
         "title": "Sensors and behavior",
-        "description": "Change the entities mapped to the vehicle and charger, counter type, pricing and session finalization. Existing history is preserved.",
+        "description": "Change the entities mapped to the vehicle and charger, energy counter type, and session finalization behavior. Electricity pricing is configured only in Electricity tariffs. Existing history is preserved.",
         "data": {
           "charging_entity": "Charging state (binary_sensor)",
           "energy_entity": "Delivered energy (kWh/Wh)",
@@ -103,9 +103,6 @@
           "soc_entity": "Battery state of charge (SOC, optional)",
           "odometer_entity": "Odometer (optional)",
           "odometer_unit": "Odometer unit",
-          "price_mode": "Electricity price source",
-          "price_per_kwh": "Fixed price per kWh",
-          "price_entity": "Price sensor (€/kWh)",
           "finalization": "When to finalize a charge",
           "power_entity": "Instantaneous charging power (W/kW, optional)"
         },
@@ -116,9 +113,6 @@
           "soc_entity": "Optional percentage sensor (0–100).",
           "odometer_entity": "Required when odometer-based finalization is selected.",
           "odometer_unit": "Distance unit reported by the sensor.",
-          "price_mode": "Select a fixed price or a price sensor.",
-          "price_per_kwh": "Used with manual fixed pricing, in €/kWh. Introduce el precio final realmente pagado, con impuestos y peajes incluidos; la integración no añade IVA ni otros recargos.",
-          "price_entity": "Numeric sensor in €/kWh.",
           "finalization": "Choose odometer, automatic after 60 seconds, or manual finalization.",
           "power_entity": "Optional instantaneous power sensor in W or kW. It improves tariff-period energy allocation; the energy counter remains authoritative for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate."
         }

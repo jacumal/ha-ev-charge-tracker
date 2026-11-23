@@ -95,7 +95,7 @@
       },
       "profile": {
         "title": "Sensores y comportamiento",
-        "description": "Modifica las entidades asociadas al vehículo y al cargador, el tipo de contador, el precio y el criterio de cierre. El histórico se conserva.",
+        "description": "Modifica las entidades asociadas al vehículo y al cargador, el tipo de contador y el criterio de cierre. La configuración de precios se encuentra únicamente en Tarifas eléctricas. El histórico se conserva.",
         "data": {
           "charging_entity": "Estado de carga activo (binary_sensor)",
           "energy_entity": "Energía entregada (kWh/Wh)",
@@ -103,9 +103,6 @@
           "soc_entity": "Porcentaje de batería (SOC, opcional)",
           "odometer_entity": "Odómetro (opcional)",
           "odometer_unit": "Unidad del odómetro",
-          "price_mode": "Origen del precio eléctrico",
-          "price_per_kwh": "Precio fijo por kWh",
-          "price_entity": "Sensor de precio (€/kWh)",
           "finalization": "Cuándo consolidar una carga",
           "power_entity": "Potencia instantánea de carga (W/kW, opcional)"
         },
@@ -116,9 +113,6 @@
           "soc_entity": "Sensor opcional en porcentaje (0–100).",
           "odometer_entity": "Necesario si se elige el cierre por odómetro.",
           "odometer_unit": "Unidad de distancia publicada por el sensor.",
-          "price_mode": "Selecciona precio fijo o sensor de precio.",
-          "price_per_kwh": "Se usa con precio manual fijo, en €/kWh. Introduce el precio final realmente pagado, con impuestos y peajes incluidos; la integración no añade IVA ni otros recargos.",
-          "price_entity": "Sensor numérico en €/kWh.",
           "finalization": "Elige cierre por odómetro, automático tras 60 segundos o manual.",
           "power_entity": "Sensor opcional de potencia instantánea en W o kW. Mejora el reparto de energía entre periodos tarifarios; el contador de energía sigue siendo la referencia del total entregado. Si no está disponible, se utiliza el reparto temporal y se marca como estimación."
         }

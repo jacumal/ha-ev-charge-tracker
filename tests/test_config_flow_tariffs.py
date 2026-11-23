@@ -1,6 +1,7 @@
 """Tests for conditional tariff price forms in the options flow."""
 
 from custom_components.ev_charge_tracker.config_flow import EVChargeTrackerOptionsFlow
+from custom_components.ev_charge_tracker.tariff import default_periods
 
 
 def _field_names(schema):
@@ -63,3 +64,52 @@ def test_sensor_price_step_restores_previously_selected_sensor_after_switching()
     assert _field_names(schema) == {"price_entity"}
     key = next(iter(schema.schema))
     assert key.default() == "sensor.previously_selected"
+
+
+def test_profile_form_does_not_duplicate_tariff_price_settings():
+    schema = EVChargeTrackerOptionsFlow._profile_schema({
+        "charging_entity": "binary_sensor.charging",
+        "energy_entity": "sensor.energy",
+    })
+
+    fields = _field_names(schema)
+    assert "price_mode" not in fields
+    assert "price_per_kwh" not in fields
+    assert "price_entity" not in fields
+    assert "charging_entity" in fields
+    assert "energy_entity" in fields
+
+
+def test_changing_from_single_to_two_periods_refreshes_default_names():
+    drafts = EVChargeTrackerOptionsFlow._build_period_drafts(
+        [{"name": "Único", "start": "00:00", "end": "00:00",
+          "price": 0.2, "days": list(range(7))}],
+        2,
+    )
+
+    assert [period["name"] for period in drafts] == ["Valle", "Punta"]
+    assert drafts[0]["price"] == 0.2
+
+
+def test_changing_to_three_periods_uses_three_period_default_names():
+    saved = [
+        {"name": "Único", "start": "00:00", "end": "00:00",
+         "price": 0.2, "days": list(range(7))}
+    ]
+    drafts = EVChargeTrackerOptionsFlow._build_period_drafts(saved, 3)
+
+    assert [period["name"] for period in drafts] == ["Valle", "Llano", "Punta"]
+
+
+def test_same_period_count_preserves_custom_period_names():
+    saved = [
+        {"name": "Supervalle", "start": "00:00", "end": "08:00",
+         "price": 0.1, "days": list(range(7))},
+        {"name": "Punta personalizada", "start": "08:00", "end": "00:00",
+         "price": 0.3, "days": list(range(7))},
+    ]
+    drafts = EVChargeTrackerOptionsFlow._build_period_drafts(saved, 2)
+
+    assert [period["name"] for period in drafts] == [
+        "Supervalle", "Punta personalizada"
+    ]

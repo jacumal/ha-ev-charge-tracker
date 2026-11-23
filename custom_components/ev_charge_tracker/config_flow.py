@@ -204,16 +204,21 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             if user_input[CONF_FINALIZATION] == FINALIZE_ODOMETER and not user_input.get(CONF_ODOMETER_ENTITY):
                 errors["base"] = "odometer_required"
-            elif user_input[CONF_PRICE_MODE] == PRICE_MODE_SENSOR and not user_input.get(CONF_PRICE_ENTITY):
-                errors["base"] = "price_sensor_required"
             else:
-                # Options override the original config data. The storage key is
-                # tied to entry_id, so changing mappings never discards history.
+                # Pricing is configured only in the tariff section. Legacy
+                # global price values remain stored for backwards compatibility.
                 return self.async_create_entry(
                     title="", data={**self.config_entry.options, **user_input}
                 )
 
-        schema = vol.Schema({
+        return self.async_show_form(
+            step_id="profile", data_schema=self._profile_schema(current), errors=errors
+        )
+
+    @staticmethod
+    def _profile_schema(current):
+        """Build the sensor/behavior form without duplicate electricity pricing."""
+        return vol.Schema({
             vol.Required(CONF_CHARGING_ENTITY, default=current[CONF_CHARGING_ENTITY]): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="binary_sensor")
             ),
@@ -247,19 +252,6 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                     mode=selector.SelectSelectorMode.LIST,
                 )
             ),
-            vol.Required(CONF_PRICE_MODE, default=current.get(CONF_PRICE_MODE, PRICE_MODE_MANUAL)): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=[
-                        {"value": PRICE_MODE_MANUAL, "label": "Precio manual fijo"},
-                        {"value": PRICE_MODE_SENSOR, "label": "Precio desde sensor"},
-                    ],
-                    mode=selector.SelectSelectorMode.LIST,
-                )
-            ),
-            vol.Optional(CONF_PRICE, default=current.get(CONF_PRICE, 0.11)): All(Coerce(float), Range(min=0)),
-            vol.Optional(CONF_PRICE_ENTITY, default=current.get(CONF_PRICE_ENTITY)): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor")
-            ),
             vol.Required(CONF_FINALIZATION, default=current.get(CONF_FINALIZATION, FINALIZE_ODOMETER)): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[
@@ -271,8 +263,6 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                 )
             ),
         })
-        return self.async_show_form(step_id="profile", data_schema=schema, errors=errors)
-
 
     async def async_step_units(self, user_input=None):
         """Configure display units and currency independently of source units."""
@@ -326,12 +316,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
         current_count = len(saved) if saved else 1
         if user_input is not None:
             self._period_count = int(user_input[CONF_TARIFF_COUNT])
-            defaults = default_periods(self._period_count)
-            self._period_drafts = [
-                {**defaults[index], **saved[index]}
-                if index < len(saved) else defaults[index]
-                for index in range(self._period_count)
-            ]
+            self._period_drafts = self._build_period_drafts(saved, self._period_count)
             self._period_index = 0
             return await self.async_step_periods()
         schema = vol.Schema({
@@ -347,6 +332,22 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             )
         })
         return self.async_show_form(step_id="tariffs", data_schema=schema)
+
+    @staticmethod
+    def _build_period_drafts(saved, count):
+        """Merge saved settings while refreshing default names when count changes."""
+        defaults = default_periods(count)
+        count_changed = len(saved) != count
+        drafts = []
+        for index in range(count):
+            draft = {**defaults[index], **saved[index]} if index < len(saved) else defaults[index].copy()
+            # "Único" is a valid label only for a one-period tariff. When the
+            # user changes the number of periods, apply the matching defaults
+            # (Valle/Punta or Valle/Llano/Punta) instead of carrying stale names.
+            if count_changed:
+                draft["name"] = defaults[index]["name"]
+            drafts.append(draft)
+        return drafts
 
     async def async_step_periods(self, user_input=None):
         """Collect schedule details and choose a price source for every period."""
