@@ -47,6 +47,14 @@ jobs:
               data = json.loads((Path("custom_components/ev_charge_tracker") / path).read_text())
               assert structure(data) == expected, f"{path}: translation keys or value types differ from strings.json"
           PY
+      - name: Validate repository with HACS
+        uses: hacs/action@main
+        with:
+          category: integration
+          comment: false
+          ignore: topics
+      - name: Validate integration with hassfest
+        uses: home-assistant/actions/hassfest@master
       - name: Validate HACS integration package layout
         run: |
           python - <<'PY'
