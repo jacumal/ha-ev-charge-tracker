@@ -119,8 +119,8 @@ def test_same_period_count_preserves_custom_period_names():
 def test_sensor_edit_preserves_profile_identity_tariffs_and_visual_options():
     from types import SimpleNamespace
 
-    flow = object.__new__(EVChargeTrackerOptionsFlow)
-    flow._config_entry = SimpleNamespace(
+    config_entry = SimpleNamespace(
+        entry_id="test-entry",
         data={
             "vehicle_id": "leapmotor_c10",
             "charger_id": "garage",
@@ -134,7 +134,15 @@ def test_sensor_edit_preserves_profile_identity_tariffs_and_visual_options():
             "visual_port_x": 58,
         },
     )
+    flow = object.__new__(EVChargeTrackerOptionsFlow)
+    flow.hass = SimpleNamespace(
+        config_entries=SimpleNamespace(
+            async_get_entry=lambda entry_id: config_entry if entry_id == config_entry.entry_id else None
+        )
+    )
+    flow.handler = config_entry.entry_id
     flow.async_create_entry = lambda **kwargs: kwargs
+
     result = asyncio.run(flow.async_step_profile({
         "charging_entity": "binary_sensor.new_charging",
         "energy_entity": "sensor.new_energy",
@@ -145,9 +153,11 @@ def test_sensor_edit_preserves_profile_identity_tariffs_and_visual_options():
 
     assert result["data"]["charging_entity"] == "binary_sensor.new_charging"
     assert result["data"]["energy_entity"] == "sensor.new_energy"
-    assert result["data"]["tariff_periods"] == flow.config_entry.options["tariff_periods"]
+    assert result["data"]["tariff_periods"] == config_entry.options["tariff_periods"]
     assert result["data"]["visual_model"] == "C10"
     assert result["data"]["visual_port_x"] == 58
-    assert result["data"]["vehicle_id"] == "leapmotor_c10"
-    assert result["data"]["charger_id"] == "garage"
-
+    # Identity belongs to ConfigEntry.data, not the options returned by this flow.
+    assert config_entry.data["vehicle_id"] == "leapmotor_c10"
+    assert config_entry.data["charger_id"] == "garage"
+    assert config_entry.data["vehicle_name"] == "Leapmotor C10"
+    assert config_entry.data["charger_name"] == "Garaje"
