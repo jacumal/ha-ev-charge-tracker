@@ -20,6 +20,7 @@ The automated candidate checks do not close these live-instance gates. Do not tr
 - [ ] Install/update from the beta candidate without removing the existing config entry.
 - [ ] Confirm all configured entity selectors and tariff/unit options are usable.
 - [ ] Confirm the Lovelace card JavaScript is served and the visual editor loads.
+- [ ] Confirm the live battery SOC and odometer values are auto-mapped from the selected profile and displayed correctly.
 - [ ] Confirm energy and cost charts match stored sessions, including partial and missing costs.
 - [ ] Confirm conditional tariff price fields and source switching preserve existing values.
 - [ ] Confirm profile settings and history survive a Home Assistant restart.

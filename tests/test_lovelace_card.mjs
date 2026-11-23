@@ -131,3 +131,17 @@ test("keeps known cost visible when the session energy reading is missing", () =
   assert.match(html, /1,25/);
   assert.doesNotMatch(html, /Sin costes calculables todavía/);
 });
+
+test("shows live battery SOC and odometer from the selected profile entities", () => {
+  const html = createCard(
+    { entities: { current_soc: "sensor.leapmotor_precise_battery", odometer: "sensor.leapmotor_odometer" } },
+    {
+      "sensor.leapmotor_precise_battery": { state: "87.4", attributes: { unit_of_measurement: "%" } },
+      "sensor.leapmotor_odometer": { state: "12345", attributes: { unit_of_measurement: "km" } },
+    },
+  );
+  assert.match(html, /Batería actual/);
+  assert.match(html, /87,4%/);
+  assert.match(html, /Odómetro/);
+  assert.match(html, /12\.345 km/);
+});

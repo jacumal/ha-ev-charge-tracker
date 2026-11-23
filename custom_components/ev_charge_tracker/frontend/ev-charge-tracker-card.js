@@ -100,6 +100,10 @@ class EVChargeTrackerCard extends HTMLElement {
     const socStart = this._number(e.soc_start);
     const socEnd = this._number(e.soc_end);
     const increase = this._number(e.soc_increase);
+    const currentSoc = this._number(e.current_soc);
+    const odometer = this._number(e.odometer);
+    const odometerUnit = this._attr(e.odometer, "unit_of_measurement", "km") || "km";
+    const hasLiveTelemetry = Boolean(e.current_soc || e.odometer);
     const duration = this._number(e.duration);
     const history = this._attr(e.history, "sessions", []);
     const current = this._attr(e.history, "current_session", null);
@@ -190,6 +194,10 @@ class EVChargeTrackerCard extends HTMLElement {
               <i class="dot"></i>${this._escape(statusLabels[status] || status)}
             </div>
           </div>
+          ${hasLiveTelemetry ? `<div class="metrics live-metrics">
+            <div class="metric"><strong>${currentSoc === null ? "—" : this._fmt(currentSoc,1) + "%"}</strong><span>Batería actual</span></div>
+            <div class="metric"><strong>${odometer === null ? "—" : this._fmt(odometer,0) + " " + this._escape(odometerUnit)}</strong><span>Odómetro</span></div>
+          </div>` : ""}
           <div class="latest">
             <div class="section-title">${current ? "Carga actual" : "Resumen de la última carga"}</div>
             <div class="rings">
@@ -286,6 +294,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const fields = [
       ["status","Estado de carga"],["energy","Energía de la carga"],["cost","Coste de la carga"],
       ["soc_start","Batería al inicio"],["soc_end","Batería al final"],["soc_increase","Aumento de batería"],
+      ["current_soc","Batería actual"],["odometer","Odómetro"],
       ["duration","Duración"],["history","Histórico de cargas"],
     ];
     this.shadowRoot.innerHTML = `<style>
