@@ -675,8 +675,10 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const label = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") || this._config.name || "Vehículo";
       const details = [visual.visual_generation, visual.visual_year, visual.visual_trim].filter(Boolean).join(" · ");
       const image = typeof visual.visual_image === "string" && /^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(visual.visual_image) && !visual.visual_image.includes("..") ? visual.visual_image : "";
-      const portX = Math.min(100, Math.max(0, Number(visual.visual_port_x ?? 67)));
-      const portY = Math.min(100, Math.max(0, Number(visual.visual_port_y ?? 44)));
+      const rawPortX = Number(visual.visual_port_x ?? 67);
+      const rawPortY = Number(visual.visual_port_y ?? 44);
+      const portX = Number.isFinite(rawPortX) ? Math.min(100, Math.max(0, rawPortX)) : 67;
+      const portY = Number.isFinite(rawPortY) ? Math.min(100, Math.max(0, rawPortY)) : 44;
       const imageOrFallback = image
         ? '<img src="' + this._esc(image) + '" alt="' + this._esc(label) + '">'
         : '<div class="preview-fallback" aria-hidden="true">🚘</div>';
