@@ -189,6 +189,7 @@ class EVChargeTrackerCard extends HTMLElement {
     const customImage = this._validVehicleImage(vehicle.visual_image) ? vehicle.visual_image : "";
     const imageCredit = vehicle.visual_image_credit || "";
     const imageLicense = vehicle.visual_image_license || "";
+    const imageLicenseUrl = typeof vehicle.visual_image_license_url === "string" && /^https:\/\/creativecommons\.org\/(?:licenses|publicdomain)\//i.test(vehicle.visual_image_license_url) ? vehicle.visual_image_license_url : "";
     const imagePage = typeof vehicle.visual_image_page === "string" && /^https:\/\/commons\.wikimedia\.org\/wiki\//i.test(vehicle.visual_image_page) ? vehicle.visual_image_page : "";
     const portXValue = vehicle.visual_port_x == null || vehicle.visual_port_x === "" ? 67 : Number(vehicle.visual_port_x);
     const portYValue = vehicle.visual_port_y == null || vehicle.visual_port_y === "" ? 44 : Number(vehicle.visual_port_y);
@@ -244,7 +245,7 @@ class EVChargeTrackerCard extends HTMLElement {
         '<g class="connector connector-plug" transform="translate(' + (portX - 8) + ' ' + (portY - 18) + ') rotate(90)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
         '<circle class="charge-port" cx="' + portX + '" cy="' + portY + '" r="4"/>' +
       '</svg></div><div class="vehicle-state"><i></i>' + this._escape(visualStateLabels[visualState]) + '</div>' +
-      (imageCredit && imageLicense ? '<div class="vehicle-image-credit">Imagen: ' + (imagePage ? '<a href="' + this._escape(imagePage) + '" target="_blank" rel="noopener noreferrer">' : '') + this._escape(imageCredit) + (imagePage ? '</a>' : '') + ' · ' + this._escape(imageLicense) + '</div>' : '') +
+      (imageCredit && imageLicense ? '<div class="vehicle-image-credit">Imagen: ' + (imagePage ? '<a href="' + this._escape(imagePage) + '" target="_blank" rel="noopener noreferrer">' : '') + this._escape(imageCredit) + (imagePage ? '</a>' : '') + ' · ' + (imageLicenseUrl ? '<a href="' + this._escape(imageLicenseUrl) + '" target="_blank" rel="noopener noreferrer">' + this._escape(imageLicense) + '</a>' : this._escape(imageLicense)) + '</div>' : '') +
       '</div>';
     const diagnostic = this._attr(e.history, "diagnostic", "");
     const record = current || latest || {};
@@ -828,6 +829,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const maxHistory = Math.min(50, Math.max(1, Number(this.shadowRoot.getElementById("max_history").value || 8)));
     const displayMode = this.shadowRoot.getElementById("display_mode").value || "balanced";
     const themeMode = this.shadowRoot.getElementById("theme_mode").value || "auto";
+    const previousImage = this._config.vehicle_visual?.visual_image || "";
     const next = { ...this._config, name, max_history: maxHistory, display_mode: displayMode, theme_mode: themeMode, entities: { ...(this._config.entities || {}) }, vehicle_visual: { ...(this._config.vehicle_visual || {}) } };
     let imagePathError = false;
     ["brand","model","generation","year","trim","color","body_style","image","port_x","port_y"].forEach(key => {
@@ -848,6 +850,13 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       }
       if (value) next.vehicle_visual[configKey] = value; else delete next.vehicle_visual[configKey];
     });
+    if ((next.vehicle_visual.visual_image || "") !== previousImage) {
+      delete next.vehicle_visual.visual_image_credit;
+      delete next.vehicle_visual.visual_image_license;
+      delete next.vehicle_visual.visual_image_license_url;
+      delete next.vehicle_visual.visual_image_page;
+      delete next.vehicle_visual.visual_image_source;
+    }
     if (this.shadowRoot.activeElement?.id?.startsWith("visual_")) next.vehicle_visual_override = true;
     if (changedKey) {
       if (changedValue) next.entities[changedKey] = changedValue;
