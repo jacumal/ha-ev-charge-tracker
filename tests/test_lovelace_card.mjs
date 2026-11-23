@@ -500,3 +500,11 @@ test("editor clears stale license attribution when a selected image is replaced 
   assert.match(source, /delete next\\.vehicle_visual\\.visual_image_license_url/);
   assert.match(source, /const previousImage/);
 });
+
+test("Leapmotor C10 default cable anchor is on the rear-left quarter", () => {
+  const html = createCard({
+    vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" },
+    entities: {},
+  });
+  assert.match(html, /cx="215\\.8" cy="62\\.7"/);
+});
