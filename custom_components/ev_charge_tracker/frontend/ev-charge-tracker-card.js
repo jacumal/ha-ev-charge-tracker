@@ -126,14 +126,24 @@ class EVChargeTrackerCard extends HTMLElement {
     const odometerUnit = this._attr(e.odometer, "unit_of_measurement", "km") || "km";
     const rangeValue = this._number(e.range);
     const rangeUnit = this._attr(e.range, "unit_of_measurement", "km") || "km";
-    const validSoc = currentSoc !== null && currentSoc >= 0 && currentSoc <= 100;
-    const validOdometer = odometer !== null && odometer >= 0;
-    const validRange = rangeValue !== null && rangeValue >= 0;
-    // Optional range freshness must not downgrade the primary SOC/odometer status.
-    const telemetryStates = [e.current_soc, e.odometer].filter(Boolean).map(id => this._state(id)).filter(Boolean);
-    const telemetryTimes = telemetryStates.map(state => Date.parse(state.last_updated || state.last_changed || "")).filter(Number.isFinite);
-    const telemetryAgeMinutes = telemetryTimes.length ? Math.max(0, (Date.now() - Math.min(...telemetryTimes)) / 60000) : null;
-    const telemetryFreshness = telemetryAgeMinutes === null ? "Sin marca temporal" : telemetryAgeMinutes <= 15 ? "Datos actualizados" : telemetryAgeMinutes <= 180 ? "Datos antiguos" : "Datos desactualizados";
+    const sourceAgeMinutes = entityId => {
+      const state = this._state(entityId);
+      if (!state || ["unknown", "unavailable", "none"].includes(state.state)) return null;
+      const timestamp = Date.parse(state.last_updated || state.last_changed || "");
+      return Number.isFinite(timestamp) ? Math.max(0, (Date.now() - timestamp) / 60000) : null;
+    };
+    const socAgeMinutes = sourceAgeMinutes(e.current_soc);
+    const odometerAgeMinutes = sourceAgeMinutes(e.odometer);
+    const rangeAgeMinutes = sourceAgeMinutes(e.range);
+    const validSoc = currentSoc !== null && currentSoc >= 0 && currentSoc <= 100 && socAgeMinutes !== null && socAgeMinutes <= 180;
+    const validOdometer = odometer !== null && odometer >= 0 && odometerAgeMinutes !== null && odometerAgeMinutes <= 180;
+    const validRange = rangeValue !== null && rangeValue >= 0 && rangeAgeMinutes !== null && rangeAgeMinutes <= 180;
+    const primaryAges = [e.current_soc ? socAgeMinutes : null, e.odometer ? odometerAgeMinutes : null].filter(age => age !== null);
+    const telemetryAgeMinutes = primaryAges.length ? Math.max(...primaryAges) : null;
+    const freshnessParts = [];
+    if (e.current_soc) freshnessParts.push(validSoc ? (socAgeMinutes <= 15 ? "Batería actualizada" : "Batería antigua") : "Batería no disponible");
+    if (e.odometer) freshnessParts.push(validOdometer ? (odometerAgeMinutes <= 15 ? "Odómetro actualizado" : "Odómetro antiguo") : "Odómetro no disponible");
+    const telemetryFreshness = freshnessParts.join(" · ") || "Sin telemetría configurada";
     const hasLiveTelemetry = Boolean(e.current_soc || e.odometer || e.range);
     const displayMode = ["compact", "balanced", "complete"].includes(this.config.display_mode) ? this.config.display_mode : "balanced";
     const themeMode = ["auto", "light", "dark"].includes(this.config.theme_mode) ? this.config.theme_mode : "auto";
@@ -373,7 +383,7 @@ class EVChargeTrackerCard extends HTMLElement {
               <div class="live-foot">${validOdometer ? "Lectura del vehículo" : "Odómetro no disponible"}</div>
             </div>
           </section>
-          <div class="telemetry-freshness ${telemetryAgeMinutes === null ? "missing" : telemetryAgeMinutes > 15 ? "stale" : ""}"><i></i>${this._escape(telemetryFreshness)}${telemetryAgeMinutes === null ? "" : " · hace " + this._fmt(telemetryAgeMinutes,0) + " min"}</div>` : ""}
+          <div class="telemetry-freshness ${telemetryAgeMinutes === null ? "missing" : (freshnessParts.some(part => part.includes("no disponible") || part.includes("antiguo")) ? "stale" : "")}"><i></i>${this._escape(telemetryFreshness)}${telemetryAgeMinutes === null ? "" : " · hace " + this._fmt(telemetryAgeMinutes,0) + " min"}</div>` : ""}
           <div class="latest mode-${displayMode}">
             <div class="section-title">${current ? "Carga actual" : "Resumen de la última carga"}</div>
             <div class="rings">
