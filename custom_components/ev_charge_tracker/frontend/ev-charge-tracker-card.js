@@ -152,7 +152,8 @@ class EVChargeTrackerCard extends HTMLElement {
         '<path class="cable-shadow" d="M174 48 C211 45 190 91 236 91"/>' +
         '<path class="cable-line" d="M174 48 C211 45 190 91 236 91"/>' +
         '<path class="energy-line" d="M174 48 C211 45 190 91 236 91"/>' +
-        '<g class="connector" transform="translate(232 82) rotate(8)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
+        '<g class="connector connector-free" transform="translate(232 82) rotate(8)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
+        '<g class="connector connector-plug" transform="translate(166 30) rotate(90)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
         '<circle class="charge-port" cx="174" cy="48" r="4"/>' +
       '</svg></div><div class="vehicle-state"><i></i>' + this._escape(visualStateLabels[visualState]) + '</div></div>';
     const duration = this._number(e.duration);
@@ -214,10 +215,14 @@ class EVChargeTrackerCard extends HTMLElement {
         .cable-shadow { stroke:var(--primary-text-color); stroke-width:5; opacity:.16; }
         .cable-line { stroke:var(--secondary-text-color); stroke-width:3; }
         .energy-line { stroke:var(--success-color,#42a66b); stroke-width:3; stroke-dasharray:5 8; opacity:0; }
+        .connector { transition:opacity .25s ease; }
         .connector rect { fill:var(--secondary-text-color); stroke:var(--card-background-color); stroke-width:1.5; }
         .connector path { stroke:var(--secondary-text-color); stroke-width:2; }
+        .connector-plug { opacity:0; }
+        .state-connected .connector-free,.state-charging .connector-free,.state-completed .connector-free { opacity:0; }
+        .state-connected .connector-plug,.state-charging .connector-plug,.state-completed .connector-plug { opacity:1; }
         .charge-port { fill:var(--secondary-background-color); stroke:var(--secondary-text-color); stroke-width:2; }
-        .state-disconnected .cable-line,.state-disconnected .cable-shadow,.state-disconnected .connector,.state-disconnected .energy-line,.state-disconnected .charge-port { opacity:.28; }
+        .state-disconnected .cable-line,.state-disconnected .cable-shadow,.state-disconnected .connector-free,.state-disconnected .energy-line,.state-disconnected .charge-port { opacity:.28; }
         .state-connected .cable-line,.state-connected .connector,.state-connected .charge-port { opacity:1; }
         .state-charging .energy-line { opacity:1; animation:energy-flow 1s linear infinite; }
         .state-charging .cable-line { stroke:var(--success-color,#42a66b); }
