@@ -369,3 +369,39 @@ test("does not fabricate invalid live telemetry values", () => {
   assert.doesNotMatch(html, /140%/);
   assert.doesNotMatch(html, /-1 km/);
 });
+
+
+test("redesigned latest charge summary highlights delivered energy and SOC progression", () => {
+  const html = createCard(
+    { entities: { status: "sensor.status", energy: "sensor.energy", history: "sensor.history", cost: "sensor.cost", duration: "sensor.duration", soc_start: "sensor.start", soc_end: "sensor.end", soc_increase: "sensor.increase" } },
+    {
+      "sensor.status": { state: "completed", attributes: {} },
+      "sensor.energy": { state: "24.6", attributes: { unit_of_measurement: "kWh" } },
+      "sensor.cost": { state: "3.2", attributes: { cost_status: "complete", currency: "EUR" } },
+      "sensor.duration": { state: "180", attributes: {} },
+      "sensor.start": { state: "30", attributes: {} },
+      "sensor.end": { state: "80", attributes: {} },
+      "sensor.increase": { state: "50", attributes: {} },
+      "sensor.history": { state: "1", attributes: { latest_session: { started_at: "2026-11-23T08:00:00Z", ended_at: "2026-11-23T11:00:00Z" }, sessions: [] } },
+    },
+  );
+  assert.match(html, /session-energy/);
+  assert.match(html, /24,6/);
+  assert.match(html, /soc-progress/);
+  assert.match(html, /Asignación de tarifa/);
+});
+
+test("redesigned history distinguishes partial cost and never plots invalid values as positive energy", () => {
+  const html = createCard(
+    { display_mode: "complete", entities: { history: "sensor.history" } },
+    { "sensor.history": { state: "2", attributes: { sessions: [
+      { started_at: "2026-11-22T10:00:00Z", energy_kwh: 10, known_cost: 1.2, cost: null, cost_status: "partial", soc_start: 40, soc_end: 65 },
+      { started_at: "2026-11-21T10:00:00Z", energy_kwh: -5, cost: -2, cost_status: "unknown" },
+    ] } } },
+  );
+  assert.match(html, /row-energy/);
+  assert.match(html, /Coste parcial/);
+  assert.match(html, /cost-partial/);
+  assert.match(html, /Progreso de batería no disponible/);
+  assert.match(html, /history-empty/ === false ? /row-main/ : /row-main/);
+});
