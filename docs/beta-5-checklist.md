@@ -11,7 +11,7 @@ This checklist tracks the work defined in [beta-5-plan.md](beta-5-plan.md). It i
 - [x] Prominent live SOC and odometer presentation.
 - [x] Freshness/availability states; stale primary telemetry is hidden rather than presented as current, and invalid values are not replaced with zero.
 - [x] Optional range entity only; no guessed range calculations (configurable from profile options and surfaced to Lovelace).
-- [ ] Automated tests for missing, unavailable and changing telemetry.
+- [x] Automated tests for missing, unavailable, stale, future-dated and invalid telemetry; entity changes are exercised through card/profile refresh tests.
 
 ## Lovelace redesign
 - [x] Apple-inspired vehicle hero and clear information hierarchy.
