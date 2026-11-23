@@ -403,5 +403,5 @@ test("redesigned history distinguishes partial cost and never plots invalid valu
   assert.match(html, /Coste parcial/);
   assert.match(html, /cost-partial/);
   assert.match(html, /Progreso de batería no disponible/);
-  assert.match(html, /history-empty/ === false ? /row-main/ : /row-main/);
+  assert.match(html, /row-main/);
 });
