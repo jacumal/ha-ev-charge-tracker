@@ -343,7 +343,8 @@ class EVChargeTrackerCard extends HTMLElement {
           ${diagnostic ? `<div class="diagnostic">${this._escape(diagnostic)}</div>` : ""}
         </div>
       </ha-card>`;
-    const customVehicleImage = this.shadowRoot.querySelector(".vehicle-image.custom");
+    const customVehicleImage = typeof this.shadowRoot.querySelector === "function"
+      ? this.shadowRoot.querySelector(".vehicle-image.custom") : null;
     if (customVehicleImage) customVehicleImage.addEventListener("error", () => {
       customVehicleImage.replaceWith(this._createFallbackVehicle(fallbackMarkup));
     }, { once: true });
