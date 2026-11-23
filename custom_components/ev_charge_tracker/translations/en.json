@@ -175,7 +175,9 @@
           "visual_trim": "Trim",
           "visual_color": "Body color (HEX)",
           "visual_body_style": "Body style",
-          "visual_image": "Custom image (path /local/…)"
+          "visual_image": "Custom image (path /local/…)",
+          "visual_port_x": "Charge port horizontal position (%)",
+          "visual_port_y": "Charge port vertical position (%)"
         },
         "data_description": {
           "visual_brand": "Vehicle manufacturer.",
@@ -185,7 +187,9 @@
           "visual_trim": "Trim, battery or edition.",
           "visual_color": "Hexadecimal body color used by the fallback silhouette.",
           "visual_body_style": "Selects the fallback silhouette when no custom image is provided.",
-          "visual_image": "Local path, for example /local/ev-charge-tracker/leapmotor-c10.webp. First place the file in the www/ev-charge-tracker folder."
+          "visual_image": "Local path, for example /local/ev-charge-tracker/leapmotor-c10.webp. First place the file in the www/ev-charge-tracker folder.",
+          "visual_port_x": "Horizontal coordinate of the port center on the image (0–100%). Adjust this so the cable meets the actual port location.",
+          "visual_port_y": "Vertical coordinate of the port center on the image (0–100%). Adjust this for custom images with a different perspective."
         }
       }
     },
