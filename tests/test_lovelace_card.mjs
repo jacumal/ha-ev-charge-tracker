@@ -235,6 +235,7 @@ test("flags contradictory charging and unplugged signals as an attention state",
   );
   assert.match(html, /state-error/);
   assert.match(html, /Carga activa con cable desconectado/);
-  assert.doesNotMatch(html, /energy-flow/);
+  assert.match(html, /class="vehicle-stage state-error"/);
+  assert.doesNotMatch(html, /class="vehicle-stage state-charging"/);
 });
 
