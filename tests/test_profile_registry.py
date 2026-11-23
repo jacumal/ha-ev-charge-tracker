@@ -61,7 +61,7 @@ class ProfileRegistryTests(unittest.TestCase):
             SimpleNamespace(
                 entry_id="entry_garage",
                 data={"vehicle_id": "leapmotor_c10", "charger_id": "garage", "vehicle_name": "Leapmotor C10", "charger_name": "Garaje"},
-                options={"visual_brand": "Leapmotor", "visual_model": "C10", "visual_color": "#AABBCC", "visual_body_style": "suv"},
+                options={"visual_brand": "Leapmotor", "visual_model": "C10", "visual_color": "#AABBCC", "visual_body_style": "suv", "visual_port_x": 55, "visual_port_y": 30},
             ),
             SimpleNamespace(
                 entry_id="entry_work",
@@ -74,6 +74,7 @@ class ProfileRegistryTests(unittest.TestCase):
         work = registry["profiles"]["entry_work"]["vehicle_visual"]
         self.assertEqual(garage["visual_model"], "C10")
         self.assertEqual(work["visual_color"], "#AABBCC")
+        self.assertEqual(work["visual_port_x"], 55)
         self.assertEqual(registry["vehicles"]["leapmotor_c10"]["visual"]["visual_brand"], "Leapmotor")
 
 if __name__ == "__main__":
