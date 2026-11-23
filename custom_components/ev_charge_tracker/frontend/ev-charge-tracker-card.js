@@ -662,11 +662,11 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       if (!response.ok) throw new Error("HTTP "+response.status);
       const data = await response.json();
       if (sequence !== this._gallerySequence) return;
-      const clean = value => String(value||"").replace(/<[^>]*>/g," ").replace(/&amp;/g,"&").replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/\\s+/g," ").trim();
-      const allowed = /^(CC0(?: 1\\.0)?|Public domain|CC BY 4\\.0|CC BY-SA 4\\.0|CC BY 3\\.0|CC BY-SA 3\\.0|CC BY 2\\.0|CC BY-SA 2\\.0)$/i;
+      const clean = value => String(value||"").replace(/<[^>]*>/g," ").replace(/&amp;/g,"&").replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/\s+/g," ").trim();
+      const allowed = /^(CC0(?: 1\.0)?|Public domain|CC BY 4\.0|CC BY-SA 4\.0|CC BY 3\.0|CC BY-SA 3\.0|CC BY 2\.0|CC BY-SA 2\.0)$/i;
       this._galleryResults = Object.values(data?.query?.pages||{}).map(page => {
         const info=page.imageinfo?.[0], meta=info?.extmetadata||{}, license=clean(meta.LicenseShortName?.value), image=info?.thumburl||info?.url;
-        if (!image || !/^https:\\/\\/upload\\.wikimedia\\.org\\/wikipedia\\/commons\\//i.test(image) || !allowed.test(license)) return null;
+        if (!image || !/^https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\//i.test(image) || !allowed.test(license)) return null;
         return {title:page.title||"Imagen",image,page:info.descriptionurl||"",author:clean(meta.Artist?.value||meta.Credit?.value||"Autor no indicado"),license,licenseUrl:clean(meta.LicenseUrl?.value||"")};
       }).filter(Boolean).slice(0,12);
       if (!this._galleryResults.length) { if(status) status.textContent="No hay resultados con licencia libre reconocida. Prueba otra búsqueda."; return; }
