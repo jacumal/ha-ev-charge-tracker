@@ -36,6 +36,7 @@ async def websocket_get_profiles(hass, connection, msg):
         # Expose the source telemetry selected in the profile as read-only card
         # entities. These are existing HA entities, not new tracker sensors.
         entities["current_soc"] = profile.get("soc_entity")
+        entities["range"] = profile.get("range_entity")
         entities["odometer"] = profile.get("odometer_entity")
         entities["plugged"] = profile.get("plugged_entity")
         profiles.append(
