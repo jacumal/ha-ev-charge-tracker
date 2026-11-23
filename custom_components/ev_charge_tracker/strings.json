@@ -121,7 +121,9 @@
           "range_entity": "Optional vehicle-reported range sensor, usually in km or mi. Display only; range is never calculated or inferred from SOC or consumption.",
           "odometer_entity": "Optional total-distance sensor. Required when finalizing by odometer increase.",
           "odometer_unit": "The actual unit reported by the odometer sensor.",
-          "finalization": "Choose whether a session is finalized after odometer movement, immediately after charging stops, or manually."
+          "finalization": "Choose whether a session is finalized after odometer movement, immediately after charging stops, or manually.",
+          "power_entity": "Optional instantaneous charging power sensor in W or kW. It improves energy allocation across tariff periods; the energy counter remains the reference for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate.",
+          "plugged_entity": "Optional binary sensor that is ON when the charging cable is physically connected. It distinguishes connected-but-idle from disconnected and does not replace the active charging sensor."
         }
       },
       "tariffs": {
