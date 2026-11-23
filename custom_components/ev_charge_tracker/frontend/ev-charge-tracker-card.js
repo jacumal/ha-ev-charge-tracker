@@ -399,6 +399,23 @@ class EVChargeTrackerCard extends HTMLElement {
         .bar{width:min(100%,24px);border-radius:7px 7px 3px 3px;background:linear-gradient(180deg,var(--primary-color),color-mix(in srgb,var(--primary-color) 58%,var(--secondary-background-color)));box-shadow:0 2px 8px color-mix(in srgb,var(--primary-color) 15%,transparent)}
         .bar.cost{background:linear-gradient(180deg,var(--success-color),color-mix(in srgb,var(--success-color) 55%,var(--secondary-background-color)))}
         .chart-legend{padding-top:8px;border-top:1px solid var(--divider-color);line-height:1.4}
+        /* Beta 6: vehicle-first composition matching the approved reference. */
+        .vehicle-visual{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"caption state" "stage stage" "credit credit";gap:5px 12px;margin-top:12px;padding:0 10px 8px;background:transparent;border-radius:0;align-items:center}
+        .vehicle-caption{grid-area:caption;flex:initial}
+        .vehicle-caption strong{font-size:clamp(20px,4vw,29px);letter-spacing:-.04em}
+        .vehicle-caption small{font-size:12px}
+        .vehicle-stage{grid-area:stage;width:100%;height:clamp(165px,31vw,245px);min-height:150px}
+        .vehicle-state{grid-area:state;margin:0;padding:8px 12px;border-radius:24px;background:var(--secondary-background-color);font-size:12px;white-space:nowrap}
+        .vehicle-image-credit{grid-area:credit;text-align:right;font-size:9px}
+        .vehicle-image{object-fit:contain}
+        .latest{margin-top:16px}
+        .metrics{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+        .metric{padding:12px 9px;border-radius:16px}
+        .metric strong{font-size:clamp(14px,2.4vw,19px)}
+        .metric span{font-size:10px;line-height:1.35}
+        .charts{margin-top:14px}
+        @media(max-width:600px){.vehicle-stage{height:190px}.vehicle-caption strong{font-size:21px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metric:last-child{grid-column:span 2}.live-hero{padding:15px;gap:12px}.vehicle-state{font-size:10px;padding:7px 9px}}
+        @media(max-width:390px){.vehicle-stage{height:155px}.vehicle-caption strong{font-size:18px}.vehicle-state{font-size:9px}.live-reading{font-size:30px}}
       </style>
       <ha-card>
         <div class="wrap" data-theme="${themeMode}">
