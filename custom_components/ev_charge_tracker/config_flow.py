@@ -31,6 +31,7 @@ from .const import (
     CONF_PRICE_ENTITY,
     CONF_PRICE_MODE,
     CONF_SOC_ENTITY,
+    CONF_RANGE_ENTITY,
     CONF_VEHICLE_NAME,
     DOMAIN,
     ENERGY_MODE_SESSION,
@@ -121,6 +122,9 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     )
                 ),
                 vol.Optional(CONF_SOC_ENTITY): selector.EntitySelector(
+                    selector.EntitySelectorConfig(domain="sensor")
+                ),
+                vol.Optional(CONF_RANGE_ENTITY): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain="sensor")
                 ),
                 vol.Optional(CONF_ODOMETER_ENTITY): selector.EntitySelector(
@@ -253,6 +257,9 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                 )
             ),
             vol.Optional(CONF_SOC_ENTITY, default=current.get(CONF_SOC_ENTITY)): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor")
+            ),
+            vol.Optional(CONF_RANGE_ENTITY, default=current.get(CONF_RANGE_ENTITY)): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="sensor")
             ),
             vol.Optional(CONF_ODOMETER_ENTITY, default=current.get(CONF_ODOMETER_ENTITY)): selector.EntitySelector(
