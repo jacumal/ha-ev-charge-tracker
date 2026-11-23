@@ -444,6 +444,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       ha-entity-picker{display:block;width:100%}
       .hint{font-size:12px;color:var(--secondary-text-color);margin:7px 0 12px;line-height:1.45}
       .profile{margin:12px 0 18px;padding:15px;border:1px solid var(--divider-color);border-radius:16px;background:var(--secondary-background-color)}
+      .vehicle-preview{display:flex;align-items:center;gap:12px;margin:12px 0;padding:12px;border-radius:14px;background:var(--card-background-color);min-height:62px}
+      .vehicle-preview img{width:112px;height:58px;object-fit:contain}.vehicle-preview .preview-fallback{width:112px;height:58px;border-radius:12px;background:linear-gradient(145deg,var(--secondary-background-color),var(--divider-color));display:grid;place-items:center;font-size:25px}
+      .vehicle-preview strong{display:block;font-size:13px}.vehicle-preview small{display:block;margin-top:4px;color:var(--secondary-text-color);font-size:11px}
       .hidden{display:none}
       button{margin-top:10px;padding:9px 14px;border:0;border-radius:12px;background:var(--primary-color);color:var(--text-primary-color,var(--primary-background-color));font-weight:600;cursor:pointer}
       #entityFields{padding:4px 0 8px}
@@ -454,6 +457,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         <label for="profileSelect">Perfil de carga</label>
         <select id="profileSelect"></select>
         <div id="profileHint" class="hint"></div>
+        <div id="vehiclePreview" class="vehicle-preview" aria-live="polite"></div>
         <button id="refreshProfiles" type="button">Actualizar perfiles</button>
         <button id="manualToggle" type="button">Editar entidades manualmente</button>
       </div>
@@ -556,6 +560,17 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       profileHint.textContent = this._profiles.length === 1
         ? "Perfil detectado automáticamente."
         : "Selecciona el vehículo y cargador que utilizará esta tarjeta.";
+    }
+    const preview = this.shadowRoot.getElementById("vehiclePreview");
+    if (preview) {
+      const visual = this._config.vehicle_visual || {};
+      const label = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") || this._config.name || "Vehículo";
+      const details = [visual.visual_generation, visual.visual_year, visual.visual_trim].filter(Boolean).join(" · ");
+      const image = typeof visual.visual_image === "string" && /^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(visual.visual_image) && !visual.visual_image.includes("..") ? visual.visual_image : "";
+      preview.innerHTML = (image ? '<img src="' + this._esc(image) + '" alt="' + this._esc(label) + '">' : '<div class="preview-fallback" aria-hidden="true">🚘</div>') +
+        '<div><strong>' + this._esc(label) + '</strong><small>' + this._esc(details || "Vista previa de identidad del vehículo") + '</small></div>';
+      const imageNode = preview.querySelector("img");
+      if (imageNode) imageNode.addEventListener("error", () => { imageNode.replaceWith(Object.assign(document.createElement("div"), { className: "preview-fallback", textContent: "🚘" })); }, { once: true });
     }
     const entityFields = this.shadowRoot.getElementById("entityFields");
     entityFields.classList.toggle("hidden", !this._manualMode);
