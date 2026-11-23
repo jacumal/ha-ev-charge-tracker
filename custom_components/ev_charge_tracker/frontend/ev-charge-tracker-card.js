@@ -478,6 +478,11 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       #entityFields{padding:4px 0 8px}
       #entityFields:not(.hidden){border-top:1px solid var(--divider-color);margin-top:12px}
       #max_history{max-width:140px}
+      details{margin:12px 0;padding:12px;border:1px solid var(--divider-color);border-radius:12px}
+      summary{cursor:pointer;font-size:13px;font-weight:650}
+      details .field{margin:10px 0}
+      #editorFeedback{min-height:18px;margin-top:8px}
+      button:disabled{opacity:.55;cursor:wait}
     </style><div>
       <div id="profileBox" class="profile hidden">
         <label for="profileSelect">Perfil de carga</label>
@@ -512,6 +517,10 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     this.shadowRoot.getElementById("max_history").addEventListener("change", () => this._updateConfig());
     this.shadowRoot.getElementById("display_mode").addEventListener("change", () => this._updateConfig());
     this.shadowRoot.getElementById("theme_mode").addEventListener("change", () => this._updateConfig());
+    ["brand","model","generation","year","trim","color","body_style","image","port_x","port_y"].forEach(key => {
+      const field = this.shadowRoot.getElementById("visual_" + key);
+      if (field) field.addEventListener(key === "color" || key === "body_style" ? "change" : "input", () => this._updateConfig());
+    });
     this.shadowRoot.getElementById("profileSelect").addEventListener("change", event => {
       const selected = this._profiles.find(profile => profile.entry_id === event.target.value);
       if (selected) this._applyProfile(selected);
@@ -589,6 +598,14 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     if (maxHistory && maxHistory !== this.shadowRoot.activeElement) maxHistory.value = this._config.max_history || 8;
     if (displayMode && displayMode !== this.shadowRoot.activeElement) displayMode.value = this._config.display_mode || "balanced";
     if (themeMode && themeMode !== this.shadowRoot.activeElement) themeMode.value = this._config.theme_mode || "auto";
+    const visual = this._config.vehicle_visual || {};
+    ["brand","model","generation","year","trim","color","body_style","image","port_x","port_y"].forEach(key => {
+      const field = this.shadowRoot.getElementById("visual_" + key);
+      if (field && field !== this.shadowRoot.activeElement) {
+        const defaults = { color: "#71869A", body_style: "suv", port_x: 67, port_y: 44 };
+        field.value = visual["visual_" + key] ?? (defaults[key] ?? "");
+      }
+    });
 
     const profileBox = this.shadowRoot.getElementById("profileBox");
     const profileSelect = this.shadowRoot.getElementById("profileSelect");
@@ -604,8 +621,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       }
       if (selectedId && profileSelect.value !== selectedId) profileSelect.value = selectedId;
       profileSelect.classList.toggle("hidden", this._profiles.length === 1);
-      profileHint.textContent = this._profiles.length === 1
-        ? "Perfil detectado automáticamente."
+      const activeProfile = this._profiles.find(profile => profile.entry_id === selectedId);
+      profileHint.textContent = activeProfile
+        ? "Perfil activo: " + activeProfile.vehicle_name + " · " + activeProfile.charger_name
         : "Selecciona el vehículo y cargador que utilizará esta tarjeta.";
     }
     const preview = this.shadowRoot.getElementById("vehiclePreview");
