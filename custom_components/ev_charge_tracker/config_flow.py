@@ -284,9 +284,9 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
         """Edit vehicle identity and its local transparent thumbnail."""
         current = {**self.config_entry.data, **self.config_entry.options}
         if user_input is not None:
-            color = (user_input.get(CONF_VISUAL_COLOR) or "#71869A").strip()
+            color = (user_input.get(CONF_VISUAL_COLOR) or "").strip()
             image = (user_input.get(CONF_VISUAL_IMAGE) or "").strip()
-            if not re.fullmatch(r"#[0-9a-fA-F]{6}", color):
+            if color and not re.fullmatch(r"#[0-9a-fA-F]{6}", color):
                 return self.async_show_form(
                     step_id="vehicle_visual",
                     data_schema=self._vehicle_visual_schema(current),
@@ -301,7 +301,7 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                     data_schema=self._vehicle_visual_schema(current),
                     errors={"base": "invalid_vehicle_image"},
                 )
-            user_input[CONF_VISUAL_COLOR] = color.upper()
+            user_input[CONF_VISUAL_COLOR] = color.upper() if color else ""
             user_input[CONF_VISUAL_IMAGE] = image
             return self.async_create_entry(
                 title="", data={**self.config_entry.options, **user_input}
@@ -320,8 +320,8 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             vol.Optional(CONF_VISUAL_GENERATION, default=current.get(CONF_VISUAL_GENERATION, "")): str,
             vol.Optional(CONF_VISUAL_YEAR, default=current.get(CONF_VISUAL_YEAR, "")): str,
             vol.Optional(CONF_VISUAL_TRIM, default=current.get(CONF_VISUAL_TRIM, "")): str,
-            vol.Optional(CONF_VISUAL_COLOR, default=current.get(CONF_VISUAL_COLOR, "#71869A")): str,
-            vol.Optional(CONF_VISUAL_BODY_STYLE, default=current.get(CONF_VISUAL_BODY_STYLE, "suv")): selector.SelectSelector(
+            vol.Optional(CONF_VISUAL_COLOR, default=current.get(CONF_VISUAL_COLOR)): str,
+            vol.Optional(CONF_VISUAL_BODY_STYLE, default=current.get(CONF_VISUAL_BODY_STYLE)): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[
                         {"value": "suv", "label": "SUV / Crossover"},
@@ -334,8 +334,8 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                 )
             ),
             vol.Optional(CONF_VISUAL_IMAGE, default=current.get(CONF_VISUAL_IMAGE, "")): str,
-            vol.Optional(CONF_VISUAL_PORT_X, default=current.get(CONF_VISUAL_PORT_X, 67)): All(Coerce(float), Range(min=0, max=100)),
-            vol.Optional(CONF_VISUAL_PORT_Y, default=current.get(CONF_VISUAL_PORT_Y, 44)): All(Coerce(float), Range(min=0, max=100)),
+            vol.Optional(CONF_VISUAL_PORT_X, default=current.get(CONF_VISUAL_PORT_X)): All(Coerce(float), Range(min=0, max=100)),
+            vol.Optional(CONF_VISUAL_PORT_Y, default=current.get(CONF_VISUAL_PORT_Y)): All(Coerce(float), Range(min=0, max=100)),
         })
 
     async def async_step_units(self, user_input=None):
