@@ -40,6 +40,7 @@ test("editor exposes live vehicle identity, image and charge-port controls", () 
 
 test("existing cards refresh their selected profile while retaining manual entity overrides", () => {
   assert.match(source, /_syncSelectedProfile/);
+  assert.match(source, /window\.setInterval/);
   assert.match(source, /profile_manual_override/);
   assert.match(source, /vehicle_visual = profile\.vehicle_visual/);
 });
