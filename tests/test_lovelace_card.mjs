@@ -292,8 +292,8 @@ test("promotes live SOC and odometer into the dashboard hero", () => {
   const html = createCard(
     { entities: { current_soc: "sensor.soc", odometer: "sensor.odo" } },
     {
-      "sensor.soc": { state: "87.4", last_updated: "2026-11-23T10:00:00Z", attributes: {} },
-      "sensor.odo": { state: "12345", last_updated: "2026-11-23T10:00:00Z", attributes: { unit_of_measurement: "km" } },
+      "sensor.soc": { state: "87.4", last_updated: new Date().toISOString(), attributes: {} },
+      "sensor.odo": { state: "12345", last_updated: new Date().toISOString(), attributes: { unit_of_measurement: "km" } },
     },
   );
   assert.match(html, /live-hero vehicle-telemetry/);
