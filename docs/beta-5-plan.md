@@ -36,7 +36,8 @@ Turn the Lovelace card into a polished, mobile-first EV dashboard with an Apple-
 - [ ] Preserve existing identity values when editing a sibling charger profile for the same vehicle.
 
 ### 4. Save feedback and live Lovelace refresh
-- [ ] Provide explicit success/error feedback and a concise summary after saving options.
+- [x] Provide explicit pending-change feedback and dispatch the standard bubbling/composed `config-changed` event with the complete card config; the editor never labels an unsaved change as persisted.
+- [ ] Confirm persistence through Home Assistant native Lovelace Save and reopen the dashboard. The custom editor API exposes no reliable save-completion callback, so automated success confirmation is not implementable inside the card.
 - [ ] Ensure profile registry reflects updated options after save/reload.
 - [ ] Ensure an already-configured card can refresh its selected profile identity without users deleting/re-adding or manually rebuilding the card.
 - [ ] Avoid stale cached profile data; define a safe refresh/subscription strategy and test it.
