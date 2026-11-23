@@ -17,7 +17,8 @@
           "price_per_kwh": "Manual price (€/kWh)",
           "price_entity": "Price sensor (€/kWh)",
           "finalization": "When to finalize a charge",
-          "power_entity": "Instantaneous charging power (W/kW, optional)"
+          "power_entity": "Instantaneous charging power (W/kW, optional)",
+          "plugged_entity": "Cable connected sensor (optional)"
         },
         "data_description": {
           "vehicle_name": "Vehicle identifier, e.g. Leapmotor C10. Used for the integration device and generated entity names.",
@@ -32,7 +33,8 @@
           "price_per_kwh": "Used only for a fixed manual price. Enter the price per kWh, currently expressed as €/kWh. Example: 0.18. Do not use a single average as an exact price if your tariff changes by time.",
           "price_entity": "Used only for sensor pricing. Must be a numeric sensor whose state is the price per kWh and unit is €/kWh. Do not select bill total, contracted power or €/MWh. The value is snapshotted at session start; unavailable or incompatible units leave cost unknown. Price changes during one session are not yet reconstructed.",
           "finalization": "Choose when to close and save a session. Odometer waits for total distance to increase. Immediate closes when charging turns OFF. Manual leaves the session pending until you press the Finalize latest charge button after checking the data.",
-          "power_entity": "Optional instantaneous power sensor in W or kW. It improves tariff-period energy allocation; the energy counter remains authoritative for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate."
+          "power_entity": "Optional instantaneous power sensor in W or kW. It improves tariff-period energy allocation; the energy counter remains authoritative for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate.",
+          "plugged_entity": "OPTIONAL · Binary sensor indicating that the cable is physically connected to the vehicle. It distinguishes connected-but-idle from disconnected; it does not replace the charging-state sensor."
         }
       }
     },
@@ -52,7 +54,7 @@
         "title": "Profile settings",
         "description": "Choose which profile settings to edit. Changing sensor mappings does not delete saved sessions.",
         "data": {
-          "section": "Settings section"
+          "section": "Vehicle appearance"
         }
       },
       "periods": {
@@ -104,7 +106,8 @@
           "odometer_entity": "Odometer (optional)",
           "odometer_unit": "Odometer unit",
           "finalization": "When to finalize a charge",
-          "power_entity": "Instantaneous charging power (W/kW, optional)"
+          "power_entity": "Instantaneous charging power (W/kW, optional)",
+          "plugged_entity": "Cable connected sensor (optional)"
         },
         "data_description": {
           "charging_entity": "Must be ON while charging and OFF when stopped. unknown/unavailable never close a session.",
@@ -114,7 +117,8 @@
           "odometer_entity": "Required when odometer-based finalization is selected.",
           "odometer_unit": "Distance unit reported by the sensor.",
           "finalization": "Choose odometer, automatic after 60 seconds, or manual finalization.",
-          "power_entity": "Optional instantaneous power sensor in W or kW. It improves tariff-period energy allocation; the energy counter remains authoritative for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate."
+          "power_entity": "Optional instantaneous power sensor in W or kW. It improves tariff-period energy allocation; the energy counter remains authoritative for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate.",
+          "plugged_entity": "Optional binary sensor that is ON while the connector is physically plugged in. It lets the card show a connected cable when the vehicle is not charging."
         }
       },
       "tariffs": {
@@ -159,11 +163,37 @@
           "price": "Enter a non-negative numeric price in the profile currency per kWh, including VAT and all applicable taxes. The integration does not add taxes.",
           "price_entity": "Select a numeric sensor reporting the final price per kWh in the profile currency (for example EUR/kWh). If unavailable or invalid, affected energy remains unpriced; the manual value is never used as a fallback."
         }
+      },
+      "vehicle_visual": {
+        "title": "Vehicle appearance",
+        "description": "Personalize the vehicle identity and thumbnail. Use a transparent PNG or WebP stored locally in www/ev-charge-tracker/.",
+        "data": {
+          "visual_brand": "Brand",
+          "visual_model": "Model",
+          "visual_generation": "Generation",
+          "visual_year": "Year / version",
+          "visual_trim": "Trim",
+          "visual_color": "Body color (HEX)",
+          "visual_body_style": "Body style",
+          "visual_image": "Custom image (path /local/…)"
+        },
+        "data_description": {
+          "visual_brand": "Vehicle manufacturer.",
+          "visual_model": "Commercial model name.",
+          "visual_generation": "Generation or platform code.",
+          "visual_year": "Model year or production range.",
+          "visual_trim": "Trim, battery or edition.",
+          "visual_color": "Hexadecimal body color used by the fallback silhouette.",
+          "visual_body_style": "Selects the fallback silhouette when no custom image is provided.",
+          "visual_image": "Local path, for example /local/ev-charge-tracker/leapmotor-c10.webp. First place the file in the www/ev-charge-tracker folder."
+        }
       }
     },
     "error": {
       "invalid_schedule": "The schedule is incomplete or contains overlapping periods. Check the times, weekdays and prices.",
-      "invalid_currency": "Enter a three-letter currency code, for example EUR or USD."
+      "invalid_currency": "Enter a three-letter currency code, for example EUR or USD.",
+      "invalid_vehicle_color": "Enter a valid hexadecimal color, for example #71869A.",
+      "invalid_vehicle_image": "Use a local PNG or WebP image inside /local/ev-charge-tracker/."
     }
   },
   "entity": {
