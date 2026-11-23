@@ -1,8 +1,8 @@
 # Project roadmap and implementation status
 
 **Repository:** jacumal/ha-ev-charge-tracker  
-**Baseline reviewed:** 2026-11-22  
-**Baseline:** beta.3 candidate branch `feature/beta-3-ui-redesign`  
+**Baseline reviewed:** 2026-11-23  
+**Baseline:** beta.3 implementation merged to `main`; beta.4 release candidate branch `chore/prepare-beta-4-release`  
 **Rule:** A planned or specified capability is not implemented until code and automated tests exist. Real Home Assistant behavior remains pending until controlled testing.
 
 Status: **Implemented** · **Partial** · **Specified / pending** · **Not started / validation pending**
@@ -81,12 +81,14 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [x] README, beta checklist and beta.3 release notes updated.
 - [x] Previous beta.3 baseline passed CI (run #172, commit `3484dbe`).
 - [x] Complete a clean CI run on the consolidated beta.3 candidate including PR #13 (run #217, commit `0e65a45`).
-- [ ] Complete the post-merge main-branch CI run.
+- [x] Complete the post-merge main-branch CI run (run #220, commit `11af899`).
+- [ ] Set manifest and active documentation to beta.4.
+- [ ] Complete beta.4 PR CI and review before publishing.
 - [ ] Home Assistant config-flow selector and frontend validation in a real instance.
 - [ ] Verify HACS release packaging and installation from a versioned tag.
 - [ ] Publish the beta after PR review, green CI and packaging checks.
 
-**Status: Beta.3 implementation is merged to main.** PR CI is green; post-merge CI, tagged-package verification and live Home Assistant validation remain release gates.
+**Status: Beta.3 implementation is merged to main and its CI is green.** Beta.4 is being prepared as a new versioned candidate from this complete main baseline. Beta.4 PR CI, tagged-package verification and live Home Assistant validation remain release gates.
 
 ## 7. Battery care, parked monitoring and safety advice (new scope)
 Source: user-provided transcript screenshots, approximately 09:36–15:06. These are video-derived recommendations, not verified manufacturer instructions.

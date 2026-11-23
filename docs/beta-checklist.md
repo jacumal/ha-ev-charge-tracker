@@ -1,12 +1,12 @@
-# Beta candidate checklist
+# Beta 4 candidate checklist
 
-Target candidate: `0.1.0-beta.3`
+Target candidate: `0.1.0-beta.4`
 
 This checklist separates repository/CI readiness from behavior that can only be
 verified in a real Home Assistant installation.
 
 ## Repository and CI
-- [x] Version metadata set in the integration manifest.
+- [x] Version metadata set in the integration manifest (`0.1.0-beta.4`).
 - [x] HACS metadata present.
 - [x] MIT license included.
 - [x] Lovelace card source is bundled with the integration.
@@ -14,14 +14,15 @@ verified in a real Home Assistant installation.
 - [x] Card includes a transparent local thumbnail/fallback silhouette and animated cable/energy states.
 - [x] Vehicle image paths are restricted to local PNG/WebP assets; no paid image API or external service is required.
 - [x] Previous beta.3 baseline passed CI (run #172, commit `3484dbe`).
-- [x] Consolidated beta.3 candidate passes CI (PR #13 run #217, commit `0e65a45`).
-- [ ] Post-merge main-branch CI completes successfully.
+- [x] Consolidated beta.3 candidate passed CI (PR #13 run #217, commit `0e65a45`).
+- [x] Post-merge main-branch CI completed successfully (run #220, commit `11af899`).
+- [ ] Beta.4 PR CI completes successfully.
 - [ ] Verify the HACS release/tag installation path and packaged file layout.
-- [x] Publish release notes with known limitations and upgrade instructions (`docs/release-notes-beta-3.md`).
+- [x] Prepare beta.4 release notes with known limitations and upgrade instructions (`docs/release-notes-beta-4.md`).
 
 ## Real Home Assistant validation (required before production use)
 
-The automated candidate checks do not close these live-instance gates. Do not treat beta.3 as production-validated until they are completed.
+The automated candidate checks do not close these live-instance gates. Do not treat beta.4 as production-validated until they are completed.
 - [ ] Install/update from the beta candidate without removing the existing config entry.
 - [ ] Confirm all configured entity selectors and tariff/unit options are usable.
 - [ ] Confirm the Lovelace card JavaScript is served and the visual editor loads.
