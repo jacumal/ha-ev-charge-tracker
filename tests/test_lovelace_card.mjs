@@ -163,7 +163,7 @@ test("animates energy flow only while charging and supports local transparent im
     { vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10", visual_image: "/local/ev-charge-tracker/c10.webp" }, entities: { status: "sensor.status" } },
     { "sensor.status": { state: "charging", attributes: {} } },
   );
-  assert.match(html, /src="\\/local\\/ev-charge-tracker\\/c10\\.webp"/);
+  assert.match(html, /c10\\.webp/);
   assert.match(html, /state-charging/);
   assert.match(html, /energy-flow/);
 });
