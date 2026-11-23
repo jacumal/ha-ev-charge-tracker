@@ -110,11 +110,18 @@
           "odometer_unit": "Odometer unit",
           "finalization": "When to finalize a charge",
           "power_entity": "Potencia instantánea de carga (W/kW, opcional)",
-          "plugged_entity": "Sensor de cable conectado (opcional)"
+          "plugged_entity": "Sensor de cable conectado (opcional)",
+          "range_entity": "Vehicle-reported range (optional sensor)"
         },
         "data_description": {
-          "power_entity": "Optional instantaneous charging power sensor in W or kW. It improves energy allocation across tariff periods; the energy counter remains the reference for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate.",
-          "plugged_entity": "Sensor binario opcional en ON cuando el conector está físicamente enchufado. Permite mostrar cable conectado aunque no esté cargando."
+          "charging_entity": "Required binary sensor that is ON while charging and OFF when charging stops. Unknown/unavailable values are ignored.",
+          "energy_entity": "Required energy sensor in kWh or Wh, not instantaneous power.",
+          "energy_mode": "Choose session energy or a cumulative lifetime counter.",
+          "soc_entity": "Optional vehicle battery state-of-charge sensor in percent.",
+          "range_entity": "Optional vehicle-reported range sensor, usually in km or mi. Display only; range is never calculated or inferred from SOC or consumption.",
+          "odometer_entity": "Optional total-distance sensor. Required when finalizing by odometer increase.",
+          "odometer_unit": "The actual unit reported by the odometer sensor.",
+          "finalization": "Choose whether a session is finalized after odometer movement, immediately after charging stops, or manually."
         }
       },
       "tariffs": {
