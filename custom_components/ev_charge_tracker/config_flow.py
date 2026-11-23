@@ -19,7 +19,7 @@ from .const import (
     CONF_PLUGGED_ENTITY,
     CONF_VISUAL_BRAND, CONF_VISUAL_MODEL, CONF_VISUAL_GENERATION,
     CONF_VISUAL_YEAR, CONF_VISUAL_TRIM, CONF_VISUAL_COLOR,
-    CONF_VISUAL_BODY_STYLE, CONF_VISUAL_IMAGE,
+    CONF_VISUAL_BODY_STYLE, CONF_VISUAL_IMAGE, CONF_VISUAL_PORT_X, CONF_VISUAL_PORT_Y,
     CONF_CHARGING_ENTITY,
     CONF_ENERGY_ENTITY,
     CONF_POWER_ENTITY,
@@ -334,6 +334,8 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                 )
             ),
             vol.Optional(CONF_VISUAL_IMAGE, default=current.get(CONF_VISUAL_IMAGE, "")): str,
+            vol.Optional(CONF_VISUAL_PORT_X, default=current.get(CONF_VISUAL_PORT_X, 67)): All(Coerce(float), Range(min=0, max=100)),
+            vol.Optional(CONF_VISUAL_PORT_Y, default=current.get(CONF_VISUAL_PORT_Y, 44)): All(Coerce(float), Range(min=0, max=100)),
         })
 
     async def async_step_units(self, user_input=None):
