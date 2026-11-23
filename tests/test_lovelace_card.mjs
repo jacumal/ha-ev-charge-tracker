@@ -152,8 +152,8 @@ test("shows live battery SOC and odometer from the selected profile entities", (
   const html = createCard(
     { entities: { current_soc: "sensor.leapmotor_precise_battery", odometer: "sensor.leapmotor_odometer" } },
     {
-      "sensor.leapmotor_precise_battery": { state: "87.4", attributes: { unit_of_measurement: "%" } },
-      "sensor.leapmotor_odometer": { state: "12345", attributes: { unit_of_measurement: "km" } },
+      "sensor.leapmotor_precise_battery": { state: "87.4", last_updated: new Date().toISOString(), attributes: { unit_of_measurement: "%" } },
+      "sensor.leapmotor_odometer": { state: "12345", last_updated: new Date().toISOString(), attributes: { unit_of_measurement: "km" } },
     },
   );
   assert.match(html, /BATERÍA ACTUAL/);
@@ -303,10 +303,26 @@ test("promotes live SOC and odometer into the dashboard hero", () => {
   assert.match(html, /12\.345/);
 });
 
+
+test("hides stale SOC and odometer readings instead of presenting obsolete values", () => {
+  const staleAt = new Date(Date.now() - 181 * 60 * 1000).toISOString();
+  const html = createCard(
+    { entities: { current_soc: "sensor.soc", odometer: "sensor.odo" } },
+    {
+      "sensor.soc": { state: "87.4", last_updated: staleAt, attributes: {} },
+      "sensor.odo": { state: "12345", last_updated: staleAt, attributes: { unit_of_measurement: "km" } },
+    },
+  );
+  assert.match(html, /Batería no disponible/);
+  assert.match(html, /Odómetro no disponible/);
+  assert.doesNotMatch(html, /87,4/);
+  assert.doesNotMatch(html, /12\.345/);
+});
+
 test("shows only an explicitly configured range sensor and does not estimate range", () => {
   const configured = createCard(
     { entities: { range: "sensor.range" } },
-    { "sensor.range": { state: "410", attributes: { unit_of_measurement: "km" } } },
+    { "sensor.range": { state: "410", last_updated: new Date().toISOString(), attributes: { unit_of_measurement: "km" } } },
   );
   const absent = createCard({ entities: { current_soc: "sensor.soc" } }, { "sensor.soc": { state: "80", attributes: {} } });
   assert.match(configured, /Autonomía indicada/);
