@@ -28,6 +28,22 @@ function createCard(config, states = {}) {
   return card.shadowRoot.innerHTML;
 }
 
+
+test("editor exposes live vehicle identity, image and charge-port controls", () => {
+  assert.match(source, /id="visual_brand"/);
+  assert.match(source, /id="visual_model"/);
+  assert.match(source, /id="visual_image"/);
+  assert.match(source, /id="visual_port_x"/);
+  assert.match(source, /id="visual_port_y"/);
+  assert.match(source, /setCustomValidity/);
+});
+
+test("existing cards refresh their selected profile while retaining manual entity overrides", () => {
+  assert.match(source, /_syncSelectedProfile/);
+  assert.match(source, /profile_manual_override/);
+  assert.match(source, /vehicle_visual = profile\.vehicle_visual/);
+});
+
 test("does not present an unconfigured status sensor as idle", () => {
   const html = createCard({ entities: {} });
   assert.match(html, /Estado sin configurar/);
