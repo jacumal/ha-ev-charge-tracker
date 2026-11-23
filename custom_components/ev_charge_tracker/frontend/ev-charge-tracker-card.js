@@ -447,13 +447,19 @@ class EVChargeTrackerCard extends HTMLElement {
             </section>
           </div>` : ""}
           ${displayMode === "complete" ? `<div class="history-head"><h3>Histórico de cargas</h3><span class="count">${rows.length} registros</span></div>
-          ${rows.length ? rows.map(item => `
+          ${rows.length ? rows.map(item => {
+            const itemEnergy = Number(item.energy_kwh);
+            const itemCost = item.cost != null ? Number(item.cost) : (item.known_cost != null ? Number(item.known_cost) : null);
+            const energyValid = item.energy_kwh != null && Number.isFinite(itemEnergy) && itemEnergy >= 0;
+            const costValid = itemCost !== null && Number.isFinite(itemCost) && itemCost >= 0;
+            const socValid = Number.isFinite(Number(item.soc_start)) && Number.isFinite(Number(item.soc_end));
+            return `
             <div class="row">
-              <div><div class="row-date">${this._date(item.started_at)}</div><div class="row-sub">${item.soc_start == null ? "—" : this._fmt(item.soc_start,0)+"%"} → ${item.soc_end == null ? "—" : this._fmt(item.soc_end,0)+"%"}</div></div>
-              <div class="row-value">${item.energy_kwh == null ? "—" : this._fmt(item.energy_kwh,2)+" kWh"}<small>Energía</small></div>
-              <div class="row-value">${item.cost != null ? this._fmt(item.cost,2)+" "+this._escape(item.currency || currency) : (item.known_cost != null ? this._fmt(item.known_cost,2)+" "+this._escape(item.currency || currency) : "—")}<small>${item.cost_status === "partial" ? "Coste parcial" : (item.cost_status === "unknown" ? "Sin coste" : "Coste")}</small></div>
-            </div>`).join("") : '<div class="empty">Todavía no hay cargas consolidadas. Cuando termine la primera sesión aparecerá aquí.</div>'}
-          ` : ""}
+              <div class="row-main"><div class="row-date">${this._date(item.started_at)}</div><div class="row-sub">${socValid ? this._fmt(item.soc_start,0)+"% → "+this._fmt(item.soc_end,0)+"%" : "Progreso de batería no disponible"}</div></div>
+              <div class="row-stats"><div class="row-value">${energyValid ? this._fmt(itemEnergy,2)+" kWh" : "—"}<small>Energía</small></div><div class="row-value">${costValid ? this._fmt(itemCost,2)+" "+this._escape(item.currency || currency) : "—"}<small class="${item.cost_status === "partial" ? "cost-partial" : ""}">${item.cost_status === "partial" || (item.cost == null && item.known_cost != null) ? "Coste parcial" : (item.cost_status === "unknown" ? "Sin coste" : "Coste")}</small></div></div>
+              <div class="row-energy"><span style="width:${energyValid && maxEnergy > 0 ? Math.max(0,Math.min(100,itemEnergy/maxEnergy*100)) : 0}%"></span></div>
+            </div>`;
+          }).join("") : '<div class="history-empty">Aún no hay cargas consolidadas.<br>Cuando finalice tu primera sesión, aparecerá aquí el resumen.</div>'}
           ${diagnostic ? `<div class="diagnostic">${this._escape(diagnostic)}</div>` : ""}
         </div>
       </ha-card>`;
