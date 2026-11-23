@@ -154,7 +154,7 @@ test("renders a transparent vehicle silhouette and cable state without a custom 
   assert.match(html, /vehicle-visual/);
   assert.match(html, /Leapmotor C10/);
   assert.match(html, /vehicle-body/);
-  assert.match(html, /state-disconnected/);
+  assert.match(html, /state-unknown/);
   assert.match(html, /Conexión sin monitorizar/);
 });
 
@@ -198,5 +198,19 @@ test("keeps the vehicle in completed state after the live charging sensor return
   );
   assert.match(html, /state-completed/);
   assert.match(html, /Carga finalizada/);
+});
+
+
+test("does not interpret an unavailable cable sensor as physically disconnected", () => {
+  const html = createCard(
+    { entities: { status: "sensor.status", plugged: "binary_sensor.plugged" } },
+    {
+      "sensor.status": { state: "idle", attributes: {} },
+      "binary_sensor.plugged": { state: "unavailable", attributes: {} },
+    },
+  );
+  assert.match(html, /state-unknown/);
+  assert.match(html, /Conexión no disponible/);
+  assert.doesNotMatch(html, /Cable desconectado/);
 });
 
