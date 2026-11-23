@@ -126,14 +126,16 @@ Changes are developed on a feature branch and reviewed before merging to main. A
 
 ## 8. Beta.5 — Apple-inspired live vehicle dashboard
 
-**Status: Specified; implementation in progress on `feature/beta-5-apple-dashboard`.** The complete scope and acceptance gates are tracked in `docs/beta-5-plan.md` and `docs/beta-5-checklist.md`.
+**Status: Implementation in progress on `feature/beta-5-apple-dashboard`.** See `docs/beta-5-plan.md` and `docs/beta-5-checklist.md` for acceptance gates.
 
-- [ ] Verify and correct live precise-SOC and odometer propagation from profile options through the WebSocket API into the Lovelace card.
-- [ ] Promote current SOC and odometer to primary dashboard information; show freshness and unavailable states honestly.
-- [ ] Add optional range display only when a valid range entity is explicitly configured.
-- [ ] Redesign the card with an Apple-inspired, responsive visual system, purposeful charging motion and reduced-motion support.
-- [ ] Add live vehicle-identity preview, local image preview/validation and visual charge-port positioning.
-- [ ] Add clear save confirmation and ensure existing cards refresh changed profile appearance without manual reconstruction.
-- [ ] Preserve config entries, profile IDs, tariffs, manual Lovelace overrides and all persisted charge history.
-- [ ] Investigate the unavailable EVSE energy entity observed during beta.4 live testing.
-- [ ] Complete automated CI and real Home Assistant validation before calling beta.5 ready.
+- [ ] Verify precise-SOC and odometer propagation end-to-end from profile options through WebSocket and Lovelace.
+- [x] Promote live SOC and odometer to the primary dashboard hero; validate invalid readings without fabricating zero values.
+- [x] Add optional range entity configuration and display only when explicitly mapped.
+- [x] Implement the charging-first visual refresh, charging cable states and reduced-motion support.
+- [x] Add live vehicle identity editor controls, local PNG/WebP path validation, fallback preview and configurable port anchors.
+- [x] Add recoverable profile refresh feedback and automatic selected-profile refresh for existing cards; save confirmation remains limited to the Lovelace editor's config-changed flow.
+- [ ] Add regression tests proving in-place upgrade preserves config entries, profile IDs, tariff options, manual overrides and persisted history.
+- [x] Add EVSE energy source diagnostic metadata and automated tests; diagnosis against the actual unavailable entity in the user's HA installation remains pending.
+- [ ] Complete full CI on the latest branch head and review all regressions.
+- [ ] Complete real Home Assistant validation, including frontend layouts, update-in-place and a real charge.
+
