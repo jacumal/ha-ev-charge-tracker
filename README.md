@@ -34,13 +34,13 @@ Track charging sessions, delivered energy, battery state of charge (SOC), mileag
 - Duration, electricity cost, history and diagnostics.
 - Multiple vehicles, chargers and charging profiles.
 - Guided graphical sensor setup with explanations, unit validation and examples.
-- A bundled custom Lovelace card with a visual editor, native Home Assistant entity pickers, live SOC/odometer, per-session charts and a secondary vehicle thumbnail with animated cable/energy states. No separate Bubble Card installation is required; frontend behavior still needs real-HA validation.
+- A bundled custom Lovelace card with a live SOC/odometer hero, optional explicitly mapped range, per-session charts, configurable vehicle identity and charge-port preview, local PNG/WebP support, and cable-only charging animation. No separate Bubble Card installation is required; frontend behavior still needs real-HA validation.
 
 ## Development
 
 The first reference setup is a Leapmotor C10 with a V2C charger. It is a test environment only; the core design must remain generic.
 
-The Lovelace card is included in this integration repository and served by the integration. Its editor discovers configured profiles through an authenticated Home Assistant WebSocket command, automatically selects a sole profile, and offers a selector when multiple profiles exist. The profile-linked card entities (status, energy, cost, SOC start/end/increase, live SOC, odometer, optional plugged state, duration and history) are resolved from the integration entity registry; manual mapping remains available.
+The Lovelace card is included in this integration repository and served by the integration. Its editor discovers configured profiles through an authenticated Home Assistant WebSocket command, automatically selects a sole profile, and offers a selector when multiple profiles exist. The profile-linked card entities (status, energy, cost, SOC start/end/increase, live SOC, odometer, optional range and plugged state, duration and history) are resolved from the integration entity registry; manual mapping remains available.
 
 Contributions, feature requests and bug reports are welcome. The architecture and sensor contract are still being defined, so interfaces may change before the first release.
 
@@ -54,7 +54,7 @@ MIT (planned; license file to be added before the first public release).
 The first development increment is intentionally limited to one charging profile per config entry:
 - Required charging-state `binary_sensor` (`on` / `off`).
 - Required session-energy `sensor` with an explicit Wh or kWh unit.
-- Optional SOC and odometer sensors.
+- Optional SOC, odometer and range sensors. Range is display-only and is never inferred.
 - Pricing supports a manual fixed price or a price sensor, plus one-, two- or three-period schedules. Each tariff period can use a manual €/kWh value or its own Home Assistant price sensor. Dynamic price changes are timestamped during a session and retained as historical price segments; energy without a valid price remains explicitly unpriced.
 - Immediate or odometer-increase finalization.
 - Persistent session state and up to 500 history records.
