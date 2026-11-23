@@ -467,7 +467,7 @@ class EVChargeTrackerCard extends HTMLElement {
             </div>`;
           }).join("") : '<div class="history-empty">Aún no hay cargas consolidadas.<br>Cuando finalice tu primera sesión, aparecerá aquí el resumen.</div>'}
           ${diagnostic ? `<div class="diagnostic">${this._escape(diagnostic)}</div>` : ""}
-        </div>
+        </div>` : ""}
       </ha-card>`;
     const customVehicleImage = typeof this.shadowRoot.querySelector === "function"
       ? this.shadowRoot.querySelector(".vehicle-image.custom") : null;
