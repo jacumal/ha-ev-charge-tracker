@@ -64,7 +64,7 @@ Preserve this information hierarchy while improving responsive behavior and ensu
 
 ## Entity contract for the card
 
-The card receives entity IDs through its Lovelace configuration; it does not hard-code installation-specific IDs. Its visual editor accepts the eight semantic entity mappings. The history entity supplies persistent `sessions`, `current_session`, `latest_session` and `diagnostic` attributes.
+The card receives entity IDs through its Lovelace configuration; it does not hard-code installation-specific IDs. Its visual editor accepts semantic entity mappings for status, energy, cost, SOC start/end/increase, live SOC, odometer, optional plugged state, duration and history. The history entity supplies persistent `sessions`, `current_session`, `latest_session` and `diagnostic` attributes.
 
 Prefer a compact set of well-defined integration entities plus a structured history source. The card should support selecting the vehicle/profile it displays and explain configuration errors clearly.
 
@@ -99,7 +99,7 @@ The initial implementation is responsive and uses Home Assistant theme variables
 Remaining acceptance checks before real charging:
 - Verify card registration and rendering in a real Home Assistant frontend.
 - Check dark/light themes, narrow mobile widths, long profile names and empty history.
-- Verify the visual editor's entity pickers populate and persist all eight mappings in the Lovelace editor.
+- Verify the visual editor's entity pickers populate and persist all configured mappings, including the optional plugged-state entity, in the Lovelace editor.
 - Confirm current and completed session presentation against the coordinator's actual lifecycle states, including missing, unknown and unavailable status entities.
 - Confirm the history list and cost-quality labels with complete, partial and unknown cost records.
 - Verify resource loading after an integration update and restart.
@@ -121,7 +121,7 @@ session records as the history list; no additional recorder statistics or helper
 are required.
 
 The card editor receives a visual refresh while preserving the profile discovery,
-profile selection and eight semantic entity mappings. Live Home Assistant testing
+profile selection and all supported semantic entity mappings. Live Home Assistant testing
 is still required for frontend rendering, editor persistence and responsive themes.
 
 
