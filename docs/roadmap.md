@@ -122,3 +122,18 @@ Source: user-provided transcript screenshots, approximately 09:36–15:06. These
 
 ## Working rule
 Changes are developed on a feature branch and reviewed before merging to main. A checkbox closes only when implementation and tests exist; real-instance validation is tracked separately.
+
+
+## 8. Beta.5 — Apple-inspired live vehicle dashboard
+
+**Status: Specified; implementation in progress on `feature/beta-5-apple-dashboard`.** The complete scope and acceptance gates are tracked in `docs/beta-5-plan.md` and `docs/beta-5-checklist.md`.
+
+- [ ] Verify and correct live precise-SOC and odometer propagation from profile options through the WebSocket API into the Lovelace card.
+- [ ] Promote current SOC and odometer to primary dashboard information; show freshness and unavailable states honestly.
+- [ ] Add optional range display only when a valid range entity is explicitly configured.
+- [ ] Redesign the card with an Apple-inspired, responsive visual system, purposeful charging motion and reduced-motion support.
+- [ ] Add live vehicle-identity preview, local image preview/validation and visual charge-port positioning.
+- [ ] Add clear save confirmation and ensure existing cards refresh changed profile appearance without manual reconstruction.
+- [ ] Preserve config entries, profile IDs, tariffs, manual Lovelace overrides and all persisted charge history.
+- [ ] Investigate the unavailable EVSE energy entity observed during beta.4 live testing.
+- [ ] Complete automated CI and real Home Assistant validation before calling beta.5 ready.
