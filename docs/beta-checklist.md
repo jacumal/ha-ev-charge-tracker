@@ -6,7 +6,7 @@ This checklist separates repository/CI readiness from behavior that can only be
 verified in a real Home Assistant installation.
 
 ## Repository and CI
-- [ ] Version metadata set in the integration manifest (`0.1.0-beta.4`).
+- [x] Version metadata set in the integration manifest (`0.1.0-beta.4`).
 - [x] HACS metadata present.
 - [x] MIT license included.
 - [x] Lovelace card source is bundled with the integration.
