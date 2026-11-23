@@ -116,6 +116,7 @@ class EVChargeTrackerCard extends HTMLElement {
     const pluggedValue = hasPluggedReading ? String(pluggedState.state).toLowerCase() : "";
     const cableConnected = ["on", "true", "1", "connected", "plugged"].includes(pluggedValue);
     const cableDisconnected = ["off", "false", "0", "disconnected", "unplugged"].includes(pluggedValue);
+    const inconsistentConnection = charging && hasPluggedReading && !cableConnected;
     const vehicle = this.config.vehicle_visual || {};
     const visualColor = /^#[0-9a-f]{6}$/i.test(vehicle.visual_color || "") ? vehicle.visual_color : "#71869A";
     const bodyStyle = ["suv", "sedan", "hatchback", "van", "pickup"].includes(vehicle.visual_body_style) ? vehicle.visual_body_style : "suv";
@@ -132,7 +133,7 @@ class EVChargeTrackerCard extends HTMLElement {
     const lastChargeCompleted = Boolean(
       !current && latest && (latest.status === "completed" || latest.completed_at || latest.ended_at)
     );
-    const visualState = statusWarning ? "error" : charging ? "charging" :
+    const visualState = statusWarning || inconsistentConnection ? "error" : charging ? "charging" :
       (hasPluggedReading && cableConnected ? "connected" :
       ((status === "completed" || lastChargeCompleted) ? "completed" :
       (hasPluggedReading && cableDisconnected ? "disconnected" : "unknown")));
@@ -142,7 +143,7 @@ class EVChargeTrackerCard extends HTMLElement {
       connected: lastChargeCompleted ? "Carga finalizada · Cable conectado" : "Cable conectado · En espera",
       charging: "Cargando · Flujo de energía activo",
       completed: "Carga finalizada",
-      error: "Estado que requiere atención",
+      error: inconsistentConnection ? "Carga activa con cable desconectado" : "Estado que requiere atención",
     };
     const vehicleLabel = [vehicle.visual_brand, vehicle.visual_model].filter(Boolean).join(" ") ||
       this.config.vehicle_name || this.config.vehicle || this.config.name || "EV Charge Tracker";
