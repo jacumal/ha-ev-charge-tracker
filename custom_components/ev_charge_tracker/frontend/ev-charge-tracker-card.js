@@ -493,7 +493,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       .hint{font-size:12px;color:var(--secondary-text-color);margin:7px 0 12px;line-height:1.45}
       .profile{margin:12px 0 18px;padding:15px;border:1px solid var(--divider-color);border-radius:16px;background:var(--secondary-background-color)}
       .vehicle-preview{display:flex;align-items:center;gap:12px;margin:12px 0;padding:12px;border-radius:14px;background:var(--card-background-color);min-height:62px}
-      .vehicle-preview img{width:112px;height:58px;object-fit:contain}.vehicle-preview .preview-fallback{width:112px;height:58px;border-radius:12px;background:linear-gradient(145deg,var(--secondary-background-color),var(--divider-color));display:grid;place-items:center;font-size:25px}
+      .preview-stage{position:relative;width:112px;height:58px;flex:0 0 112px}.preview-stage img{width:100%;height:100%;object-fit:contain}.vehicle-preview .preview-fallback{width:100%;height:100%;border-radius:12px;background:linear-gradient(145deg,var(--secondary-background-color),var(--divider-color));display:grid;place-items:center;font-size:25px}.preview-port{position:absolute;width:9px;height:9px;border:2px solid var(--primary-color);border-radius:50%;background:var(--card-background-color);transform:translate(-50%,-50%);pointer-events:none}
       .vehicle-preview strong{display:block;font-size:13px}.vehicle-preview small{display:block;margin-top:4px;color:var(--secondary-text-color);font-size:11px}
       .hidden{display:none}
       button{margin-top:10px;padding:9px 14px;border:0;border-radius:12px;background:var(--primary-color);color:var(--text-primary-color,var(--primary-background-color));font-weight:600;cursor:pointer}
@@ -664,7 +664,13 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const label = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") || this._config.name || "Vehículo";
       const details = [visual.visual_generation, visual.visual_year, visual.visual_trim].filter(Boolean).join(" · ");
       const image = typeof visual.visual_image === "string" && /^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(visual.visual_image) && !visual.visual_image.includes("..") ? visual.visual_image : "";
-      preview.innerHTML = (image ? '<img src="' + this._esc(image) + '" alt="' + this._esc(label) + '">' : '<div class="preview-fallback" aria-hidden="true">🚘</div>') +
+      const portX = Math.min(100, Math.max(0, Number(visual.visual_port_x ?? 67)));
+      const portY = Math.min(100, Math.max(0, Number(visual.visual_port_y ?? 44)));
+      const imageOrFallback = image
+        ? '<img src="' + this._esc(image) + '" alt="' + this._esc(label) + '">'.replace(/\\/g, "")
+        : '<div class="preview-fallback" aria-hidden="true">🚘</div>';
+      preview.innerHTML = '<div class="preview-stage">' + imageOrFallback +
+        '<i class="preview-port" style="left:' + portX + '%;top:' + portY + '%"></i></div>' +
         '<div><strong>' + this._esc(label) + '</strong><small>' + this._esc(details || "Vista previa de identidad del vehículo") + '</small></div>';
       const imageNode = preview.querySelector("img");
       if (imageNode) imageNode.addEventListener("error", () => { imageNode.replaceWith(Object.assign(document.createElement("div"), { className: "preview-fallback", textContent: "🚘" })); }, { once: true });
