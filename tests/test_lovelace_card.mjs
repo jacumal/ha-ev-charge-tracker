@@ -146,7 +146,6 @@ test("shows live battery SOC and odometer from the selected profile entities", (
   assert.match(html, /12\.345 km/);
   assert.match(html, /vehicle-telemetry/);
   assert.match(html, /Datos complementarios del vehículo/);
-  assert.match(html, /12\\.345 km/);
 });
 
 test("renders a transparent vehicle silhouette and cable state without a custom image", () => {
