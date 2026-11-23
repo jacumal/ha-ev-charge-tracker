@@ -337,7 +337,7 @@ class EVChargeTrackerCard extends HTMLElement {
             </div>
           </div>
           ${vehicleMarkup}
-          ${hasLiveTelemetry ? `<section class="live-hero" aria-label="Telemetría actual del vehículo">
+          ${hasLiveTelemetry ? `<section class="live-hero vehicle-telemetry" aria-label="Telemetría actual del vehículo">
             <div class="live-battery">
               <div class="live-label">BATERÍA ACTUAL</div>
               <div class="live-reading">${validSoc ? this._fmt(currentSoc,1) + "<small>%</small>" : "—"}</div>
