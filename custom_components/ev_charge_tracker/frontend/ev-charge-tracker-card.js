@@ -1,7 +1,7 @@
 /* EV Charge Tracker Lovelace card
  * Copyright (c) EV Charge Tracker contributors. MIT.
  */
-const CARD_VERSION = "0.3.0";
+const CARD_VERSION = "0.4.0";
 
 class EVChargeTrackerCard extends HTMLElement {
   setConfig(config) {
@@ -50,6 +50,15 @@ class EVChargeTrackerCard extends HTMLElement {
   }
 
   getCardSize() { return 5; }
+
+  _validVehicleImage(value) {
+    if (typeof value !== "string" || value.includes("..")) return false;
+    if (/^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(value)) return true;
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" && url.hostname === "upload.wikimedia.org" && /^\/wikipedia\/commons\/(?:thumb\/)?[A-Za-z0-9_./%()-]+\.(?:png|webp|jpe?g)(?:\/[^?#]+)?$/i.test(url.pathname);
+    } catch { return false; }
+  }
 
   _state(entityId) {
     return entityId && this._hass ? this._hass.states[entityId] : undefined;
@@ -176,9 +185,10 @@ class EVChargeTrackerCard extends HTMLElement {
     const vehicle = this.config.vehicle_visual || {};
     const visualColor = /^#[0-9a-f]{6}$/i.test(vehicle.visual_color || "") ? vehicle.visual_color : "#71869A";
     const bodyStyle = ["suv", "sedan", "hatchback", "van", "pickup"].includes(vehicle.visual_body_style) ? vehicle.visual_body_style : "suv";
-    const customImage = typeof vehicle.visual_image === "string" &&
-      /^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(vehicle.visual_image) &&
-      !vehicle.visual_image.includes("..") ? vehicle.visual_image : "";
+    const customImage = this._validVehicleImage(vehicle.visual_image) ? vehicle.visual_image : "";
+    const imageCredit = vehicle.visual_image_credit || "";
+    const imageLicense = vehicle.visual_image_license || "";
+    const imagePage = typeof vehicle.visual_image_page === "string" && /^https:\/\/commons\.wikimedia\.org\/wiki\//i.test(vehicle.visual_image_page) ? vehicle.visual_image_page : "";
     const portXValue = vehicle.visual_port_x == null || vehicle.visual_port_x === "" ? 67 : Number(vehicle.visual_port_x);
     const portYValue = vehicle.visual_port_y == null || vehicle.visual_port_y === "" ? 44 : Number(vehicle.visual_port_y);
     const portX = Math.round((Number.isFinite(portXValue) ? Math.min(100, Math.max(0, portXValue)) : 67) * 2.6);
@@ -232,7 +242,9 @@ class EVChargeTrackerCard extends HTMLElement {
         '<g class="connector connector-free" transform="translate(232 82) rotate(8)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
         '<g class="connector connector-plug" transform="translate(' + (portX - 8) + ' ' + (portY - 18) + ') rotate(90)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
         '<circle class="charge-port" cx="' + portX + '" cy="' + portY + '" r="4"/>' +
-      '</svg></div><div class="vehicle-state"><i></i>' + this._escape(visualStateLabels[visualState]) + '</div></div>';
+      '</svg></div><div class="vehicle-state"><i></i>' + this._escape(visualStateLabels[visualState]) + '</div>' +
+      (imageCredit && imageLicense ? '<div class="vehicle-image-credit">Imagen: ' + (imagePage ? '<a href="' + this._escape(imagePage) + '" target="_blank" rel="noopener noreferrer">' : '') + this._escape(imageCredit) + (imagePage ? '</a>' : '') + ' · ' + this._escape(imageLicense) + '</div>' : '') +
+      '</div>';
     const diagnostic = this._attr(e.history, "diagnostic", "");
     const record = current || latest || {};
     const currency = this._attr(e.cost, "currency", this._state(e.cost)?.attributes?.unit_of_measurement || "EUR");
@@ -280,6 +292,8 @@ class EVChargeTrackerCard extends HTMLElement {
         .vehicle-caption small { display:block; margin-top:4px; color:var(--secondary-text-color); font-size:10px; line-height:1.3; }
         .vehicle-stage { position:relative; flex:1; min-width:0; height:86px; }
         .vehicle-image { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+        .vehicle-image-credit{margin-top:3px;color:var(--secondary-text-color);font-size:10px;line-height:1.35}
+        .vehicle-image-credit a{color:inherit;text-decoration:underline}
         .vehicle-body { fill:var(--vehicle-color); opacity:.95; }
         .vehicle-window { fill:var(--secondary-background-color); stroke:color-mix(in srgb,var(--primary-text-color) 28%,transparent); stroke-width:2; }
         .vehicle-detail { fill:none; stroke:color-mix(in srgb,var(--primary-text-color) 36%,transparent); stroke-width:2; }
@@ -502,6 +516,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     this._profileRequest = false;
     this._built = false;
     this._manualMode = false;
+    this._galleryResults = [];
+    this._gallerySequence = 0;
   }
 
   setConfig(config) {
@@ -538,6 +554,12 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       .preview-stage{position:relative;width:112px;height:58px;flex:0 0 112px}.preview-stage img{width:100%;height:100%;object-fit:contain}.vehicle-preview .preview-fallback{width:100%;height:100%;border-radius:12px;background:linear-gradient(145deg,var(--secondary-background-color),var(--divider-color));display:grid;place-items:center;font-size:25px}.preview-port{position:absolute;width:9px;height:9px;border:2px solid var(--primary-color);border-radius:50%;background:var(--card-background-color);transform:translate(-50%,-50%);pointer-events:none}
       .vehicle-preview strong{display:block;font-size:13px}.vehicle-preview small{display:block;margin-top:4px;color:var(--secondary-text-color);font-size:11px}
       .hidden{display:none}
+      .gallery{margin:14px 0;padding:12px;border:1px solid var(--divider-color);border-radius:14px;background:var(--card-background-color)}
+      .gallery-search{display:flex;gap:8px;align-items:center}.gallery-search input{min-width:0;flex:1}.gallery-search button{margin:0}
+      .gallery-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}
+      .gallery-item{display:block;width:100%;padding:7px!important;text-align:left;background:var(--secondary-background-color)!important;color:var(--primary-text-color)!important;border:1px solid var(--divider-color)!important}
+      .gallery-item img{display:block;width:100%;height:92px;object-fit:contain;background:#f5f5f5;border-radius:8px}
+      .gallery-item strong,.gallery-item small{display:block;margin-top:5px;font-size:11px;line-height:1.3}.gallery-item small{color:var(--secondary-text-color);font-size:10px}
       button{margin-top:10px;padding:9px 14px;border:0;border-radius:12px;background:var(--primary-color);color:var(--text-primary-color,var(--primary-background-color));font-weight:600;cursor:pointer}
       #entityFields{padding:4px 0 8px}
       #entityFields:not(.hidden){border-top:1px solid var(--divider-color);margin-top:12px}
@@ -563,7 +585,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
           <label class="field">Acabado<input id="visual_trim" maxlength="40"></label>
           <label class="field">Color<input id="visual_color" type="color"></label>
           <label class="field">Carrocería<select id="visual_body_style"><option value="suv">SUV</option><option value="sedan">Berlina</option><option value="hatchback">Compacto</option><option value="van">Furgoneta</option><option value="pickup">Pick-up</option></select></label>
-          <label class="field">Imagen local PNG/WebP<input id="visual_image" placeholder="/local/ev-charge-tracker/coche.webp"></label>
+          <section class="gallery"><strong>Galería gratuita de vehículos</strong><p class="hint">Busca en Wikimedia Commons. Solo se muestran imágenes con licencia libre reconocida; autoría y licencia se conservan.</p><div class="gallery-search"><input id="galleryQuery" type="search" placeholder="Marca y modelo (Leapmotor C10)"><button id="searchVehicleGallery" type="button">Buscar imágenes</button></div><div id="galleryStatus" class="hint" role="status" aria-live="polite"></div><div id="galleryResults" class="gallery-results"></div></section>
+          <label class="field">Imagen local PNG/WebP<input id="visual_image" placeholder="/local/ev-charge-tracker/coche.webp o imagen de galería"></label>
           <label class="field">Puerto horizontal (0-100)<input id="visual_port_x" type="number" min="0" max="100"></label>
           <label class="field">Puerto vertical (0-100)<input id="visual_port_y" type="number" min="0" max="100"></label>
         </details>
@@ -591,6 +614,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       if (selected) this._applyProfile(selected);
     });
     this.shadowRoot.getElementById("refreshProfiles").addEventListener("click", () => this._loadProfiles(true));
+    this.shadowRoot.getElementById("searchVehicleGallery").addEventListener("click", () => this._searchVehicleGallery());
+    this.shadowRoot.getElementById("galleryQuery").addEventListener("keydown", event => { if (event.key === "Enter") { event.preventDefault(); this._searchVehicleGallery(); } });
+    this.shadowRoot.getElementById("galleryResults").addEventListener("click", event => { const button = event.target.closest("button[data-gallery-index]"); if (button) this._selectGalleryImage(this._galleryResults[Number(button.dataset.galleryIndex)]); });
     this.shadowRoot.getElementById("manualToggle").addEventListener("click", () => {
       this._manualMode = !this._manualMode;
       this._syncControls();
@@ -603,6 +629,43 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     });
     this._built = true;
     this._syncControls();
+  }
+
+  async _searchVehicleGallery() {
+    const query = (this.shadowRoot?.getElementById("galleryQuery")?.value || "").trim();
+    const status = this.shadowRoot?.getElementById("galleryStatus");
+    const results = this.shadowRoot?.getElementById("galleryResults");
+    if (!query) { if (status) status.textContent = "Escribe una marca y un modelo."; return; }
+    const sequence = ++this._gallerySequence;
+    if (status) status.textContent = "Buscando imágenes y comprobando licencias…";
+    if (results) results.innerHTML = "";
+    const params = new URLSearchParams({action:"query",format:"json",origin:"*",generator:"search",gsrsearch:"filetype:bitmap "+query,gsrnamespace:"6",gsrlimit:"24",prop:"imageinfo",iiprop:"url|extmetadata",iiurlwidth:"900",iiextmetadatalanguage:"es"});
+    try {
+      const response = await fetch("https://commons.wikimedia.org/w/api.php?"+params.toString(),{headers:{Accept:"application/json"}});
+      if (!response.ok) throw new Error("HTTP "+response.status);
+      const data = await response.json();
+      if (sequence !== this._gallerySequence) return;
+      const clean = value => String(value||"").replace(/<[^>]*>/g," ").replace(/&amp;/g,"&").replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/\\s+/g," ").trim();
+      const allowed = /^(CC0(?: 1\\.0)?|Public domain|CC BY 4\\.0|CC BY-SA 4\\.0|CC BY 3\\.0|CC BY-SA 3\\.0|CC BY 2\\.0|CC BY-SA 2\\.0)$/i;
+      this._galleryResults = Object.values(data?.query?.pages||{}).map(page => {
+        const info=page.imageinfo?.[0], meta=info?.extmetadata||{}, license=clean(meta.LicenseShortName?.value), image=info?.thumburl||info?.url;
+        if (!image || !/^https:\\/\\/upload\\.wikimedia\\.org\\/wikipedia\\/commons\\//i.test(image) || !allowed.test(license)) return null;
+        return {title:page.title||"Imagen",image,page:info.descriptionurl||"",author:clean(meta.Artist?.value||meta.Credit?.value||"Autor no indicado"),license,licenseUrl:clean(meta.LicenseUrl?.value||"")};
+      }).filter(Boolean).slice(0,12);
+      if (!this._galleryResults.length) { if(status) status.textContent="No hay resultados con licencia libre reconocida. Prueba otra búsqueda."; return; }
+      if(status) status.textContent=this._galleryResults.length+" imágenes libres verificadas. Selecciona una.";
+      results.innerHTML=this._galleryResults.map((item,index)=>'<button type="button" class="gallery-item" data-gallery-index="'+index+'"><img loading="lazy" src="'+this._esc(item.image)+'" alt="'+this._esc(item.title)+'"><strong>'+this._esc(item.title.replace(/^File:/,""))+'</strong><small>'+this._esc(item.license)+' · '+this._esc(item.author)+'</small></button>').join("");
+    } catch(error) { if(sequence===this._gallerySequence && status) status.textContent="No se pudo consultar Wikimedia Commons. Comprueba la conexión e inténtalo de nuevo."; }
+  }
+
+  _selectGalleryImage(item) {
+    if(!item) return;
+    const next={...this._config,vehicle_visual:{...(this._config.vehicle_visual||{})}};
+    Object.assign(next.vehicle_visual,{visual_image:item.image,visual_image_credit:item.author,visual_image_license:item.license,visual_image_license_url:item.licenseUrl,visual_image_page:item.page,visual_image_source:"Wikimedia Commons"});
+    this._config=next;
+    const input=this.shadowRoot.getElementById("visual_image"); if(input) input.value=item.image;
+    this._updateConfig();
+    const status=this.shadowRoot.getElementById("galleryStatus"); if(status) status.textContent="Imagen seleccionada con autoría y licencia. Guarda los cambios de la tarjeta.";
   }
 
   async _loadProfiles(force = false) {
@@ -706,7 +769,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const visual = this._config.vehicle_visual || {};
       const label = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") || this._config.name || "Vehículo";
       const details = [visual.visual_generation, visual.visual_year, visual.visual_trim].filter(Boolean).join(" · ");
-      const image = typeof visual.visual_image === "string" && /^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(visual.visual_image) && !visual.visual_image.includes("..") ? visual.visual_image : "";
+      const image = this._validVehicleImage(visual.visual_image) ? visual.visual_image : "";
       const rawPortX = Number(visual.visual_port_x ?? 67);
       const rawPortY = Number(visual.visual_port_y ?? 44);
       const portX = Number.isFinite(rawPortX) ? Math.min(100, Math.max(0, rawPortX)) : 67;
@@ -717,6 +780,11 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       preview.innerHTML = '<div class="preview-stage">' + imageOrFallback +
         '<i class="preview-port" style="left:' + portX + '%;top:' + portY + '%"></i></div>' +
         '<div><strong>' + this._esc(label) + '</strong><small>' + this._esc(details || "Vista previa de identidad del vehículo") + '</small></div>';
+      if (visual.visual_image_credit && visual.visual_image_license) {
+        const credit = document.createElement("small");
+        credit.textContent = "Imagen: " + visual.visual_image_credit + " · " + visual.visual_image_license;
+        preview.lastElementChild.appendChild(credit);
+      }
       const imageNode = preview.querySelector("img");
       if (imageNode) imageNode.addEventListener("error", () => { imageNode.replaceWith(Object.assign(document.createElement("div"), { className: "preview-fallback", textContent: "🚘" })); }, { once: true });
     }
@@ -745,7 +813,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       let value = field.value.trim();
       if (key === "image") {
         const validPath = new RegExp("^/local/ev-charge-tracker/[A-Za-z0-9_-][A-Za-z0-9._-]*[.](png|webp)$", "i").test(value) && !value.includes("..");
-        if (value && !validPath) { field.setCustomValidity("Usa una ruta /local/ev-charge-tracker válida con extensión PNG o WebP."); imagePathError = true; value = ""; }
+        const validCommons = this._validVehicleImage(value);
+        if (value && !validPath && !validCommons) { field.setCustomValidity("Usa una ruta local o una imagen seleccionada de Wikimedia Commons."); imagePathError = true; value = ""; }
         else field.setCustomValidity("");
       }
       if (key === "color" && !new RegExp("^#[0-9a-f]{6}$", "i").test(value)) value = "#71869A";
@@ -765,7 +834,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     this._config = next;
     const feedback = this.shadowRoot.getElementById("editorFeedback");
     if (feedback) feedback.textContent = imagePathError
-      ? "La ruta de imagen no es válida. Usa /local/ev-charge-tracker/nombre.png o .webp."
+      ? "La imagen no es válida. Usa una ruta local PNG/WebP o selecciona una imagen de la galería gratuita."
       : "Cambios enviados a Lovelace, pero aún pendientes de guardar. Pulsa Guardar en el editor del panel. Home Assistant no ofrece a esta tarjeta una confirmación fiable de que el guardado haya terminado.";
     this._syncControls();
     this._fireConfigChanged();
