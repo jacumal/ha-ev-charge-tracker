@@ -484,6 +484,20 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         <select id="profileSelect"></select>
         <div id="profileHint" class="hint"></div>
         <div id="vehiclePreview" class="vehicle-preview" aria-live="polite"></div>
+        <details id="vehicleEditor"><summary>Personalizar identidad y puerto de carga</summary>
+          <p class="hint">Los cambios se reflejan en la vista previa. Para una imagen propia, copia un PNG/WebP transparente en /config/www/ev-charge-tracker/ y utiliza su ruta /local.</p>
+          <label class="field">Marca<input id="visual_brand" maxlength="40"></label>
+          <label class="field">Modelo<input id="visual_model" maxlength="50"></label>
+          <label class="field">Generación<input id="visual_generation" maxlength="40"></label>
+          <label class="field">Año<input id="visual_year" maxlength="12"></label>
+          <label class="field">Acabado<input id="visual_trim" maxlength="40"></label>
+          <label class="field">Color<input id="visual_color" type="color"></label>
+          <label class="field">Carrocería<select id="visual_body_style"><option value="suv">SUV</option><option value="sedan">Berlina</option><option value="hatchback">Compacto</option><option value="van">Furgoneta</option><option value="pickup">Pick-up</option></select></label>
+          <label class="field">Imagen local PNG/WebP<input id="visual_image" placeholder="/local/ev-charge-tracker/coche.webp"></label>
+          <label class="field">Puerto horizontal (0-100)<input id="visual_port_x" type="number" min="0" max="100"></label>
+          <label class="field">Puerto vertical (0-100)<input id="visual_port_y" type="number" min="0" max="100"></label>
+        </details>
+        <div id="editorFeedback" class="hint" role="status" aria-live="polite"></div>
         <button id="refreshProfiles" type="button">Actualizar perfiles</button>
         <button id="manualToggle" type="button">Editar entidades manualmente</button>
       </div>
