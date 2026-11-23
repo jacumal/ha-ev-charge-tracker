@@ -667,7 +667,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const portX = Math.min(100, Math.max(0, Number(visual.visual_port_x ?? 67)));
       const portY = Math.min(100, Math.max(0, Number(visual.visual_port_y ?? 44)));
       const imageOrFallback = image
-        ? '<img src="' + this._esc(image) + '" alt="' + this._esc(label) + '">'.replace(/\\/g, "")
+        ? '<img src="' + this._esc(image) + '" alt="' + this._esc(label) + '">'
         : '<div class="preview-fallback" aria-hidden="true">🚘</div>';
       preview.innerHTML = '<div class="preview-stage">' + imageOrFallback +
         '<i class="preview-port" style="left:' + portX + '%;top:' + portY + '%"></i></div>' +
