@@ -8,40 +8,40 @@ This checklist tracks the work defined in [beta-5-plan.md](beta-5-plan.md). It i
 ## Live telemetry
 - [ ] Current precise SOC mapping verified end-to-end.
 - [ ] Odometer mapping verified end-to-end.
-- [ ] Prominent live SOC and odometer presentation.
+- [x] Prominent live SOC and odometer presentation.
 - [ ] Freshness/availability states; no fabricated zero values.
-- [ ] Optional range entity only; no guessed range calculations.
+- [x] Optional range entity only; no guessed range calculations (configurable from profile options and surfaced to Lovelace).
 - [ ] Automated tests for missing, unavailable and changing telemetry.
 
 ## Lovelace redesign
-- [ ] Apple-inspired vehicle hero and clear information hierarchy.
+- [x] Apple-inspired vehicle hero and clear information hierarchy.
 - [ ] Latest charge summary redesigned.
 - [ ] History and charts redesigned.
-- [ ] Charging state transitions and purposeful motion.
-- [ ] Reduced-motion support.
+- [x] Charging state transitions and purposeful motion.
+- [x] Reduced-motion support.
 - [ ] Mobile, desktop, light and dark layouts checked.
 - [ ] Accessibility: contrast, focus, labels and touch targets.
 
 ## Vehicle identity
-- [ ] Live preview while editing identity fields.
-- [ ] Image selection guidance and preview.
-- [ ] Transparent PNG/WebP validation and fallback.
-- [ ] Visual port-anchor adjustment.
-- [ ] Correct vehicle/profile context shown.
-- [ ] Shared identity remains consistent across charger profiles.
+- [x] Live preview while editing identity fields.
+- [x] Local image path guidance and preview (manual copy to /config/www; no upload control).
+- [x] Transparent PNG/WebP path validation and fallback silhouette.
+- [x] Visual port-anchor adjustment controls.
+- [x] Correct vehicle/profile context shown.
+- [x] Shared identity remains consistent across charger profiles (registry regression test).
 
 ## Configuration feedback and refresh
 - [ ] Save confirmation and summary.
-- [ ] Errors shown clearly and recoverably.
-- [ ] Existing card refreshes updated profile identity.
-- [ ] Manual Lovelace overrides are preserved.
+- [x] Profile refresh errors are shown with a retry path; save confirmation remains pending.
+- [x] Existing cards refresh selected profile identity without reconstruction.
+- [x] Manual Lovelace entity overrides and card-specific vehicle identity overrides are preserved.
 - [ ] No config-entry recreation required.
 
 ## Compatibility and release
 - [ ] Existing config entries and profile IDs preserved.
 - [ ] Existing tariffs preserved.
 - [ ] Existing session history preserved.
-- [ ] EVSE energy entity diagnostic investigated.
+- [x] EVSE source diagnostics added (entity, state, unit, timestamp, age and validity reason); confirm against the user's live EVSE entity still pending.
 - [ ] Full CI green on PR.
 - [ ] Post-merge CI green.
 - [ ] Live Home Assistant update-in-place validation.
