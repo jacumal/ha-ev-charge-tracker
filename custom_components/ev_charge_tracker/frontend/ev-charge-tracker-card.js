@@ -117,6 +117,7 @@ class EVChargeTrackerCard extends HTMLElement {
     const cableConnected = ["on", "true", "1", "connected", "plugged"].includes(pluggedValue);
     const cableDisconnected = ["off", "false", "0", "disconnected", "unplugged"].includes(pluggedValue);
     const inconsistentConnection = charging && hasPluggedReading && !cableConnected;
+    const statusLabel = inconsistentConnection ? "Señales contradictorias" : (statusLabels[status] || status);
     const vehicle = this.config.vehicle_visual || {};
     const visualColor = /^#[0-9a-f]{6}$/i.test(vehicle.visual_color || "") ? vehicle.visual_color : "#71869A";
     const bodyStyle = ["suv", "sedan", "hatchback", "van", "pickup"].includes(vehicle.visual_body_style) ? vehicle.visual_body_style : "suv";
@@ -297,7 +298,7 @@ class EVChargeTrackerCard extends HTMLElement {
           <div class="top">
             <div><div class="eyebrow">Cargas · Última carga</div><h2>${this._escape(title)}</h2></div>
             <div class="status ${charging ? "active" : (statusWarning ? "warn" : "")}">
-              <i class="dot"></i>${this._escape(statusLabels[status] || status)}
+              <i class="dot"></i>${this._escape(statusLabel)}
             </div>
           </div>
           ${vehicleMarkup}
