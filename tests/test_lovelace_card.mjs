@@ -331,6 +331,17 @@ test("shows only an explicitly configured range sensor and does not estimate ran
 });
 
 
+
+test("rejects implausibly future-dated vehicle telemetry", () => {
+  const futureAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  const html = createCard(
+    { entities: { current_soc: "sensor.soc" } },
+    { "sensor.soc": { state: "88", last_updated: futureAt, attributes: {} } },
+  );
+  assert.match(html, /Batería no disponible/);
+  assert.doesNotMatch(html, /88<small>%<\/small>/);
+});
+
 test("does not display unavailable source telemetry as a numeric reading", () => {
   const html = createCard(
     { entities: { current_soc: "sensor.soc", odometer: "sensor.odo" } },
