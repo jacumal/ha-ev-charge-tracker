@@ -653,7 +653,24 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const maxHistory = Math.min(50, Math.max(1, Number(this.shadowRoot.getElementById("max_history").value || 8)));
     const displayMode = this.shadowRoot.getElementById("display_mode").value || "balanced";
     const themeMode = this.shadowRoot.getElementById("theme_mode").value || "auto";
-    const next = { ...this._config, name, max_history: maxHistory, display_mode: displayMode, theme_mode: themeMode, entities: { ...(this._config.entities || {}) } };
+    const next = { ...this._config, name, max_history: maxHistory, display_mode: displayMode, theme_mode: themeMode, entities: { ...(this._config.entities || {}) }, vehicle_visual: { ...(this._config.vehicle_visual || {}) } };
+    ["brand","model","generation","year","trim","color","body_style","image","port_x","port_y"].forEach(key => {
+      const field = this.shadowRoot.getElementById("visual_" + key);
+      if (!field) return;
+      const configKey = "visual_" + key;
+      let value = field.value.trim();
+      if (key === "image") {
+        const validPath = new RegExp("^/local/ev-charge-tracker/[A-Za-z0-9_-][A-Za-z0-9._-]*[.](png|webp)$", "i").test(value) && !value.includes("..");
+        if (value && !validPath) { field.setCustomValidity("Usa una ruta /local/ev-charge-tracker válida con extensión PNG o WebP."); value = ""; }
+        else field.setCustomValidity("");
+      }
+      if (key === "color" && !new RegExp("^#[0-9a-f]{6}$", "i").test(value)) value = "#71869A";
+      if (key === "port_x" || key === "port_y") {
+        const number = Number(value);
+        value = String(Number.isFinite(number) ? Math.min(100, Math.max(0, number)) : (key === "port_x" ? 67 : 44));
+      }
+      if (value) next.vehicle_visual[configKey] = value; else delete next.vehicle_visual[configKey];
+    });
     if (changedKey) {
       if (changedValue) next.entities[changedKey] = changedValue;
       else delete next.entities[changedKey];
@@ -661,6 +678,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       next.profile_manual_override = true;
     }
     this._config = next;
+    const feedback = this.shadowRoot.getElementById("editorFeedback");
+    if (feedback) feedback.textContent = "Cambios preparados. Pulsa Guardar en Home Assistant para conservarlos.";
+    this._syncControls();
     this._fireConfigChanged();
   }
 
