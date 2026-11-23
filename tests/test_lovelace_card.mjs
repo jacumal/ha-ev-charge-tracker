@@ -330,6 +330,20 @@ test("shows only an explicitly configured range sensor and does not estimate ran
   assert.doesNotMatch(absent, /Autonomía indicada/);
 });
 
+
+test("does not display unavailable source telemetry as a numeric reading", () => {
+  const html = createCard(
+    { entities: { current_soc: "sensor.soc", odometer: "sensor.odo" } },
+    {
+      "sensor.soc": { state: "unavailable", last_updated: new Date().toISOString(), attributes: {} },
+      "sensor.odo": { state: "unknown", last_updated: new Date().toISOString(), attributes: {} },
+    },
+  );
+  assert.match(html, /Batería no disponible/);
+  assert.match(html, /Odómetro no disponible/);
+  assert.doesNotMatch(html, /<small>%<\/small>/);
+});
+
 test("does not fabricate invalid live telemetry values", () => {
   const html = createCard(
     { entities: { current_soc: "sensor.soc", odometer: "sensor.odo" } },
