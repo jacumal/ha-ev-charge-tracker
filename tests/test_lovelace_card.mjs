@@ -8,6 +8,20 @@ const source = readFileSync(
   "utf8",
 );
 
+function createEditorInstance(config = {}) {
+  const registry = new Map();
+  class HTMLElement {}
+  runInNewContext(source, {
+    HTMLElement,
+    customElements: { define: (name, constructor) => registry.set(name, constructor) },
+    window: {},
+  });
+  const Editor = registry.get("ev-charge-tracker-card-editor");
+  const editor = new Editor();
+  editor.setConfig(config);
+  return editor;
+}
+
 function createCard(config, states = {}) {
   const registry = new Map();
   class HTMLElement {
@@ -447,6 +461,32 @@ function createCardInstance() {
   const Card = registry.get("ev-charge-tracker-card");
   return new Card();
 }
+
+test("gallery choices are stored per vehicle and shared by that vehicle's charger profiles", () => {
+  const editor = createEditorInstance({
+    vehicle_visuals: {
+      "leapmotor-c10": { visual_image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/C10.jpg/900px-C10.jpg" },
+      "tesla-model-y": { visual_image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/ModelY.jpg/900px-ModelY.jpg" },
+    },
+  });
+  const c10Home = { entry_id: "c10-home", vehicle_name: "C10 casa", charger_name: "Wallbox", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" }, entities: {} };
+  const c10Work = { entry_id: "c10-work", vehicle_name: "C10 trabajo", charger_name: "AC", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" }, entities: {} };
+  const tesla = { entry_id: "tesla-home", vehicle_name: "Tesla Model Y", charger_name: "Wallbox", vehicle_visual: { visual_brand: "Tesla", visual_model: "Model Y" }, entities: {} };
+
+  editor._applyProfile(c10Home, false);
+  assert.equal(editor._config.vehicle_visual.visual_image, editor._config.vehicle_visuals["leapmotor-c10"].visual_image);
+  editor._applyProfile(c10Work, false);
+  assert.equal(editor._config.vehicle_visual.visual_image, editor._config.vehicle_visuals["leapmotor-c10"].visual_image);
+  editor._applyProfile(tesla, false);
+  assert.equal(editor._config.vehicle_visual.visual_image, editor._config.vehicle_visuals["tesla-model-y"].visual_image);
+  assert.notEqual(editor._profileVisualKey(c10Home), editor._profileVisualKey(tesla));
+});
+
+test("editor automatically suggests the selected vehicle identity for gallery searches", () => {
+  assert.match(source, /const suggestedQuery = \[visual\.visual_brand, visual\.visual_model\]/);
+  assert.match(source, /this\._galleryQueryEdited/);
+  assert.match(source, /next\.vehicle_visuals = \{ \.\.\.\(next\.vehicle_visuals \|\| \{\}\), \[visualKey\]: \{ \.\.\.next\.vehicle_visual \} \}/);
+});
 
 test("vehicle image gallery is present and queries Commons with machine-readable license metadata", () => {
   assert.match(source, /Galería gratuita de vehículos/);
