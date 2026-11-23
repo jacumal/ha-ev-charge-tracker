@@ -69,7 +69,7 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [ ] Verify mobile/desktop and light/dark layouts in a real HA instance.
 - [ ] Publish installation guidance and verified screenshots.
 
-**Status: Implementation complete on PR #13; CI and live Home Assistant validation remain pending.** The new vehicle thumbnail, local image fallback, optional plugged-state sensor and cable animation are covered by regression tests; browser/frontend validation in Home Assistant remains pending.
+**Status: PR #13 merged; consolidated beta.3 PR CI run #217 passed.** The vehicle thumbnail, local image fallback, configurable port anchors, optional plugged-state sensor and cable animation are covered by regression tests. Post-merge CI and browser/frontend validation in Home Assistant remain pending.
 
 ## 6. Quality, documentation and release
 - [x] GitHub Actions: Python compilation, JavaScript syntax/behavior checks, translation validation, module import and pytest.
@@ -80,12 +80,13 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [x] Beta.3 Lovelace chart tests for populated, empty, partial and missing-data states.
 - [x] README, beta checklist and beta.3 release notes updated.
 - [x] Previous beta.3 baseline passed CI (run #172, commit `3484dbe`).
-- [ ] Complete a clean CI run on the consolidated beta.3 candidate including PR #13.
+- [x] Complete a clean CI run on the consolidated beta.3 candidate including PR #13 (run #217, commit `0e65a45`).
+- [ ] Complete the post-merge main-branch CI run.
 - [ ] Home Assistant config-flow selector and frontend validation in a real instance.
 - [ ] Verify HACS release packaging and installation from a versioned tag.
 - [ ] Publish the beta after PR review, green CI and packaging checks.
 
-**Status: Beta.3 implementation is being consolidated in PR #13.** Final CI, tagged-package verification and live Home Assistant validation remain release gates.
+**Status: Beta.3 implementation is merged to main.** PR CI is green; post-merge CI, tagged-package verification and live Home Assistant validation remain release gates.
 
 ## 7. Battery care, parked monitoring and safety advice (new scope)
 Source: user-provided transcript screenshots, approximately 09:36–15:06. These are video-derived recommendations, not verified manufacturer instructions.
