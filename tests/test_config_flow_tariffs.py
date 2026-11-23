@@ -1,4 +1,40 @@
-"""Tests for conditional tariff price forms in the options flow."""
+import asyncio\n
+
+def test_sensor_edit_preserves_profile_identity_tariffs_and_visual_options():
+    from types import SimpleNamespace
+
+    flow = object.__new__(EVChargeTrackerOptionsFlow)
+    flow.config_entry = SimpleNamespace(
+        data={
+            "vehicle_id": "leapmotor_c10",
+            "charger_id": "garage",
+            "vehicle_name": "Leapmotor C10",
+            "charger_name": "Garaje",
+        },
+        options={
+            "tariff_periods": [{"name": "Valle", "start": "00:00", "end": "24:00",
+                                "days": list(range(7)), "price": 0.11}],
+            "visual_model": "C10",
+            "visual_port_x": 58,
+        },
+    )
+    flow.async_create_entry = lambda **kwargs: kwargs
+    result = asyncio.run(flow.async_step_profile({
+        "charging_entity": "binary_sensor.new_charging",
+        "energy_entity": "sensor.new_energy",
+        "energy_mode": "session",
+        "odometer_unit": "km",
+        "finalization": "immediate",
+    }))
+
+    assert result["data"]["charging_entity"] == "binary_sensor.new_charging"
+    assert result["data"]["energy_entity"] == "sensor.new_energy"
+    assert result["data"]["tariff_periods"] == flow.config_entry.options["tariff_periods"]
+    assert result["data"]["visual_model"] == "C10"
+    assert result["data"]["visual_port_x"] == 58
+    assert result["data"]["vehicle_id"] == "leapmotor_c10"
+    assert result["data"]["charger_id"] == "garage"
+\n"""Tests for conditional tariff price forms in the options flow."""
 
 from custom_components.ev_charge_tracker.config_flow import EVChargeTrackerOptionsFlow
 from custom_components.ev_charge_tracker.tariff import default_periods
