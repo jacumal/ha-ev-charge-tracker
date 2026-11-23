@@ -431,3 +431,60 @@ test("editor forwards config changes to Lovelace and never claims persistence be
   assert.match(source, /Cambios enviados a Lovelace, pero aún pendientes de guardar/);
   assert.match(source, /no ofrece a esta tarjeta una confirmación fiable/);
 });
+
+function createCardInstance() {
+  const registry = new Map();
+  class HTMLElement {
+    attachShadow() { this.shadowRoot = { innerHTML: "" }; return this.shadowRoot; }
+  }
+  runInNewContext(source, {
+    HTMLElement,
+    URL,
+    customElements: { define: (name, constructor) => registry.set(name, constructor) },
+    window: {},
+  });
+  const Card = registry.get("ev-charge-tracker-card");
+  return new Card();
+}
+
+test("vehicle image gallery is present and queries Commons with machine-readable license metadata", () => {
+  assert.match(source, /Galería gratuita de vehículos/);
+  assert.match(source, /https:\/\/commons\.wikimedia\.org\/w\/api\.php/);
+  assert.match(source, /iiprop:"url\|extmetadata"/);
+  assert.match(source, /LicenseShortName/);
+  assert.match(source, /CC0/);
+  assert.match(source, /Public domain/);
+  assert.match(source, /CC BY-SA/);
+});
+
+test("only local images or HTTPS Wikimedia Commons uploads are accepted", () => {
+  const card = createCardInstance();
+  assert.equal(card._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
+  assert.equal(card._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/C10.jpg/900px-C10.jpg"), true);
+  assert.equal(card._validVehicleImage("http://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), false);
+  assert.equal(card._validVehicleImage("https://example.com/c10.jpg"), false);
+  assert.equal(card._validVehicleImage("https://upload.wikimedia.org.evil.example/c10.jpg"), false);
+  assert.equal(card._validVehicleImage("/local/ev-charge-tracker/../secret.png"), false);
+});
+
+test("selected Commons images retain creator, license and source-page attribution", () => {
+  assert.match(source, /visual_image_credit/);
+  assert.match(source, /visual_image_license/);
+  assert.match(source, /visual_image_license_url/);
+  assert.match(source, /visual_image_page/);
+  assert.match(source, /visual_image_source/);
+  assert.match(source, /vehicle-image-credit/);
+  assert.match(source, /noopener noreferrer/);
+});
+
+test("autonomy gets its own telemetry column only when explicitly mapped", () => {
+  const configured = createCard(
+    { entities: { range: "sensor.range" } },
+    { "sensor.range": { state: "282", last_updated: new Date().toISOString(), attributes: { unit_of_measurement: "km" } } },
+  );
+  const absent = createCard({ entities: {} });
+  assert.match(configured, /live-hero vehicle-telemetry with-range/);
+  assert.match(configured, /AUTONOMÍA/);
+  assert.match(configured, /282/);
+  assert.doesNotMatch(absent, /AUTONOMÍA/);
+});
