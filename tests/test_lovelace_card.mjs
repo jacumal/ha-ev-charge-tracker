@@ -489,3 +489,14 @@ test("autonomy gets its own telemetry column only when explicitly mapped", () =>
   assert.match(configured, /282/);
   assert.doesNotMatch(absent, /AUTONOMÍA/);
 });
+
+test("card links both image source and reusable license when attribution is available", () => {
+  assert.match(source, /visual_image_license_url/);
+  assert.match(source, /creativecommons/);
+  assert.match(source, /noopener noreferrer/);
+});
+
+test("editor clears stale license attribution when a selected image is replaced manually", () => {
+  assert.match(source, /delete next\\.vehicle_visual\\.visual_image_license_url/);
+  assert.match(source, /const previousImage/);
+});
