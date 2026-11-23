@@ -134,19 +134,20 @@ class EVChargeTrackerCard extends HTMLElement {
       van: "M23 64 L31 34 Q34 27 45 25 L174 25 Q188 25 196 39 L212 54 L215 77 L23 77 Z",
       pickup: "M22 62 L32 43 Q37 36 53 35 L72 21 L132 21 L145 37 L187 37 L208 54 L214 77 L22 77 Z",
     };
+    const fallbackMarkup = '<svg class="vehicle-image fallback" viewBox="0 0 240 110" role="img" aria-label="' + this._escape(vehicleLabel) + '">' +
+      '<path class="vehicle-body" d="' + bodyPaths[bodyStyle] + '"/>' +
+      '<path class="vehicle-window" d="M70 39 L87 24 Q91 21 101 21 L147 22 Q158 23 166 36 Z"/>' +
+      '<path class="vehicle-detail" d="M28 64 H209 M72 39 L70 62 M167 39 L170 62"/>' +
+      '<circle class="vehicle-wheel" cx="66" cy="77" r="13"/><circle class="vehicle-wheel" cx="177" cy="77" r="13"/>' +
+      '<circle class="vehicle-hub" cx="66" cy="77" r="5"/><circle class="vehicle-hub" cx="177" cy="77" r="5"/>' +
+      '</svg>';
     const vehicleMarkup = '<div class="vehicle-visual">' +
       '<div class="vehicle-caption"><strong>' + this._escape(vehicleLabel) + '</strong>' +
       (vehicleDetails ? '<small>' + this._escape(vehicleDetails) + '</small>' : '') + '</div>' +
       '<div class="vehicle-stage state-' + visualState + '" style="--vehicle-color:' + visualColor + '">' +
       (customImage
-        ? '<img class="vehicle-image" src="' + this._escape(customImage) + '" alt="' + this._escape(vehicleLabel) + '" loading="lazy">'
-        : '<svg class="vehicle-image fallback" viewBox="0 0 240 110" role="img" aria-label="' + this._escape(vehicleLabel) + '">' +
-          '<path class="vehicle-body" d="' + bodyPaths[bodyStyle] + '"/>' +
-          '<path class="vehicle-window" d="M70 39 L87 24 Q91 21 101 21 L147 22 Q158 23 166 36 Z"/>' +
-          '<path class="vehicle-detail" d="M28 64 H209 M72 39 L70 62 M167 39 L170 62"/>' +
-          '<circle class="vehicle-wheel" cx="66" cy="77" r="13"/><circle class="vehicle-wheel" cx="177" cy="77" r="13"/>' +
-          '<circle class="vehicle-hub" cx="66" cy="77" r="5"/><circle class="vehicle-hub" cx="177" cy="77" r="5"/>' +
-          '</svg>') +
+        ? '<img class="vehicle-image custom" src="' + this._escape(customImage) + '" alt="' + this._escape(vehicleLabel) + '" loading="lazy">'
+        : fallbackMarkup) +
       '<svg class="cable-overlay" viewBox="0 0 260 110" aria-hidden="true">' +
         '<path class="cable-shadow" d="M174 48 C211 45 190 91 236 91"/>' +
         '<path class="cable-line" d="M174 48 C211 45 190 91 236 91"/>' +
@@ -266,7 +267,8 @@ class EVChargeTrackerCard extends HTMLElement {
         .empty { padding:18px 4px; color:var(--secondary-text-color); font-size:13px; }
         .diagnostic { margin-top:13px; color:var(--secondary-text-color); font-size:11px; line-height:1.4; }
         @media(max-width:520px) { .charts{grid-template-columns:1fr;gap:9px}.chart-card{padding:12px}.bars{height:78px} }
-        @media(max-width:420px) { .wrap{padding:15px}.ring{width:72px;height:72px}.ring span{font-size:19px}.metric{padding:10px 8px}.metric strong{font-size:17px}.row{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) minmax(0,.8fr)} }
+        @media(max-width:520px) { .vehicle-visual{gap:8px;padding:8px}.vehicle-caption{flex-basis:36%}.vehicle-stage{height:76px}.vehicle-state{font-size:9px} }
+        @media(max-width:420px) { .wrap{padding:15px}.ring{width:72px;height:72px}.ring span{font-size:19px}.metric{padding:10px 8px}.metric strong{font-size:17px}.row{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) minmax(0,.8fr)}.vehicle-caption{flex-basis:40%}.vehicle-stage{height:68px}.vehicle-state{font-size:8px} }
       </style>
       <ha-card>
         <div class="wrap">
@@ -333,6 +335,16 @@ class EVChargeTrackerCard extends HTMLElement {
           ${diagnostic ? `<div class="diagnostic">${this._escape(diagnostic)}</div>` : ""}
         </div>
       </ha-card>`;
+    const customVehicleImage = this.shadowRoot.querySelector(".vehicle-image.custom");
+    if (customVehicleImage) customVehicleImage.addEventListener("error", () => {
+      customVehicleImage.replaceWith(this._createFallbackVehicle(fallbackMarkup));
+    }, { once: true });
+  }
+
+  _createFallbackVehicle(markup) {
+    const template = document.createElement("template");
+    template.innerHTML = markup;
+    return template.content.firstElementChild;
   }
 
   _escape(value) {
