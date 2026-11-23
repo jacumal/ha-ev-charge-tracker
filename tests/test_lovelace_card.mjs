@@ -405,3 +405,29 @@ test("redesigned history distinguishes partial cost and never plots invalid valu
   assert.match(html, /Progreso de batería no disponible/);
   assert.match(html, /row-main/);
 });
+
+test("editor forwards config changes to Lovelace and never claims persistence before native save", () => {
+  const registry = new Map();
+  class HTMLElement {
+    dispatchEvent(event) { this.lastEvent = event; return true; }
+  }
+  class CustomEvent {
+    constructor(type, options) { this.type = type; Object.assign(this, options); }
+  }
+  runInNewContext(source, {
+    HTMLElement,
+    CustomEvent,
+    customElements: { define: (name, constructor) => registry.set(name, constructor) },
+    window: {},
+  });
+  const Editor = registry.get("ev-charge-tracker-card-editor");
+  const editor = new Editor();
+  editor._config = { name: "Mi C10", entities: { status: "sensor.status" } };
+  editor._fireConfigChanged();
+  assert.equal(editor.lastEvent.type, "config-changed");
+  assert.equal(editor.lastEvent.bubbles, true);
+  assert.equal(editor.lastEvent.composed, true);
+  assert.deepEqual(JSON.parse(JSON.stringify(editor.lastEvent.detail.config)), editor._config);
+  assert.match(source, /Cambios enviados a Lovelace, pero aún pendientes de guardar/);
+  assert.match(source, /no ofrece a esta tarjeta una confirmación fiable/);
+});
