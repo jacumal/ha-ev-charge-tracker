@@ -35,12 +35,12 @@ This checklist tracks the work defined in [beta-5-plan.md](beta-5-plan.md). It i
 - [x] Profile refresh errors are shown with a retry path; save confirmation remains pending.
 - [x] Existing cards refresh selected profile identity without reconstruction.
 - [x] Manual Lovelace entity overrides and card-specific vehicle identity overrides are preserved.
-- [ ] No config-entry recreation required.
+- [x] Sensor/behavior edits use the existing config entry options flow; regression test verifies profile IDs, tariffs and visual options remain intact.
 
 ## Compatibility and release
-- [ ] Existing config entries and profile IDs preserved.
-- [ ] Existing tariffs preserved.
-- [ ] Existing session history preserved.
+- [x] Legacy config entries retain stable fallback profile IDs; sensor-option edits preserve existing vehicle/charger identity.
+- [x] Existing tariff definitions are preserved when sensor/behavior options are edited.
+- [x] Session recovery tests verify persisted history and pending-session state are restored after coordinator restart; live upgrade-in-place still pending.
 - [x] EVSE source diagnostics added (entity, state, unit, timestamp, age and validity reason); confirm against the user's live EVSE entity still pending.
 - [ ] Full CI green on PR.
 - [ ] Post-merge CI green.
