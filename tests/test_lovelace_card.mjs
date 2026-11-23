@@ -80,7 +80,7 @@ test("clamps the history display to at most 50 records", () => {
     cost_status: "complete",
   }));
   const html = createCard(
-    { max_history: 1000, entities: { history: "sensor.history" } },
+    { max_history: 1000, display_mode: "complete", entities: { history: "sensor.history" } },
     { "sensor.history": { state: "60", attributes: { sessions } } },
   );
   assert.match(html, /50 registros/);
@@ -140,7 +140,7 @@ test("shows live battery SOC and odometer from the selected profile entities", (
       "sensor.leapmotor_odometer": { state: "12345", attributes: { unit_of_measurement: "km" } },
     },
   );
-  assert.match(html, /Batería actual/);
+  assert.match(html, /<small>Batería<\\/small>/);
   assert.match(html, /87,4%/);
   assert.match(html, /Odómetro/);
   assert.match(html, /12\.345 km/);
