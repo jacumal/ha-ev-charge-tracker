@@ -1,6 +1,6 @@
 # Beta 6 — Free vehicle gallery and visual dashboard
 
-**Branch:** `feature/beta-6-free-vehicle-gallery-card`  
+**Branch:** `feature/beta-6-free-vehicle-gallery`  
 **Base:** beta.5 candidate (`b6aaf06948272ade93364088cc07e6e7feb896b6`)  
 **Scope boundary:** vehicle image gallery and Lovelace card presentation only. No tariff engine, sensor model, charging-session logic or new statistics.
 
