@@ -303,6 +303,16 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                 )
             user_input[CONF_VISUAL_COLOR] = color.upper() if color else ""
             user_input[CONF_VISUAL_IMAGE] = image
+            # Do not let untouched defaults on another charger profile overwrite
+            # the shared vehicle appearance stored by its sibling profile.
+            for key, default in (
+                (CONF_VISUAL_COLOR, "#71869A"),
+                (CONF_VISUAL_BODY_STYLE, "suv"),
+                (CONF_VISUAL_PORT_X, 67),
+                (CONF_VISUAL_PORT_Y, 44),
+            ):
+                if user_input.get(key) == default and current.get(key) is None:
+                    user_input.pop(key, None)
             return self.async_create_entry(
                 title="", data={**self.config_entry.options, **user_input}
             )
@@ -320,8 +330,8 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
             vol.Optional(CONF_VISUAL_GENERATION, default=current.get(CONF_VISUAL_GENERATION, "")): str,
             vol.Optional(CONF_VISUAL_YEAR, default=current.get(CONF_VISUAL_YEAR, "")): str,
             vol.Optional(CONF_VISUAL_TRIM, default=current.get(CONF_VISUAL_TRIM, "")): str,
-            vol.Optional(CONF_VISUAL_COLOR, default=current.get(CONF_VISUAL_COLOR)): str,
-            vol.Optional(CONF_VISUAL_BODY_STYLE, default=current.get(CONF_VISUAL_BODY_STYLE)): selector.SelectSelector(
+            vol.Optional(CONF_VISUAL_COLOR, default=current.get(CONF_VISUAL_COLOR, "#71869A")): str,
+            vol.Optional(CONF_VISUAL_BODY_STYLE, default=current.get(CONF_VISUAL_BODY_STYLE, "suv")): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[
                         {"value": "suv", "label": "SUV / Crossover"},
@@ -334,8 +344,8 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                 )
             ),
             vol.Optional(CONF_VISUAL_IMAGE, default=current.get(CONF_VISUAL_IMAGE, "")): str,
-            vol.Optional(CONF_VISUAL_PORT_X, default=current.get(CONF_VISUAL_PORT_X)): All(Coerce(float), Range(min=0, max=100)),
-            vol.Optional(CONF_VISUAL_PORT_Y, default=current.get(CONF_VISUAL_PORT_Y)): All(Coerce(float), Range(min=0, max=100)),
+            vol.Optional(CONF_VISUAL_PORT_X, default=current.get(CONF_VISUAL_PORT_X, 67)): All(Coerce(float), Range(min=0, max=100)),
+            vol.Optional(CONF_VISUAL_PORT_Y, default=current.get(CONF_VISUAL_PORT_Y, 44)): All(Coerce(float), Range(min=0, max=100)),
         })
 
     async def async_step_units(self, user_input=None):
