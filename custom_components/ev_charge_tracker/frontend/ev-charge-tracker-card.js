@@ -104,6 +104,10 @@ class EVChargeTrackerCard extends HTMLElement {
     const odometer = this._number(e.odometer);
     const odometerUnit = this._attr(e.odometer, "unit_of_measurement", "km") || "km";
     const hasLiveTelemetry = Boolean(e.current_soc || e.odometer);
+    const duration = this._number(e.duration);
+    const history = this._attr(e.history, "sessions", []);
+    const current = this._attr(e.history, "current_session", null);
+    const latest = this._attr(e.history, "latest_session", null);
     const pluggedValue = String(this._value(e.plugged, "off")).toLowerCase();
     const hasPluggedSensor = Boolean(e.plugged);
     const cableConnected = ["on", "true", "1", "connected", "plugged"].includes(pluggedValue);
@@ -114,8 +118,11 @@ class EVChargeTrackerCard extends HTMLElement {
       vehicle.visual_image.startsWith("/local/ev-charge-tracker/") &&
       /\.(png|webp)$/i.test(vehicle.visual_image) && !vehicle.visual_image.includes("..")
       ? vehicle.visual_image : "";
+    const lastChargeCompleted = Boolean(
+      !current && latest && (latest.status === "completed" || latest.completed_at || latest.ended_at)
+    );
     const visualState = statusWarning ? "error" : charging ? "charging" :
-      status === "completed" ? "completed" :
+      (status === "completed" || lastChargeCompleted) ? "completed" :
       (hasPluggedSensor && cableConnected ? "connected" : "disconnected");
     const visualStateLabels = {
       disconnected: hasPluggedSensor ? "Cable desconectado" : "Conexión sin monitorizar",
@@ -156,10 +163,6 @@ class EVChargeTrackerCard extends HTMLElement {
         '<g class="connector connector-plug" transform="translate(166 30) rotate(90)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
         '<circle class="charge-port" cx="174" cy="48" r="4"/>' +
       '</svg></div><div class="vehicle-state"><i></i>' + this._escape(visualStateLabels[visualState]) + '</div></div>';
-    const duration = this._number(e.duration);
-    const history = this._attr(e.history, "sessions", []);
-    const current = this._attr(e.history, "current_session", null);
-    const latest = this._attr(e.history, "latest_session", null);
     const diagnostic = this._attr(e.history, "diagnostic", "");
     const record = current || latest || {};
     const currency = this._attr(e.cost, "currency", this._state(e.cost)?.attributes?.unit_of_measurement || "EUR");
