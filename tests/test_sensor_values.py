@@ -75,5 +75,26 @@ class SensorValueTests(unittest.TestCase):
         self.assertEqual(sensor.extra_state_attributes["cost_status"], "partial")
 
 
+    def test_history_sensor_exposes_evse_energy_source_diagnostics(self):
+        from datetime import datetime, timezone
+        from custom_components.ev_charge_tracker.sensor import EVChargeHistorySensor
+
+        state = SimpleNamespace(
+            state="unavailable",
+            attributes={"unit_of_measurement": "kWh"},
+            last_updated=datetime.now(timezone.utc),
+        )
+        sensor = object.__new__(EVChargeHistorySensor)
+        sensor.coordinator = SimpleNamespace(
+            config={"energy_entity": "sensor.evse_energy"},
+            hass=SimpleNamespace(states=SimpleNamespace(get=lambda entity_id: state)),
+        )
+        diagnostic = sensor._energy_source_diagnostic()
+        self.assertEqual(diagnostic["energy_source_entity"], "sensor.evse_energy")
+        self.assertEqual(diagnostic["energy_source_status"], "unavailable_state")
+        self.assertEqual(diagnostic["energy_source_unit"], "kWh")
+
+
+
 if __name__ == "__main__":
     unittest.main()
