@@ -129,7 +129,7 @@ class EVChargeTrackerCard extends HTMLElement {
     const validSoc = currentSoc !== null && currentSoc >= 0 && currentSoc <= 100;
     const validOdometer = odometer !== null && odometer >= 0;
     const validRange = rangeValue !== null && rangeValue >= 0;
-    const telemetryStates = [e.current_soc, e.odometer, e.range].filter(Boolean).map(id => this._state(id)).filter(Boolean);
+    const telemetryStates = [e.current_soc, e.odometer].filter(Boolean).map(id => this._state(id)).filter(Boolean);
     const telemetryTimes = telemetryStates.map(state => Date.parse(state.last_updated || state.last_changed || "")).filter(Number.isFinite);
     const telemetryAgeMinutes = telemetryTimes.length ? Math.max(0, (Date.now() - Math.min(...telemetryTimes)) / 60000) : null;
     const telemetryFreshness = telemetryAgeMinutes === null ? "Sin marca temporal" : telemetryAgeMinutes <= 15 ? "Datos actualizados" : telemetryAgeMinutes <= 180 ? "Datos antiguos" : "Datos desactualizados";
