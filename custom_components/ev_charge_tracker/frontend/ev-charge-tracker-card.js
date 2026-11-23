@@ -602,7 +602,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       if (feedback) feedback.textContent = "Perfiles cargados correctamente."; 
     } catch (error) {
       // Keep manual configuration available if the backend profile API is unavailable.
-      this._profilesLoaded = false;
+      this._profilesLoaded = true;
       this._manualMode = true;
       this._syncControls();
       const refresh = this.shadowRoot?.getElementById("refreshProfiles");
