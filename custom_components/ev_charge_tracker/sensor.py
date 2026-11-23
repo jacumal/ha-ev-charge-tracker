@@ -7,12 +7,13 @@ from datetime import datetime
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.util import dt as dt_util
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import EVChargeConfigEntry
 from .const import (
-    CONF_VEHICLE_NAME, DOMAIN, CONF_UNIT_ENERGY, CONF_CURRENCY,
+    CONF_VEHICLE_NAME, DOMAIN, CONF_UNIT_ENERGY, CONF_CURRENCY, CONF_ENERGY_ENTITY,
 )
 from .coordinator import EVChargeCoordinator
 from .units import convert_unit
@@ -233,6 +234,41 @@ class EVChargeHistorySensor(EVChargeBaseSensor):
     def native_value(self):
         return len(self.coordinator.data.get("history", []))
 
+    def _energy_source_diagnostic(self):
+        """Expose safe source metadata to diagnose unavailable EVSE energy sensors."""
+        entity_id = self.coordinator.config.get(CONF_ENERGY_ENTITY)
+        state = self.coordinator.hass.states.get(entity_id) if entity_id else None
+        if not entity_id:
+            return {"energy_source_status": "not_configured"}
+        if state is None:
+            return {"energy_source_entity": entity_id, "energy_source_status": "missing_entity"}
+        raw = state.state
+        unit = str(state.attributes.get("unit_of_measurement") or "")
+        updated = state.last_updated
+        age = None if updated is None else max(0, int((dt_util.utcnow() - updated).total_seconds()))
+        if raw in ("unknown", "unavailable", "none"):
+            reason = "unavailable_state"
+        elif age is None or age > 600:
+            reason = "stale_or_missing_timestamp"
+        else:
+            try:
+                value = float(raw)
+                if value < 0:
+                    reason = "negative_value"
+                else:
+                    convert_unit(value, "energy", unit, "kWh")
+                    reason = "valid"
+            except (TypeError, ValueError):
+                reason = "invalid_value_or_unit"
+        return {
+            "energy_source_entity": entity_id,
+            "energy_source_state": raw,
+            "energy_source_unit": unit,
+            "energy_source_last_updated": updated.isoformat() if updated else None,
+            "energy_source_age_seconds": age,
+            "energy_source_status": reason,
+        }
+
     @property
     def extra_state_attributes(self):
         current = self.coordinator.data.get("session")
@@ -244,4 +280,5 @@ class EVChargeHistorySensor(EVChargeBaseSensor):
             "diagnostic": self.coordinator.data.get("diagnostic"),
             "tariff_breakdown": (current or latest or {}).get("tariff_breakdown", {}),
             "tariff_estimated": (current or latest or {}).get("tariff_estimated", False),
+            **self._energy_source_diagnostic(),
         }
