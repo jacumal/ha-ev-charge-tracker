@@ -13,8 +13,8 @@
 - Redesigns the latest-session summary around delivered energy and SOC progression, with clearer duration, cost, tariff allocation and an explicit explanation when cost is partial.
 - Refreshes the energy/cost charts and historical session rows with responsive layouts, session-level energy indicators and distinct partial/unknown values.
 - Refreshes the selected profile in existing cards while preserving manual entity and card-specific visual overrides.
-- The editor distinguishes pending configuration changes from profile-refresh success and instructs the user to save in Lovelace. Home Assistant does not expose a reliable save-completion callback to the custom editor, so it never reports persistence success prematurely.
-- CI validates the HACS integration directory, metadata, frontend asset and generated ZIP archive structure.
+- The editor emits Lovelace’s standard bubbling/composed `config-changed` event, clearly marks changes as pending, and instructs the user to use the native Save action. Home Assistant does not expose a reliable save-completion callback to the custom editor, so it never reports persistence success prematurely. The final save/reopen check must be performed in a live Home Assistant dashboard.
+- CI validates the HACS integration directory, metadata, frontend asset and generated ZIP archive structure, and now runs the official HACS Action plus Home Assistant hassfest. A real HACS install/update in Home Assistant remains a release gate.
 - Exposes diagnostic metadata for the configured EVSE energy source to help distinguish missing, unavailable, stale and invalid readings.
 
 ## Upgrade
