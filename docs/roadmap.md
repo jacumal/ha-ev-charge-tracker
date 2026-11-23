@@ -64,7 +64,7 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [x] Add responsive per-session energy and cost charts using persisted history only; partial costs are visually distinguished and missing values are omitted.
 - [x] Refresh the visual editor while retaining automatic profile discovery, explicit multi-profile selection and manual entity overrides.
 - [x] Add per-vehicle visual identity (brand, model, generation, year, trim, color and body style), shared across charger profiles.
-- [x] Add a compact transparent vehicle thumbnail, local silhouette gallery, user-supplied PNG/WebP support and animated cable/energy states.
+- [x] Add a compact transparent vehicle thumbnail, local silhouette gallery, user-supplied PNG/WebP support, configurable charge-port anchors and animated cable/energy states.
 - [ ] Validate latest-charge summary, charts, history, tariff breakdown and missing-data states against a live HA frontend.
 - [ ] Verify mobile/desktop and light/dark layouts in a real HA instance.
 - [ ] Publish installation guidance and verified screenshots.
