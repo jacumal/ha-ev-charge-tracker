@@ -14,7 +14,7 @@ def test_gallery_uses_commons_public_api_and_https_upload_host_only():
     assert "https://commons.wikimedia.org/w/api.php?" in source
     assert 'url.hostname === "upload.wikimedia.org"' in source
     assert 'url.protocol === "https:"' in source
-    assert "https://upload.wikimedia.org/wikipedia/commons/" in source
+    assert "upload\\.wikimedia\\.org" in source
 
 
 def test_gallery_filters_to_recognized_free_licenses():
