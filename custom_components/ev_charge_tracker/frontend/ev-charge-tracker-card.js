@@ -226,7 +226,7 @@ class EVChargeTrackerCard extends HTMLElement {
         .state-connected .connector-plug,.state-charging .connector-plug { opacity:1; }
         .charge-port { fill:var(--secondary-background-color); stroke:var(--secondary-text-color); stroke-width:2; }
         .state-disconnected .cable-line,.state-disconnected .cable-shadow,.state-disconnected .connector-free,.state-disconnected .energy-line,.state-disconnected .charge-port { opacity:.28; }
-        .state-connected .cable-line,.state-connected .connector-free,.state-connected .connector-plug,.state-connected .charge-port { opacity:1; }
+        .state-connected .cable-line,.state-connected .connector-plug,.state-connected .charge-port { opacity:1; }
         .state-charging .energy-line { opacity:1; animation:energy-flow 1s linear infinite; }
         .state-charging .cable-line { stroke:var(--success-color,#42a66b); }
         .state-completed .energy-line { opacity:0; }
