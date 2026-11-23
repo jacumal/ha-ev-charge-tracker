@@ -145,3 +145,41 @@ test("shows live battery SOC and odometer from the selected profile entities", (
   assert.match(html, /Odómetro/);
   assert.match(html, /12\.345 km/);
 });
+
+test("renders a transparent vehicle silhouette and cable state without a custom image", () => {
+  const html = createCard(
+    { name: "Leapmotor C10", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10", visual_color: "#AABBCC", visual_body_style: "suv" }, entities: { status: "sensor.status" } },
+    { "sensor.status": { state: "idle", attributes: {} } },
+  );
+  assert.match(html, /vehicle-visual/);
+  assert.match(html, /Leapmotor C10/);
+  assert.match(html, /vehicle-body/);
+  assert.match(html, /state-disconnected/);
+  assert.match(html, /Conexión sin monitorizar/);
+});
+
+test("animates energy flow only while charging and supports local transparent images", () => {
+  const html = createCard(
+    { vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10", visual_image: "/local/ev-charge-tracker/c10.webp" }, entities: { status: "sensor.status" } },
+    { "sensor.status": { state: "charging", attributes: {} } },
+  );
+  assert.match(html, /src="\\/local\\/ev-charge-tracker\\/c10\\.webp"/);
+  assert.match(html, /state-charging/);
+  assert.match(html, /energy-flow/);
+});
+
+test("distinguishes connected idle and error vehicle states", () => {
+  const connected = createCard(
+    { vehicle_visual: {}, entities: { status: "sensor.status", plugged: "binary_sensor.plugged" } },
+    { "sensor.status": { state: "idle", attributes: {} }, "binary_sensor.plugged": { state: "on", attributes: {} } },
+  );
+  const error = createCard(
+    { entities: { status: "sensor.status" } },
+    { "sensor.status": { state: "needs_attention", attributes: {} } },
+  );
+  assert.match(connected, /state-connected/);
+  assert.match(connected, /Cable conectado/);
+  assert.match(error, /state-error/);
+  assert.match(error, /requiere atención/);
+});
+
