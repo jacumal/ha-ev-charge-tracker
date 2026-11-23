@@ -31,7 +31,8 @@ This checklist tracks the work defined in [beta-5-plan.md](beta-5-plan.md). It i
 - [x] Shared identity remains consistent across charger profiles (registry regression test).
 
 ## Configuration feedback and refresh
-- [ ] Save confirmation and summary. The editor now explicitly marks edits as pending and directs the user to Lovelace “Save”; Lovelace does not expose a reliable persistence-success callback to a custom card editor, so it must not claim that the save succeeded.
+- [x] Pending-save feedback is explicit; the editor emits the standard bubbling/composed `config-changed` event and does not claim persistence success prematurely.
+- [ ] Verify the native Lovelace Save action by saving, leaving the editor and reopening the dashboard in a live Home Assistant instance. The custom editor API has no reliable save-completion callback.
 - [x] Profile refresh errors are shown with a retry path; editor feedback clearly distinguishes pending changes from profile-refresh success. Final persistence confirmation is constrained by the Lovelace editor API.
 - [x] Existing cards refresh selected profile identity without reconstruction.
 - [x] Manual Lovelace entity overrides and card-specific vehicle identity overrides are preserved.
@@ -46,4 +47,6 @@ This checklist tracks the work defined in [beta-5-plan.md](beta-5-plan.md). It i
 - [ ] Post-merge CI green.
 - [ ] Live Home Assistant update-in-place validation.
 - [ ] Real charging session validated.
-- [x] HACS repository layout and generated integration ZIP structure are validated in CI; installation from HACS and final tagged package remain release checks.
+- [x] HACS package layout and generated ZIP integrity are validated in CI.
+- [ ] Official HACS Action and Home Assistant hassfest pass on the latest PR commit.
+- [ ] Install/update the repository as a custom integration through HACS in a real Home Assistant instance; verify the downloaded files and restart. Final tagged release archive remains a release gate.
