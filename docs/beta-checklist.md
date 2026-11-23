@@ -13,7 +13,8 @@ verified in a real Home Assistant installation.
 - [x] Vehicle visual identity is stored per vehicle and shared across its charger profiles.
 - [x] Card includes a transparent local thumbnail/fallback silhouette and animated cable/energy states.
 - [x] Vehicle image paths are restricted to local PNG/WebP assets; no paid image API or external service is required.
-- [x] CI is green on the final beta candidate commit (run #172, commit `3484dbe`).
+- [x] Previous beta.3 baseline passed CI (run #172, commit `3484dbe`).
+- [ ] CI passes on the consolidated beta.3 candidate including PR #13.
 - [ ] Verify the HACS release/tag installation path and packaged file layout.
 - [x] Publish release notes with known limitations and upgrade instructions (`docs/release-notes-beta-3.md`).
 
