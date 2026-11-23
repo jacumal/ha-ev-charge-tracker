@@ -396,7 +396,7 @@ test("redesigned history distinguishes partial cost and never plots invalid valu
     { display_mode: "complete", entities: { history: "sensor.history" } },
     { "sensor.history": { state: "2", attributes: { sessions: [
       { started_at: "2026-11-22T10:00:00Z", energy_kwh: 10, known_cost: 1.2, cost: null, cost_status: "partial", soc_start: 40, soc_end: 65 },
-      { started_at: "2026-11-21T10:00:00Z", energy_kwh: -5, cost: -2, cost_status: "unknown" },
+      { started_at: "2026-11-21T10:00:00Z", energy_kwh: -5, cost: -2, cost_status: "unknown", soc_start: null, soc_end: null },
     ] } } },
   );
   assert.match(html, /row-energy/);
