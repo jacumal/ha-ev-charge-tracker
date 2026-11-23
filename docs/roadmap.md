@@ -139,3 +139,22 @@ Changes are developed on a feature branch and reviewed before merging to main. A
 - [ ] Complete full CI on the latest branch head and review all regressions.
 - [ ] Complete real Home Assistant validation, including frontend layouts, update-in-place and a real charge.
 
+
+
+## 9. Beta.6 — Free vehicle gallery and approved visual dashboard
+
+**Status: Candidate implementation in progress on `feature/beta-6-free-vehicle-gallery-card`.** Scope is intentionally limited to the Commons vehicle gallery and Lovelace presentation; no tariff, sensor, session or statistics changes are included. See `docs/beta-6-plan.md`.
+
+- [x] Create an isolated beta.6 branch from the beta.5 candidate.
+- [x] Add Commons image search in the card editor using the public MediaWiki API.
+- [x] Allowlist recognized CC0, Public Domain, CC BY and CC BY-SA license labels; omit unknown/unrecognized licenses.
+- [x] Preserve creator, license and file-description URL with the selected image.
+- [x] Restrict remote image rendering to HTTPS upload.wikimedia.org assets; keep local PNG/WebP support.
+- [x] Promote the vehicle image into a large responsive hero and provide a three-column telemetry layout when autonomy is explicitly mapped.
+- [x] Add automated source-contract and Lovelace tests for Commons license filtering, URL validation, attribution metadata and optional autonomy layout.
+- [ ] Complete CI and resolve any failures.
+- [ ] Validate gallery search and image selection in real Home Assistant, including save/reopen and restart.
+- [ ] Compare idle and charging screenshots against the two approved references on mobile/desktop and light/dark themes.
+- [ ] Verify all beta.5 session, cost, tariff and history behavior remains unchanged.
+
+**Release rule:** beta.6 is not complete until automated CI is green and real Home Assistant visual/editor validation has been performed. A successful source commit alone is not release acceptance.
