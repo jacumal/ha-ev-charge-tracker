@@ -1,4 +1,4 @@
-# Beta 6 — Free vehicle gallery and visual dashboard
+# Beta 6 — ChargeTrack identity, free vehicle gallery and visual dashboard
 
 **Branch:** `feature/beta-6-free-vehicle-gallery`  
 **Base:** beta.5 candidate (`b6aaf06948272ade93364088cc07e6e7feb896b6`)  
@@ -62,3 +62,8 @@ The vehicle is the visual hero, not a small thumbnail. The card must remain read
 ## Known limitations
 
 Wikimedia Commons contains photographs and renders with varied framing/backgrounds; a free license does not guarantee a transparent cut-out or an exact studio angle. The gallery must label licensing accurately and let the user choose. The first version uses remote Commons thumbnails; therefore the selected image requires an internet connection unless the user supplies a local copy. A later offline-cache/download feature is outside beta.6 scope.
+
+
+## ChargeTrack brand identity
+
+The integration's user-facing product name is ChargeTrack. The approved app mark is the minimalist open circular blue/green arc with a lightning bolt, with dark and light variants. Brand assets are stored under `custom_components/ev_charge_tracker/brand/`; the internal domain, Lovelace element type and resource path remain unchanged for update-in-place compatibility. The card and editor use the ChargeTrack name. The UI follows Home Assistant's light/dark theme and uses a restrained blue/green palette with white and neutral gray surfaces.

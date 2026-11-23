@@ -1,13 +1,9 @@
 {
   "domain": "ev_charge_tracker",
-  "name": "EV Charge Tracker",
-  "codeowners": [
-    "@jacumal"
-  ],
+  "name": "ChargeTrack",
+  "codeowners": ["@jacumal"],
   "config_flow": true,
-  "dependencies": [
-    "http"
-  ],
+  "dependencies": ["http"],
   "documentation": "https://github.com/jacumal/ha-ev-charge-tracker",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/jacumal/ha-ev-charge-tracker/issues",

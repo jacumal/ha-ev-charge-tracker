@@ -1,5 +1,5 @@
-/* EV Charge Tracker Lovelace card
- * Copyright (c) EV Charge Tracker contributors. MIT.
+/* ChargeTrack Lovelace card
+ * Copyright (c) ChargeTrack contributors. MIT.
  */
 const CARD_VERSION = "0.4.0";
 
@@ -217,7 +217,7 @@ class EVChargeTrackerCard extends HTMLElement {
       error: inconsistentConnection ? "Carga activa con cable desconectado" : "Estado que requiere atención",
     };
     const vehicleLabel = [vehicle.visual_brand, vehicle.visual_model].filter(Boolean).join(" ") ||
-      this.config.vehicle_name || this.config.vehicle || this.config.name || "EV Charge Tracker";
+      this.config.vehicle_name || this.config.vehicle || this.config.name || "ChargeTrack";
     const vehicleDetails = [vehicle.visual_generation, vehicle.visual_year, vehicle.visual_trim].filter(Boolean).join(" · ");
     const bodyPaths = {
       suv: "M24 65 L32 45 Q36 39 48 37 L66 22 Q72 17 88 17 L151 17 Q163 17 171 27 L190 43 Q204 47 211 56 L216 70 L209 78 L24 78 Z",
@@ -261,7 +261,7 @@ class EVChargeTrackerCard extends HTMLElement {
       (cost !== null || hasKnownCost || (tariffBreakdown && Object.keys(tariffBreakdown).length))
     );
     const energyUnit = this._attr(e.energy, "unit_of_measurement", "kWh");
-    const title = this.config.name || this.config.vehicle || "EV Charge Tracker";
+    const title = this.config.name || this.config.vehicle || "ChargeTrack";
     const start = this._date(record.started_at);
     const end = this._date(record.ended_at || record.completed_at);
     const maxHistory = Math.min(50, Math.max(1, Math.trunc(Number(this.config.max_history) || 8)));
@@ -754,7 +754,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const vehicleVisual = savedVisual || legacyVisual || profile.vehicle_visual || {};
     const next = {
       ...this._config,
-      name: profile.vehicle_name || this._config.name || "EV Charge Tracker",
+      name: profile.vehicle_name || this._config.name || "ChargeTrack",
       profile_entry_id: profile.entry_id,
       entities: { ...(this._config.entities || {}), ...(profile.entities || {}) },
       vehicle_visual: { ...vehicleVisual },
@@ -855,7 +855,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
   }
 
   _updateConfig(changedKey, changedValue) {
-    const name = this.shadowRoot.getElementById("name").value.trim() || "EV Charge Tracker";
+    const name = this.shadowRoot.getElementById("name").value.trim() || "ChargeTrack";
     const maxHistory = Math.min(50, Math.max(1, Number(this.shadowRoot.getElementById("max_history").value || 8)));
     const displayMode = this.shadowRoot.getElementById("display_mode").value || "balanced";
     const themeMode = this.shadowRoot.getElementById("theme_mode").value || "auto";
@@ -923,7 +923,7 @@ customElements.define("ev-charge-tracker-card-editor", EVChargeTrackerCardEditor
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "ev-charge-tracker-card",
-  name: "EV Charge Tracker",
+  name: "ChargeTrack",
   description: "Resumen de carga, batería, coste e histórico de vehículo eléctrico.",
   preview: true,
   version: CARD_VERSION,

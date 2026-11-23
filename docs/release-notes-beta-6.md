@@ -1,4 +1,4 @@
-# EV Charge Tracker 0.1.0-beta.6 — candidate
+# ChargeTrack 0.1.0-beta.6 — candidate
 
 ## Scope
 
@@ -29,3 +29,11 @@ No new charging, tariff, sensor, cost or statistics functionality is introduced.
 Update the integration in place; do not delete the config entry or stored history. Restart Home Assistant and refresh the browser resource. The Lovelace card editor must be saved using the native Save action.
 
 This is a candidate, not a production-validated release. Real Home Assistant checks for image selection/persistence, mobile and desktop layouts, themes, and regression of existing session data remain required.
+
+
+## ChargeTrack rebrand
+
+- User-facing integration and card name changed to ChargeTrack.
+- Added minimalist arc-and-lightning logo in dark and light SVG variants, plus a horizontal wordmark.
+- Documented the blue, green, white and neutral-gray identity system.
+- Preserved the internal `ev_charge_tracker` domain, Lovelace element type, resource URL and existing configuration/history for safe in-place upgrades.
