@@ -48,6 +48,7 @@ this checklist. Record actual results and Home Assistant logs for each item.
 ## Beta.6 candidate — gallery and card-only validation
 - [x] Add automated source-contract and Lovelace tests for gallery licensing, URL validation, attribution metadata and optional autonomy layout.
 - [ ] Search for Leapmotor C10 and confirm image results load from Wikimedia Commons.
+- [x] Keep the Lovelace resource URL stable and disable long-lived cache headers so a manual version query is not needed.
 - [ ] Confirm CC0/Public Domain/CC BY/CC BY-SA results appear and NC/ND/unknown-license results are excluded.
 - [ ] Select an image and verify author, license and Commons source page persist in the Lovelace card configuration.
 - [ ] Save, close and reopen the card editor; confirm the selected image and attribution remain.
