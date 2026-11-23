@@ -543,6 +543,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     this._manualMode = false;
     this._galleryResults = [];
     this._gallerySequence = 0;
+    this._galleryQueryEdited = false;
   }
 
   setConfig(config) {
@@ -640,6 +641,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     });
     this.shadowRoot.getElementById("refreshProfiles").addEventListener("click", () => this._loadProfiles(true));
     this.shadowRoot.getElementById("searchVehicleGallery").addEventListener("click", () => this._searchVehicleGallery());
+    this.shadowRoot.getElementById("galleryQuery").addEventListener("input", () => { this._galleryQueryEdited = true; });
     this.shadowRoot.getElementById("galleryQuery").addEventListener("keydown", event => { if (event.key === "Enter") { event.preventDefault(); this._searchVehicleGallery(); } });
     this.shadowRoot.getElementById("galleryResults").addEventListener("click", event => { const button = event.target.closest("button[data-gallery-index]"); if (button) this._selectGalleryImage(this._galleryResults[Number(button.dataset.galleryIndex)]); });
     this.shadowRoot.getElementById("manualToggle").addEventListener("click", () => {
@@ -735,13 +737,28 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     }
   }
 
+  _profileVisualKey(profile) {
+    const visual = profile?.vehicle_visual || {};
+    const identity = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") ||
+      profile?.vehicle_name || profile?.entry_id || "manual";
+    return String(identity).normalize("NFKD").replace(/[\\u0300-\\u036f]/g, "")
+      .toLocaleLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "manual";
+  }
+
   _applyProfile(profile, emit = true) {
+    const visualKey = this._profileVisualKey(profile);
+    const savedVisual = this._config.vehicle_visuals?.[visualKey];
+    const isSameProfile = this._config.profile_entry_id === profile.entry_id;
+    const legacyVisual = isSameProfile && this._config.vehicle_visual_override
+      ? this._config.vehicle_visual : null;
+    const vehicleVisual = savedVisual || legacyVisual || profile.vehicle_visual || {};
     const next = {
       ...this._config,
       name: profile.vehicle_name || this._config.name || "EV Charge Tracker",
       profile_entry_id: profile.entry_id,
       entities: { ...(this._config.entities || {}), ...(profile.entities || {}) },
-      vehicle_visual: this._config.vehicle_visual_override ? (this._config.vehicle_visual || {}) : (profile.vehicle_visual || this._config.vehicle_visual || {}),
+      vehicle_visual: { ...vehicleVisual },
+      vehicle_visual_override: Boolean(savedVisual || legacyVisual),
     };
     for (const key of Object.keys(next.entities)) {
       if (!profile.entities?.[key]) delete next.entities[key];
@@ -764,7 +781,12 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     if (themeMode && themeMode !== this.shadowRoot.activeElement) themeMode.value = this._config.theme_mode || "auto";
     const visual = this._config.vehicle_visual || {};
     const galleryQuery = this.shadowRoot.getElementById("galleryQuery");
-    if (galleryQuery && !galleryQuery.value) galleryQuery.value = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") || this._config.name || "";
+    const profile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
+    const suggestedQuery = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") ||
+      profile?.vehicle_name || this._config.name || "";
+    if (galleryQuery && !this._galleryQueryEdited && galleryQuery.value !== suggestedQuery) {
+      galleryQuery.value = suggestedQuery;
+    }
     ["brand","model","generation","year","trim","color","body_style","image","port_x","port_y"].forEach(key => {
       const field = this.shadowRoot.getElementById("visual_" + key);
       if (field && field !== this.shadowRoot.activeElement) {
@@ -865,6 +887,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       delete next.vehicle_visual.visual_image_source;
     }
     if (this.shadowRoot.activeElement?.id?.startsWith("visual_")) next.vehicle_visual_override = true;
+    const activeProfile = this._profiles.find(profile => profile.entry_id === next.profile_entry_id);
+    const visualKey = activeProfile ? this._profileVisualKey(activeProfile) : "manual";
+    next.vehicle_visuals = { ...(next.vehicle_visuals || {}), [visualKey]: { ...next.vehicle_visual } };
     if (changedKey) {
       if (changedValue) next.entities[changedKey] = changedValue;
       else delete next.entities[changedKey];
