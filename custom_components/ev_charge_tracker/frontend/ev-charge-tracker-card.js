@@ -362,7 +362,6 @@ class EVChargeTrackerCard extends HTMLElement {
               }).join("")}</div>` : '<div class="chart-empty">Sin costes calculables todavía</div>'}
               <div class="chart-legend">Los costes parciales se muestran atenuados</div>
             </section>
-          </div>
           </div>` : ""}
           ${displayMode === "complete" ? `<div class="history-head"><h3>Histórico de cargas</h3><span class="count">${rows.length} registros</span></div>
           ${rows.length ? rows.map(item => `
