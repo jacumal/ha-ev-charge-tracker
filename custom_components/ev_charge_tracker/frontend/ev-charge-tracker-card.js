@@ -104,6 +104,7 @@ class EVChargeTrackerCard extends HTMLElement {
     const odometer = this._number(e.odometer);
     const odometerUnit = this._attr(e.odometer, "unit_of_measurement", "km") || "km";
     const hasLiveTelemetry = Boolean(e.current_soc || e.odometer);
+    const displayMode = ["compact", "balanced", "complete"].includes(this.config.display_mode) ? this.config.display_mode : "balanced";
     const duration = this._number(e.duration);
     const history = this._attr(e.history, "sessions", []);
     const current = this._attr(e.history, "current_session", null);
@@ -253,6 +254,9 @@ class EVChargeTrackerCard extends HTMLElement {
         .state-error + .vehicle-state i { background:var(--warning-color,#d69b32); }
         @keyframes energy-flow { to { stroke-dashoffset:-26; } }
         @media(prefers-reduced-motion:reduce) { .state-charging .energy-line { animation:none; opacity:.8; } }
+        .vehicle-telemetry{display:flex;justify-content:flex-end;gap:18px;margin:10px 4px 0;color:var(--secondary-text-color);font-size:11px}
+        .vehicle-telemetry span{display:flex;gap:6px;align-items:baseline}.vehicle-telemetry small{font-size:10px}.vehicle-telemetry b{color:var(--primary-text-color);font-weight:650;font-variant-numeric:tabular-nums}
+        .mode-compact .metrics .metric:nth-child(n+5),.mode-compact .dates{display:none}.mode-balanced .metrics .metric:nth-child(n+5){display:none}
         .live-hero { display:grid; grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr); gap:18px; align-items:center; margin-top:16px; padding:20px; border-radius:22px; background:linear-gradient(135deg,color-mix(in srgb,var(--primary-color) 10%,var(--card-background-color)),var(--secondary-background-color) 72%); border:1px solid color-mix(in srgb,var(--primary-color) 12%,transparent); }
         .live-battery,.live-odometer { min-width:0; }
         .live-label { color:var(--secondary-text-color); font-size:10px; font-weight:750; letter-spacing:.14em; }
@@ -313,21 +317,11 @@ class EVChargeTrackerCard extends HTMLElement {
             </div>
           </div>
           ${vehicleMarkup}
-          ${hasLiveTelemetry ? `<section class="live-hero" aria-label="Estado actual del vehículo">
-            <div class="live-battery">
-              <div class="live-label">BATERÍA ACTUAL</div>
-              <div class="live-reading">${currentSoc === null || currentSoc < 0 || currentSoc > 100 ? "—" : this._fmt(currentSoc,1) + '<small>%</small>'}</div>
-              <div class="battery-track" role="img" aria-label="Nivel de batería"><span style="width:${currentSoc !== null && currentSoc >= 0 && currentSoc <= 100 ? currentSoc : 0}%"></span></div>
-              <div class="live-foot">${currentSoc === null ? "Lectura no disponible" : "Nivel de carga en tiempo real"}</div>
-            </div>
-            <div class="live-divider"></div>
-            <div class="live-odometer">
-              <div class="live-label">ODÓMETRO</div>
-              <div class="odo-reading">${odometer === null || odometer < 0 ? "—" : this._fmt(odometer,0)}<small> ${this._escape(odometerUnit)}</small></div>
-              <div class="live-foot">${odometer === null ? "Lectura no disponible" : "Distancia total recorrida"}</div>
-            </div>
+          ${hasLiveTelemetry ? `<section class="vehicle-telemetry" aria-label="Datos complementarios del vehículo">
+            <span><small>Batería</small><b>${currentSoc === null || currentSoc < 0 || currentSoc > 100 ? "—" : this._fmt(currentSoc,1) + "%"}</b></span>
+            <span><small>Odómetro</small><b>${odometer === null || odometer < 0 ? "—" : this._fmt(odometer,0) + " " + this._escape(odometerUnit)}</b></span>
           </section>` : ""}
-          <div class="latest">
+          <div class="latest mode-${displayMode}">
             <div class="section-title">${current ? "Carga actual" : "Resumen de la última carga"}</div>
             <div class="rings">
               ${this._socRing(socStart, "Batería inicial")}
@@ -346,7 +340,7 @@ class EVChargeTrackerCard extends HTMLElement {
               <div class="date">Fin<b>${current && !record.ended_at ? "En curso" : end}</b></div>
             </div>
           </div>
-          <div class="charts">
+          ${displayMode !== "compact" ? `<div class="charts">
             <section class="chart-card" aria-label="Energía por carga">
               <div class="chart-title">Energía por carga <span class="chart-subtitle">kWh · últimas ${chartRows.length}</span></div>
               ${chartRows.length ? `<div class="bars">${chartRows.map(item => {
@@ -369,13 +363,15 @@ class EVChargeTrackerCard extends HTMLElement {
               <div class="chart-legend">Los costes parciales se muestran atenuados</div>
             </section>
           </div>
-          <div class="history-head"><h3>Histórico de cargas</h3><span class="count">${rows.length} registros</span></div>
+          </div>` : ""}
+          ${displayMode === "complete" ? `<div class="history-head"><h3>Histórico de cargas</h3><span class="count">${rows.length} registros</span></div>
           ${rows.length ? rows.map(item => `
             <div class="row">
               <div><div class="row-date">${this._date(item.started_at)}</div><div class="row-sub">${item.soc_start == null ? "—" : this._fmt(item.soc_start,0)+"%"} → ${item.soc_end == null ? "—" : this._fmt(item.soc_end,0)+"%"}</div></div>
               <div class="row-value">${item.energy_kwh == null ? "—" : this._fmt(item.energy_kwh,2)+" kWh"}<small>Energía</small></div>
               <div class="row-value">${item.cost != null ? this._fmt(item.cost,2)+" "+this._escape(item.currency || currency) : (item.known_cost != null ? this._fmt(item.known_cost,2)+" "+this._escape(item.currency || currency) : "—")}<small>${item.cost_status === "partial" ? "Coste parcial" : (item.cost_status === "unknown" ? "Sin coste" : "Coste")}</small></div>
             </div>`).join("") : '<div class="empty">Todavía no hay cargas consolidadas. Cuando termine la primera sesión aparecerá aquí.</div>'}
+          ` : ""}
           ${diagnostic ? `<div class="diagnostic">${this._escape(diagnostic)}</div>` : ""}
         </div>
       </ha-card>`;
@@ -462,6 +458,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         <button id="manualToggle" type="button">Editar entidades manualmente</button>
       </div>
       <label class="field">Nombre visible<input id="name" placeholder="Mi vehículo"></label>
+      <label class="field">Densidad de información<select id="display_mode"><option value="compact">Compacto · esencial</option><option value="balanced">Equilibrado · gráficos y resumen</option><option value="complete">Completo · todo el histórico</option></select></label>
       <div id="entityFields" class="hidden">
         ${fields.map(([key,label]) => `<label class="field">${label}<ha-entity-picker data-key="${key}" allow-custom-entity></ha-entity-picker></label>`).join("")}
       </div>
@@ -469,6 +466,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     </div>`;
     this.shadowRoot.getElementById("name").addEventListener("change", () => this._updateConfig());
     this.shadowRoot.getElementById("max_history").addEventListener("change", () => this._updateConfig());
+    this.shadowRoot.getElementById("display_mode").addEventListener("change", () => this._updateConfig());
     this.shadowRoot.getElementById("profileSelect").addEventListener("change", event => {
       const selected = this._profiles.find(profile => profile.entry_id === event.target.value);
       if (selected) this._applyProfile(selected);
@@ -540,8 +538,10 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     if (!this.shadowRoot || !this._built) return;
     const name = this.shadowRoot.getElementById("name");
     const maxHistory = this.shadowRoot.getElementById("max_history");
+    const displayMode = this.shadowRoot.getElementById("display_mode");
     if (name && name !== this.shadowRoot.activeElement) name.value = this._config.name || "";
     if (maxHistory && maxHistory !== this.shadowRoot.activeElement) maxHistory.value = this._config.max_history || 8;
+    if (displayMode && displayMode !== this.shadowRoot.activeElement) displayMode.value = this._config.display_mode || "balanced";
 
     const profileBox = this.shadowRoot.getElementById("profileBox");
     const profileSelect = this.shadowRoot.getElementById("profileSelect");
@@ -586,7 +586,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
   _updateConfig(changedKey, changedValue) {
     const name = this.shadowRoot.getElementById("name").value.trim() || "EV Charge Tracker";
     const maxHistory = Math.min(50, Math.max(1, Number(this.shadowRoot.getElementById("max_history").value || 8)));
-    const next = { ...this._config, name, max_history: maxHistory, entities: { ...(this._config.entities || {}) } };
+    const displayMode = this.shadowRoot.getElementById("display_mode").value || "balanced";
+    const next = { ...this._config, name, max_history: maxHistory, display_mode: displayMode, entities: { ...(this._config.entities || {}) } };
     if (changedKey) {
       if (changedValue) next.entities[changedKey] = changedValue;
       else delete next.entities[changedKey];
