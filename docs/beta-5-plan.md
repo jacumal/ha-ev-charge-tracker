@@ -66,6 +66,6 @@ Turn the Lovelace card into a polished, mobile-first EV dashboard with an Apple-
 - [ ] Card behavior tests cover live SOC, odometer, image fallback, identity updates and reduced motion.
 - [ ] Beta.5 PR CI passes and post-merge CI passes.
 - [ ] Real Home Assistant validation: update in place, edit vehicle identity, verify preview/save/refresh, verify precise SOC and odometer, test mobile/light/dark layouts, and complete a real charge.
-- [ ] HACS/tag packaging verified.
+- [x] CI validates HACS repository metadata, integration manifest, frontend asset presence and generated ZIP integrity. Actual HACS installation and tagged release archive remain release gates.
 
 **Do not call beta.5 production-validated until the real Home Assistant gates are completed.**
