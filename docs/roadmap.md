@@ -1,8 +1,8 @@
 # Project roadmap and implementation status
 
 **Repository:** jacumal/ha-ev-charge-tracker  
-**Baseline reviewed:** 2026-11-22  
-**Baseline:** beta.3 candidate branch `feature/beta-3-ui-redesign`  
+**Baseline reviewed:** 2026-11-23  
+**Baseline:** beta.3 released; beta.4 candidate branch `feature/beta-4-complete`  
 **Rule:** A planned or specified capability is not implemented until code and automated tests exist. Real Home Assistant behavior remains pending until controlled testing.
 
 Status: **Implemented** · **Partial** · **Specified / pending** · **Not started / validation pending**
@@ -76,13 +76,15 @@ Status: **Implemented** · **Partial** · **Specified / pending** · **Not start
 - [x] Source-exclusive validation: a selected sensor is authoritative; manual price is never a runtime fallback.
 - [x] Preserve inactive manual prices and sensor selections when switching source.
 - [x] Beta.3 Lovelace chart tests for populated, empty, partial and missing-data states.
-- [x] README, beta checklist and beta.3 release notes updated.
-- [x] Complete a clean CI run on the final beta.3 candidate commit (run #172, commit `3484dbe`).
+- [x] Beta.3 release published as `v0.1.0-beta.3` (historical release).
+- [ ] Beta.4 version metadata, README, checklist and release notes aligned.
+- [ ] Complete a clean CI run on the final beta.4 candidate commit.
+- [ ] Review and merge the beta.4 pull request after CI passes.
 - [ ] Home Assistant config-flow selector and frontend validation in a real instance.
 - [ ] Verify HACS release packaging and installation from a versioned tag.
 - [ ] Publish the beta after PR review, green CI and packaging checks.
 
-**Status: Beta.3 candidate implementation complete; final CI and tagged-package verification remain release gates.** Live Home Assistant validation remains a separate gate before production use.
+**Status: Beta.4 candidate preparation.** The beta.3 implementation is the baseline. Beta.4 release naming and metadata are being aligned on `feature/beta-4-complete`; the candidate still requires a clean CI run, PR review, HACS tagged-package verification and live Home Assistant validation. Do not publish until the repository and CI gates are green.
 
 ## 7. Battery care, parked monitoring and safety advice (new scope)
 Source: user-provided transcript screenshots, approximately 09:36–15:06. These are video-derived recommendations, not verified manufacturer instructions.
