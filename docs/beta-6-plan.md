@@ -28,6 +28,7 @@ The vehicle is the visual hero, not a small thumbnail. The card must remain read
 
 - Large model-specific vehicle image centered beneath the card header.
 - Vehicle name and model details aligned with the hero.
+- For Leapmotor C10, default the cable anchor to the rear-left quarter-panel charge port; keep the anchor user-adjustable.
 - Distinct idle/connected/charging/completed/attention pill and cable animation retained.
 - Current battery percentage and progress bar, optional explicitly mapped autonomy, and odometer.
 - Telemetry freshness remains visible and stale values are not presented as current.
