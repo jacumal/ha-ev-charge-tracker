@@ -120,7 +120,7 @@ def test_sensor_edit_preserves_profile_identity_tariffs_and_visual_options():
     from types import SimpleNamespace
 
     flow = object.__new__(EVChargeTrackerOptionsFlow)
-    flow.config_entry = SimpleNamespace(
+    flow._config_entry = SimpleNamespace(
         data={
             "vehicle_id": "leapmotor_c10",
             "charger_id": "garage",
