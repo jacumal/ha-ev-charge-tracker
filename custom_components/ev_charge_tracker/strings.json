@@ -17,7 +17,8 @@
           "price_per_kwh": "Precio fijo por kWh",
           "price_entity": "Precio por kWh (sensor, opcional según origen)",
           "finalization": "Cuándo consolidar una carga",
-          "power_entity": "Potencia instantánea de carga (W/kW, opcional)"
+          "power_entity": "Potencia instantánea de carga (W/kW, opcional)",
+          "plugged_entity": "Sensor de cable conectado (opcional)"
         },
         "data_description": {
           "vehicle_name": "Nombre identificativo del vehículo. Ejemplo: Leapmotor C10. Se usará en el dispositivo y en los nombres de las entidades creadas por esta integración.",
@@ -32,7 +33,8 @@
           "price_per_kwh": "Solo para precio manual fijo. Introduce el coste total por kWh en la moneda que corresponda, expresado por ahora como €/kWh. Ejemplo: 0.18. Si tu tarifa cambia por horas, no uses un precio medio como si fuera exacto: configura periodos horarios cuando esté disponible el editor de tarifas.",
           "price_entity": "Solo para precio desde sensor. Debe ser un sensor numérico cuyo estado sea el precio por kWh y cuya unidad sea €/kWh (por ejemplo 0.18). No selecciones el coste acumulado de la factura, potencia contratada ni precio por MWh. Se toma una instantánea al inicio de la sesión; si el sensor está unavailable o la unidad no coincide, el coste puede quedar sin calcular. La lectura actual no reconstruye todavía cambios de precio dentro de una misma carga.",
           "finalization": "Elige cuándo se cierra y se guarda una sesión. Por odómetro: espera a que la distancia total aumente. Inmediata: cierra al pasar el estado a OFF. Manual: deja la sesión pendiente hasta pulsar el botón «Consolidar última carga» después de comprobar los datos.",
-          "power_entity": "Sensor opcional de potencia instantánea en W o kW. Mejora el reparto de energía entre periodos tarifarios; el contador de energía sigue siendo la referencia del total entregado. Si no está disponible, se utiliza el reparto temporal y se marca como estimación."
+          "power_entity": "Sensor opcional de potencia instantánea en W o kW. Mejora el reparto de energía entre periodos tarifarios; el contador de energía sigue siendo la referencia del total entregado. Si no está disponible, se utiliza el reparto temporal y se marca como estimación.",
+          "plugged_entity": "OPCIONAL · Sensor binario que indica que el cable está conectado al vehículo. Se usa solo para distinguir conectado sin cargar de desconectado; no sustituye al sensor de carga activa."
         }
       }
     },
@@ -51,9 +53,9 @@
     "step": {
       "init": {
         "title": "Profile settings",
-        "description": "Choose which profile settings to edit. Changing sensor mappings does not delete saved sessions.",
+        "description": "Elige qué parte del perfil quieres modificar. Los cambios de sensores no eliminan las sesiones guardadas.",
         "data": {
-          "section": "Settings section"
+          "section": "Identidad visual del vehículo"
         }
       },
       "periods": {
@@ -105,10 +107,12 @@
           "odometer_entity": "Odometer (optional)",
           "odometer_unit": "Odometer unit",
           "finalization": "When to finalize a charge",
-          "power_entity": "Potencia instantánea de carga (W/kW, opcional)"
+          "power_entity": "Potencia instantánea de carga (W/kW, opcional)",
+          "plugged_entity": "Sensor de cable conectado (opcional)"
         },
         "data_description": {
-          "power_entity": "Optional instantaneous charging power sensor in W or kW. It improves energy allocation across tariff periods; the energy counter remains the reference for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate."
+          "power_entity": "Optional instantaneous charging power sensor in W or kW. It improves energy allocation across tariff periods; the energy counter remains the reference for total delivered energy. If unavailable, time-based allocation is used and marked as an estimate.",
+          "plugged_entity": "Sensor binario opcional en ON cuando el conector está físicamente enchufado. Permite mostrar cable conectado aunque no esté cargando."
         }
       },
       "tariffs": {
@@ -153,11 +157,37 @@
           "price": "Introduce un precio numérico no negativo en la moneda del perfil por kWh, con IVA y demás impuestos incluidos. La integración no añade impuestos.",
           "price_entity": "Selecciona un sensor numérico que publique el precio final por kWh en la moneda del perfil (por ejemplo EUR/kWh). Si queda unavailable o publica un valor/unidad no válido, la energía afectada queda sin precio; no se utiliza el precio manual como fallback."
         }
+      },
+      "vehicle_visual": {
+        "title": "Identidad visual del vehículo",
+        "description": "Personaliza la identidad y miniatura del vehículo. La imagen debe ser PNG o WebP con fondo transparente y estar guardada localmente en www/ev-charge-tracker/.",
+        "data": {
+          "visual_brand": "Marca",
+          "visual_model": "Modelo",
+          "visual_generation": "Generación",
+          "visual_year": "Año / versión",
+          "visual_trim": "Acabado",
+          "visual_color": "Color de carrocería (HEX)",
+          "visual_body_style": "Tipo de carrocería",
+          "visual_image": "Imagen propia (ruta /local/…)"
+        },
+        "data_description": {
+          "visual_brand": "Fabricante del vehículo.",
+          "visual_model": "Modelo comercial.",
+          "visual_generation": "Generación o código de plataforma.",
+          "visual_year": "Año-modelo o intervalo de producción.",
+          "visual_trim": "Acabado, batería o versión.",
+          "visual_color": "Color hexadecimal de la carrocería para la silueta de respaldo.",
+          "visual_body_style": "Define la silueta de respaldo cuando no se aporta una imagen propia.",
+          "visual_image": "Ruta local, por ejemplo /local/ev-charge-tracker/leapmotor-c10.webp. Guarda primero el archivo en la carpeta www/ev-charge-tracker."
+        }
       }
     },
     "error": {
       "invalid_schedule": "El horario está incompleto o contiene periodos solapados. Revisa las horas, los días y los precios.",
-      "invalid_currency": "Enter a three-letter currency code, for example EUR or USD."
+      "invalid_currency": "Enter a three-letter currency code, for example EUR or USD.",
+      "invalid_vehicle_color": "Introduce un color hexadecimal válido, por ejemplo #71869A.",
+      "invalid_vehicle_image": "Usa una imagen PNG o WebP local dentro de /local/ev-charge-tracker/."
     }
   },
   "entity": {
