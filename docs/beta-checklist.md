@@ -1,22 +1,22 @@
-# Beta candidate checklist
+# Beta 4 candidate checklist
 
-Target candidate: `0.1.0-beta.3`
+Target candidate: `0.1.0-beta.4`
 
 This checklist separates repository/CI readiness from behavior that can only be
 verified in a real Home Assistant installation.
 
 ## Repository and CI
-- [x] Version metadata set in the integration manifest.
+- [x] Version metadata set in the integration manifest (`0.1.0-beta.4`).
 - [x] HACS metadata present.
 - [x] MIT license included.
 - [x] Lovelace card source is bundled with the integration.
-- [x] CI is green on the final beta candidate commit (run #172, commit `3484dbe`).
+- [ ] CI is green on the final beta.4 candidate commit.
 - [ ] Verify the HACS release/tag installation path and packaged file layout.
-- [x] Publish release notes with known limitations and upgrade instructions (`docs/release-notes-beta-3.md`).
+- [x] Prepare beta.4 release notes with known limitations and upgrade instructions (`docs/release-notes-beta-4.md`).
 
 ## Real Home Assistant validation (required before production use)
 
-The automated candidate checks do not close these live-instance gates. Do not treat beta.3 as production-validated until they are completed.
+The automated candidate checks do not close these live-instance gates. Do not treat beta.4 as production-validated until they are completed.
 - [ ] Install/update from the beta candidate without removing the existing config entry.
 - [ ] Confirm all configured entity selectors and tariff/unit options are usable.
 - [ ] Confirm the Lovelace card JavaScript is served and the visual editor loads.
