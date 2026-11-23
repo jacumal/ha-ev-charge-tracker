@@ -17,12 +17,22 @@ class EVChargeTrackerCard extends HTMLElement {
     // exists. _render creates the root when needed, so do not guard on it.
     if (this.config) this._render();
     this._syncSelectedProfile();
+    if (this.config?.profile_entry_id && !this._profileSyncTimer && typeof window?.setInterval === "function") {
+      this._profileSyncTimer = window.setInterval(() => this._syncSelectedProfile(true), 30000);
+    }
   }
 
-  async _syncSelectedProfile() {
+  disconnectedCallback() {
+    if (this._profileSyncTimer && typeof window?.clearInterval === "function") {
+      window.clearInterval(this._profileSyncTimer);
+      this._profileSyncTimer = null;
+    }
+  }
+
+  async _syncSelectedProfile(force = false) {
     const entryId = this.config?.profile_entry_id;
     if (!entryId || !this._hass || typeof this._hass.callWS !== "function" || this._profileSyncPromise) return;
-    if (this._profileSyncAt && Date.now() - this._profileSyncAt < 30000) return;
+    if (!force && this._profileSyncAt && Date.now() - this._profileSyncAt < 30000) return;
     this._profileSyncAt = Date.now();
     this._profileSyncPromise = this._hass.callWS({ type: "ev_charge_tracker/profiles" }).then(result => {
       const profile = (result?.profiles || []).find(item => item.entry_id === entryId);
