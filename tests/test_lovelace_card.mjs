@@ -144,8 +144,8 @@ test("shows live battery SOC and odometer from the selected profile entities", (
   assert.match(html, /87,4%/);
   assert.match(html, /Odómetro/);
   assert.match(html, /12\.345 km/);
-  assert.match(html, /live-hero/);
-  assert.match(html, /battery-track/);
+  assert.match(html, /vehicle-telemetry/);
+  assert.match(html, /Datos complementarios del vehículo/);
   assert.match(html, /Distancia total recorrida/);
 });
 
@@ -242,3 +242,13 @@ test("flags contradictory charging and unplugged signals as an attention state",
   assert.doesNotMatch(html, /class="vehicle-stage state-charging"/);
 });
 
+
+
+test("supports compact, balanced and complete information density in Lovelace config", () => {
+  const compact = createCard({ display_mode: "compact", entities: { status: "sensor.status" } }, { "sensor.status": { state: "idle", attributes: {} } });
+  const complete = createCard({ display_mode: "complete", entities: { status: "sensor.status" } }, { "sensor.status": { state: "idle", attributes: {} } });
+  assert.match(compact, /mode-compact/);
+  assert.doesNotMatch(compact, /Energía por carga/);
+  assert.match(complete, /Energía por carga/);
+  assert.match(complete, /Histórico de cargas/);
+});
