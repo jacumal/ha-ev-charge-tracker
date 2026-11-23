@@ -297,7 +297,7 @@ class EVChargeTrackerCard extends HTMLElement {
         <div class="wrap">
           <div class="top">
             <div><div class="eyebrow">Cargas · Última carga</div><h2>${this._escape(title)}</h2></div>
-            <div class="status ${charging ? "active" : (statusWarning ? "warn" : "")}">
+            <div class="status ${charging && !inconsistentConnection ? "active" : (statusWarning || inconsistentConnection) ? "warn" : ""}">
               <i class="dot"></i>${this._escape(statusLabel)}
             </div>
           </div>
