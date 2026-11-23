@@ -96,6 +96,15 @@ def build_profile_registry(config_entries: Iterable[object]) -> dict[str, dict]:
             "soc_entity": config.get("soc_entity"),
             "odometer_entity": config.get("odometer_entity"),
             "power_entity": config.get("power_entity"),
+            "plugged_entity": config.get("plugged_entity"),
+            "vehicle_visual": {
+                key: config.get(key)
+                for key in (
+                    "visual_brand", "visual_model", "visual_generation", "visual_year",
+                    "visual_trim", "visual_color", "visual_body_style", "visual_image",
+                )
+                if config.get(key) not in (None, "")
+            },
         }
         profiles[entry_id] = profile
 
@@ -103,9 +112,15 @@ def build_profile_registry(config_entries: Iterable[object]) -> dict[str, dict]:
             "vehicle_id": vehicle_id,
             "name": profile["vehicle_name"],
             "profile_ids": [],
+            "visual": {},
         })
         if entry_id not in vehicle["profile_ids"]:
             vehicle["profile_ids"].append(entry_id)
+        # Visual identity belongs to the vehicle, not an individual charger.
+        # Keep previously saved non-empty values when another charger profile
+        # for the same vehicle has no visual settings of its own.
+        vehicle["visual"].update(profile["vehicle_visual"])
+        profile["vehicle_visual"] = vehicle["visual"]
 
         charger = chargers.setdefault(charger_id, {
             "charger_id": charger_id,
