@@ -4,7 +4,7 @@ Universal EV charging session tracker for Home Assistant.
 
 Track charging sessions, delivered energy, battery state of charge (SOC), mileage, costs and history across multiple electric vehicles and chargers. The integration is designed to work with existing Home Assistant entities, independently of vehicle and charger brands.
 
-**Project status:** beta `0.1.0-beta.6` candidate in development on `feature/beta-6-free-vehicle-gallery-card`, based on the beta.5 candidate. Beta 6 is scoped to a free, license-filtered vehicle image gallery powered by Wikimedia Commons and a vehicle-first responsive Lovelace card matching the approved visual references. Existing charging, tariff, sensor and history behavior is retained; no new tariff or sensor scope is included. This remains a beta: real Home Assistant frontend validation and an update-in-place test are required before release.
+**Project status:** beta `0.1.0-beta.6` candidate in development on `feature/beta-6-free-vehicle-gallery`, based on the beta.5 candidate. Beta 6 is scoped to a free, license-filtered vehicle image gallery powered by Wikimedia Commons and a vehicle-first responsive Lovelace card matching the approved visual references. Existing charging, tariff, sensor and history behavior is retained; no new tariff or sensor scope is included. This remains a beta: real Home Assistant frontend validation and an update-in-place test are required before release.
 
 ## Design principles
 
