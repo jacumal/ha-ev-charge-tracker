@@ -102,6 +102,7 @@ def build_profile_registry(config_entries: Iterable[object]) -> dict[str, dict]:
                 for key in (
                     "visual_brand", "visual_model", "visual_generation", "visual_year",
                     "visual_trim", "visual_color", "visual_body_style", "visual_image",
+                    "visual_port_x", "visual_port_y",
                 )
                 if config.get(key) not in (None, "")
             },
