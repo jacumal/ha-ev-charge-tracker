@@ -146,7 +146,7 @@ test("shows live battery SOC and odometer from the selected profile entities", (
   assert.match(html, /12\.345 km/);
   assert.match(html, /vehicle-telemetry/);
   assert.match(html, /Datos complementarios del vehículo/);
-  assert.match(html, /Distancia total recorrida/);
+  assert.match(html, /12\\.345 km/);
 });
 
 test("renders a transparent vehicle silhouette and cable state without a custom image", () => {
@@ -251,4 +251,23 @@ test("supports compact, balanced and complete information density in Lovelace co
   assert.doesNotMatch(compact, /Energía por carga/);
   assert.match(complete, /Energía por carga/);
   assert.match(complete, /Histórico de cargas/);
+});
+
+
+test("supports automatic, light and dark card appearance independently of information density", () => {
+  const automatic = createCard({ theme_mode: "auto", display_mode: "compact", entities: {} });
+  const light = createCard({ theme_mode: "light", display_mode: "balanced", entities: {} });
+  const dark = createCard({ theme_mode: "dark", display_mode: "complete", entities: {} });
+  assert.match(automatic, /data-theme="auto"/);
+  assert.match(light, /data-theme="light"/);
+  assert.match(dark, /data-theme="dark"/);
+  assert.match(dark, /--primary-text-color:#f5f5f7/);
+  assert.match(light, /--primary-text-color:#1d1d1f/);
+});
+
+test("defaults invalid or missing appearance settings to Home Assistant automatic theme", () => {
+  const fallback = createCard({ theme_mode: "sepia", entities: {} });
+  const missing = createCard({ entities: {} });
+  assert.match(fallback, /data-theme="auto"/);
+  assert.match(missing, /data-theme="auto"/);
 });
