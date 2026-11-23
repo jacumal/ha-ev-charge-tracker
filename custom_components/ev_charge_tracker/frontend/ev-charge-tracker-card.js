@@ -125,7 +125,7 @@ class EVChargeTrackerCard extends HTMLElement {
       error: "Estado que requiere atención",
     };
     const vehicleLabel = [vehicle.visual_brand, vehicle.visual_model].filter(Boolean).join(" ") ||
-      this.config.vehicle_name || this.config.vehicle || title;
+      this.config.vehicle_name || this.config.vehicle || this.config.name || "EV Charge Tracker";
     const vehicleDetails = [vehicle.visual_generation, vehicle.visual_year, vehicle.visual_trim].filter(Boolean).join(" · ");
     const bodyPaths = {
       suv: "M24 65 L32 45 Q36 39 48 37 L66 22 Q72 17 88 17 L151 17 Q163 17 171 27 L190 43 Q204 47 211 56 L216 70 L209 78 L24 78 Z",
