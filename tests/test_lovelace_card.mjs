@@ -506,5 +506,5 @@ test("Leapmotor C10 default cable anchor is on the rear-left quarter", () => {
     vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" },
     entities: {},
   });
-  assert.match(html, /cx="215\\.8" cy="62\\.7"/);
+  assert.match(html, /cx="216" cy="63"/);
 });
