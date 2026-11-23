@@ -370,7 +370,7 @@ class EVChargeTrackerCard extends HTMLElement {
         .diagnostic { margin-top:13px; color:var(--secondary-text-color); font-size:11px; line-height:1.4; }
         @media(max-width:520px) { .charts{grid-template-columns:1fr;gap:9px}.chart-card{padding:12px}.bars{height:78px}.live-hero{gap:12px;padding:16px}.live-reading{font-size:36px}.odo-reading{font-size:23px} }
         @media(max-width:520px) { .vehicle-visual{gap:8px;padding:8px}.vehicle-caption{flex-basis:36%}.vehicle-stage{height:76px}.vehicle-state{font-size:9px} }
-        @media(max-width:420px) { .wrap{padding:15px}.ring{width:72px;height:72px}.ring span{font-size:19px}.metric{padding:10px 8px}.metric strong{font-size:17px}.row{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) minmax(0,.8fr)}.vehicle-caption{flex-basis:40%}.vehicle-stage{height:68px}.vehicle-state{font-size:8px}.live-hero{padding:14px;gap:10px}.live-reading{font-size:31px}.odo-reading{font-size:20px}.live-label{font-size:9px} }
+        @media(max-width:420px) { .row{grid-template-columns:minmax(0,1fr);gap:8px}.row-stats{justify-content:space-between}.row-value{text-align:left}.row-energy{grid-column:1}.wrap{padding:15px}.ring{width:72px;height:72px}.ring span{font-size:19px}.metric{padding:10px 8px}.metric strong{font-size:17px}.row{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr) minmax(0,.8fr)}.vehicle-caption{flex-basis:40%}.vehicle-stage{height:68px}.vehicle-state{font-size:8px}.live-hero{padding:14px;gap:10px}.live-reading{font-size:31px}.odo-reading{font-size:20px}.live-label{font-size:9px} }
         .latest { margin-top:20px; padding:18px; border:1px solid color-mix(in srgb,var(--divider-color) 65%,transparent); border-radius:22px; background:linear-gradient(155deg,var(--secondary-background-color),color-mix(in srgb,var(--card-background-color) 78%,var(--secondary-background-color))); }
         .latest-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.latest-heading .section-title{margin-bottom:5px}.session-state{font-size:10px;font-weight:700;letter-spacing:.04em;padding:5px 9px;border-radius:20px;background:color-mix(in srgb,var(--success-color) 13%,var(--card-background-color));color:var(--success-color)}
         .session-energy{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:15px 0 4px}.session-energy strong{font-size:clamp(28px,6vw,38px);line-height:1;font-weight:760;letter-spacing:-.06em;font-variant-numeric:tabular-nums}.session-energy strong small{font-size:13px;letter-spacing:0;color:var(--secondary-text-color)}.session-energy span{font-size:10px;color:var(--secondary-text-color);text-align:right}
@@ -766,7 +766,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const feedback = this.shadowRoot.getElementById("editorFeedback");
     if (feedback) feedback.textContent = imagePathError
       ? "La ruta de imagen no es válida. Usa /local/ev-charge-tracker/nombre.png o .webp."
-      : "Cambios preparados. Pulsa Guardar en Home Assistant para conservarlos.";
+      : "Cambios pendientes de guardar. Pulsa Guardar en Home Assistant; este editor no recibe confirmación de que Lovelace haya persistido los cambios.";
     this._syncControls();
     this._fireConfigChanged();
   }
