@@ -543,6 +543,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
   async _loadProfiles(force = false) {
     if (!this._hass || (!force && this._profilesLoaded) || this._profileRequest || typeof this._hass.callWS !== "function") return;
     this._profileRequest = true;
+    const refreshButton = this.shadowRoot?.getElementById("refreshProfiles");
+    if (refreshButton) { refreshButton.disabled = true; refreshButton.textContent = "Actualizando…"; }
     try {
       const result = await this._hass.callWS({ type: "ev_charge_tracker/profiles" });
       this._profiles = Array.isArray(result?.profiles) ? result.profiles : [];
@@ -560,14 +562,22 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       }
       this._syncControls();
       const refresh = this.shadowRoot?.getElementById("refreshProfiles");
-      if (refresh) refresh.textContent = "Perfiles actualizados";
+      if (refresh) refresh.textContent = "Perfiles actualizados ✓";
+      const feedback = this.shadowRoot?.getElementById("editorFeedback");
+      if (feedback) feedback.textContent = "Perfiles cargados correctamente."; 
     } catch (error) {
       // Keep manual configuration available if the backend profile API is unavailable.
-      this._profilesLoaded = true;
+      this._profilesLoaded = false;
       this._manualMode = true;
       this._syncControls();
+      const refresh = this.shadowRoot?.getElementById("refreshProfiles");
+      if (refresh) refresh.textContent = "Error al actualizar · Reintentar";
+      const feedback = this.shadowRoot?.getElementById("editorFeedback");
+      if (feedback) feedback.textContent = "No se pudieron cargar los perfiles. Puedes reintentar o configurar entidades manualmente.";
     } finally {
       this._profileRequest = false;
+      const refresh = this.shadowRoot?.getElementById("refreshProfiles");
+      if (refresh) refresh.disabled = false;
     }
   }
 
