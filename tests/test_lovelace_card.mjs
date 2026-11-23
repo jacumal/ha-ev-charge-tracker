@@ -141,7 +141,7 @@ test("shows live battery SOC and odometer from the selected profile entities", (
     },
   );
   assert.match(html, /BATERÍA ACTUAL/);
-  assert.match(html, /87,4<small>%<\\/small>/);
+  assert.ok(html.includes("87,4<small>%</small>"));
   assert.match(html, /Odómetro/);
   assert.match(html, /12\.345 km/);
   assert.match(html, /vehicle-telemetry/);
