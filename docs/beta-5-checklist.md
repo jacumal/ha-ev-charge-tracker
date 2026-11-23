@@ -15,8 +15,8 @@ This checklist tracks the work defined in [beta-5-plan.md](beta-5-plan.md). It i
 
 ## Lovelace redesign
 - [x] Apple-inspired vehicle hero and clear information hierarchy.
-- [ ] Latest charge summary redesigned.
-- [ ] History and charts redesigned.
+- [x] Latest charge summary redesigned with delivered energy hero, SOC progression, session metrics, tariff breakdown and explicit partial-cost explanation.
+- [x] History and charts redesigned with responsive session rows, clear partial/unknown values, and refreshed energy/cost chart styling.
 - [x] Charging state transitions and purposeful motion.
 - [x] Reduced-motion support.
 - [ ] Mobile, desktop, light and dark layouts checked.
@@ -31,8 +31,8 @@ This checklist tracks the work defined in [beta-5-plan.md](beta-5-plan.md). It i
 - [x] Shared identity remains consistent across charger profiles (registry regression test).
 
 ## Configuration feedback and refresh
-- [ ] Save confirmation and summary.
-- [x] Profile refresh errors are shown with a retry path; save confirmation remains pending.
+- [ ] Save confirmation and summary. The editor now explicitly marks edits as pending and directs the user to Lovelace “Save”; Lovelace does not expose a reliable persistence-success callback to a custom card editor, so it must not claim that the save succeeded.
+- [x] Profile refresh errors are shown with a retry path; editor feedback clearly distinguishes pending changes from profile-refresh success. Final persistence confirmation is constrained by the Lovelace editor API.
 - [x] Existing cards refresh selected profile identity without reconstruction.
 - [x] Manual Lovelace entity overrides and card-specific vehicle identity overrides are preserved.
 - [x] Sensor/behavior edits use the existing config entry options flow; regression test verifies profile IDs, tariffs and visual options remain intact.
@@ -46,4 +46,4 @@ This checklist tracks the work defined in [beta-5-plan.md](beta-5-plan.md). It i
 - [ ] Post-merge CI green.
 - [ ] Live Home Assistant update-in-place validation.
 - [ ] Real charging session validated.
-- [ ] HACS package/tag verified.
+- [x] HACS repository layout and generated integration ZIP structure are validated in CI; installation from HACS and final tagged package remain release checks.
