@@ -191,9 +191,10 @@ class EVChargeTrackerCard extends HTMLElement {
       vehicle.visual_brand, vehicle.visual_model, this.config.vehicle_name,
       this.config.vehicle, this.config.name,
     ].filter(Boolean).join(" ");
-    const isLeapmotorC10 = /c10/i.test(vehicle.visual_model || vehicleIdentityText) &&
-      (!vehicle.visual_brand || /leapmotor/i.test(vehicle.visual_brand));
-    const customImage = this._validVehicleImage(vehicle.visual_image) ? vehicle.visual_image : (isLeapmotorC10 ? "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp" : "");
+    const isLeapmotorC10 = /c10/i.test(vehicleIdentityText) &&
+      (!vehicle.visual_brand || /leapmotor|leap/i.test(vehicle.visual_brand) || /leapmotor|leap/i.test(vehicleIdentityText));
+    const defaultC10Image = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp";
+    const customImage = this._validVehicleImage(vehicle.visual_image) ? vehicle.visual_image : (isLeapmotorC10 ? defaultC10Image : "");
     const imageCredit = vehicle.visual_image_credit || "";
     const imageLicense = vehicle.visual_image_license || "";
     const imageLicenseUrl = typeof vehicle.visual_image_license_url === "string" && /^https:\/\/creativecommons\.org\/(?:licenses|publicdomain)\//i.test(vehicle.visual_image_license_url) ? vehicle.visual_image_license_url : "";
@@ -224,7 +225,7 @@ class EVChargeTrackerCard extends HTMLElement {
     };
     const vehicleLabel = [vehicle.visual_brand, vehicle.visual_model].filter(Boolean).join(" ") ||
       this.config.vehicle_name || this.config.vehicle || this.config.name || "ChargeTrack";
-    const vehicleDetails = [vehicle.visual_generation, vehicle.visual_year, vehicle.visual_trim].filter(Boolean).join(" · ");
+    const vehicleDetails = [...new Set([vehicle.visual_generation, vehicle.visual_year, vehicle.visual_trim].filter(Boolean))].join(" · ");
     const bodyPaths = {
       suv: "M24 65 L32 45 Q36 39 48 37 L66 22 Q72 17 88 17 L151 17 Q163 17 171 27 L190 43 Q204 47 211 56 L216 70 L209 78 L24 78 Z",
       sedan: "M22 65 L31 49 Q36 43 52 41 L76 25 Q83 20 99 20 L151 22 Q165 23 174 35 L194 45 Q207 49 214 61 L214 77 L22 77 Z",
@@ -235,20 +236,12 @@ class EVChargeTrackerCard extends HTMLElement {
     const fallbackMarkup = '<div class="vehicle-image fallback" role="img" aria-label="' +
       this._escape(vehicleLabel) + '"><span>Imagen del vehículo no disponible</span></div>';
     const vehicleMarkup = '<div class="vehicle-visual">' +
-      '<div class="vehicle-caption"><strong>' + this._escape(vehicleLabel) + '</strong>' +
-      (vehicleDetails ? '<small>' + this._escape(vehicleDetails) + '</small>' : '') + '</div>' +
-      '<div class="vehicle-stage state-' + visualState + '" style="--vehicle-color:' + visualColor + '">' +
+      '<div class="vehicle-stage state-' + visualState + '">' +
       (customImage
-        ? '<img class="vehicle-image custom" src="' + this._escape(customImage) + '" alt="' + this._escape(vehicleLabel) + '" loading="lazy">'
+        ? '<img class="vehicle-image custom" src="' + this._escape(customImage) + '" alt="' + this._escape(vehicleLabel) + '" loading="eager" decoding="async" fetchpriority="high">'
         : fallbackMarkup) +
-      '<svg class="cable-overlay" viewBox="0 0 260 110" aria-hidden="true">' +
-        '<path class="cable-shadow" d="' + cablePath + '"/>' +
-        '<path class="cable-line" d="' + cablePath + '"/>' +
-        '<path class="energy-line" d="' + cablePath + '"/>' +
-        '<g class="connector connector-free" transform="translate(232 82) rotate(8)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
-        '<g class="connector connector-plug" transform="translate(' + (portX - 8) + ' ' + (portY - 18) + ') rotate(90)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
-        '<circle class="charge-port" cx="' + portX + '" cy="' + portY + '" r="4"/>' +
-      '</svg></div><div class="vehicle-state"><i></i>' + this._escape(visualStateLabels[visualState]) + '</div>' +
+      '</div>' +
+      '<div class="vehicle-state"><i></i>' + this._escape(visualStateLabels[visualState]) + '</div>' +
       (imageCredit && imageLicense ? '<div class="vehicle-image-credit">Imagen: ' + (imagePage ? '<a href="' + this._escape(imagePage) + '" target="_blank" rel="noopener noreferrer">' : '') + this._escape(imageCredit) + (imagePage ? '</a>' : '') + ' · ' + (imageLicenseUrl ? '<a href="' + this._escape(imageLicenseUrl) + '" target="_blank" rel="noopener noreferrer">' + this._escape(imageLicense) + '</a>' : this._escape(imageLicense)) + '</div>' : '') +
       '</div>';
     const diagnostic = this._attr(e.history, "diagnostic", "");
@@ -262,7 +255,7 @@ class EVChargeTrackerCard extends HTMLElement {
       (cost !== null || hasKnownCost || (tariffBreakdown && Object.keys(tariffBreakdown).length))
     );
     const energyUnit = this._attr(e.energy, "unit_of_measurement", "kWh");
-    const title = this.config.name || this.config.vehicle || "ChargeTrack";
+    const title = vehicleLabel || this.config.name || this.config.vehicle || "ChargeTrack";
     const start = this._date(record.started_at);
     const end = this._date(record.ended_at || record.completed_at);
     const maxHistory = Math.min(50, Math.max(1, Math.trunc(Number(this.config.max_history) || 8)));
@@ -420,6 +413,17 @@ class EVChargeTrackerCard extends HTMLElement {
         .charts{margin-top:14px}
         @media(max-width:600px){.vehicle-stage{height:190px}.vehicle-caption strong{font-size:21px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metric:last-child{grid-column:span 2}.live-hero{padding:15px;gap:12px}.vehicle-state{font-size:10px;padding:7px 9px}}
         @media(max-width:390px){.vehicle-stage{height:155px}.vehicle-caption strong{font-size:18px}.vehicle-state{font-size:9px}.live-reading{font-size:30px}}
+        /* Beta 8: use the approved vehicle-first hero without a duplicate caption or cable illustration. */
+        .vehicle-visual{position:relative;display:block;min-width:0;margin-top:8px;padding:0;background:transparent;border-radius:0}
+        .vehicle-caption{display:none}
+        .vehicle-stage{position:relative;width:100%;height:clamp(190px,32vw,270px);min-height:180px;overflow:hidden;border-radius:18px;background:transparent}
+        .vehicle-image.custom{display:block;object-fit:contain;object-position:center;filter:drop-shadow(0 10px 10px color-mix(in srgb,var(--primary-text-color) 12%,transparent))}
+        .vehicle-image.fallback{display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:18px;border:1px dashed var(--divider-color);border-radius:18px;background:var(--secondary-background-color);color:var(--secondary-text-color);font-size:13px;text-align:center}
+        .cable-overlay{display:none}
+        .vehicle-state{position:absolute;z-index:2;top:8px;right:8px;margin:0;padding:8px 12px;border-radius:24px;background:var(--secondary-background-color);font-size:12px;white-space:nowrap;box-shadow:0 1px 5px color-mix(in srgb,var(--primary-text-color) 8%,transparent)}
+        .vehicle-image-credit{margin:0;text-align:right;font-size:9px}
+        @media(max-width:600px){.vehicle-stage{height:clamp(175px,52vw,220px);min-height:165px}.vehicle-state{top:6px;right:6px;padding:7px 9px;font-size:10px}}
+        @media(max-width:390px){.vehicle-stage{height:180px}.vehicle-state{font-size:9px}}
       </style>
       <ha-card>
         <div class="wrap" data-theme="${themeMode}">
@@ -507,8 +511,14 @@ class EVChargeTrackerCard extends HTMLElement {
     const customVehicleImage = typeof this.shadowRoot.querySelector === "function"
       ? this.shadowRoot.querySelector(".vehicle-image.custom") : null;
     if (customVehicleImage) customVehicleImage.addEventListener("error", () => {
+      const failedUrl = customVehicleImage.getAttribute("src") || "";
+      if (isLeapmotorC10 && failedUrl !== defaultC10Image && !customVehicleImage.dataset.c10FallbackAttempted) {
+        customVehicleImage.dataset.c10FallbackAttempted = "true";
+        customVehicleImage.src = defaultC10Image;
+        return;
+      }
       customVehicleImage.replaceWith(this._createFallbackVehicle(fallbackMarkup));
-    }, { once: true });
+    });
   }
 
   _createFallbackVehicle(markup) {
@@ -852,11 +862,18 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       }
       const imageNode = preview.querySelector("img");
       if (imageNode) imageNode.addEventListener("error", () => {
+        const failedUrl = imageNode.getAttribute("src") || "";
+        const defaultC10Image = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp";
+        if (isLeapmotorC10 && failedUrl !== defaultC10Image && !imageNode.dataset.c10FallbackAttempted) {
+          imageNode.dataset.c10FallbackAttempted = "true";
+          imageNode.src = defaultC10Image;
+          return;
+        }
         const fallback = document.createElement("div");
         fallback.className = "preview-fallback";
         fallback.textContent = "Imagen no disponible";
         imageNode.replaceWith(fallback);
-      }, { once: true });
+      });
     }
     const entityFields = this.shadowRoot.getElementById("entityFields");
     entityFields.classList.toggle("hidden", !this._manualMode);

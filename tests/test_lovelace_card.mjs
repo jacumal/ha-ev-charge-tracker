@@ -181,6 +181,17 @@ test("shows live battery SOC and odometer from the selected profile entities", (
   assert.doesNotMatch(html, /Datos complementarios del vehículo/);
 });
 
+test("recognizes C10 from the full profile identity and uses the bundled default image", () => {
+  const html = createCard(
+    { name: "Leapmotor C10", vehicle_visual: {}, entities: { status: "sensor.status" } },
+    { "sensor.status": { state: "idle", attributes: {} } },
+  );
+  assert.match(html, /<h2>Leapmotor<\/h2>|<h2>Leap C10<\/h2>/);
+  assert.match(html, /leapmotor-c10-white\.webp/);
+  assert.match(html, /loading="eager"/);
+  assert.doesNotMatch(html, /<div class="vehicle-caption"/);
+});
+
 test("renders a transparent vehicle silhouette and cable state without a custom image", () => {
   const html = createCard(
     { name: "Leapmotor C10", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10", visual_color: "#AABBCC", visual_body_style: "suv" }, entities: { status: "sensor.status" } },
@@ -193,14 +204,16 @@ test("renders a transparent vehicle silhouette and cable state without a custom 
   assert.match(html, /Conexión sin monitorizar/);
 });
 
-test("animates energy flow only while charging and supports local transparent images", () => {
+test("uses profile images eagerly and keeps the cable state separate from the vehicle photo", () => {
   const html = createCard(
     { vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10", visual_image: "/local/ev-charge-tracker/c10.webp" }, entities: { status: "sensor.status" } },
     { "sensor.status": { state: "charging", attributes: {} } },
   );
   assert.ok(html.includes("c10.webp"));
+  assert.match(html, /loading="eager"/);
   assert.match(html, /state-charging/);
-  assert.match(html, /energy-flow/);
+  assert.match(html, /vehicle-state/);
+  assert.doesNotMatch(html, /<svg class="cable-overlay"/);
 });
 
 test("distinguishes connected idle and error vehicle states", () => {
@@ -250,13 +263,15 @@ test("does not interpret an unavailable cable sensor as physically disconnected"
 });
 
 
-test("positions cable and connector using the vehicle-specific port anchor", () => {
+test("uses the approved vehicle-first hero and removes the legacy generic cable illustration", () => {
   const html = createCard(
-    { vehicle_visual: { visual_port_x: 55, visual_port_y: 30 }, entities: { status: "sensor.status" } },
+    { vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" }, entities: { status: "sensor.status" } },
     { "sensor.status": { state: "charging", attributes: {} } },
   );
-  assert.match(html, /cx="143" cy="33"/);
-  assert.match(html, /M143 33 C/);
+  assert.match(html, /class="vehicle-stage state-charging"/);
+  assert.match(html, /leapmotor-c10-white\.webp/);
+  assert.match(html, /vehicle-state/);
+  assert.doesNotMatch(html, /<svg class="cable-overlay"/);
 });
 
 
@@ -542,12 +557,15 @@ test("editor clears stale license attribution when a selected image is replaced 
   assert.match(source, /const previousImage/);
 });
 
-test("Leapmotor C10 default cable anchor is on the rear-left quarter", () => {
+test("Leapmotor C10 default image is rendered in the vehicle-first hero", () => {
   const html = createCard({
     vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" },
     entities: {},
   });
-  assert.match(html, /cx="216" cy="63"/);
+  assert.match(html, /leapmotor-c10-white\.webp/);
+  assert.match(html, /class="vehicle-stage state-error"/);
+  assert.match(html, /vehicle-state/);
+  assert.doesNotMatch(html, /<svg class="cable-overlay"/);
 });
 
 

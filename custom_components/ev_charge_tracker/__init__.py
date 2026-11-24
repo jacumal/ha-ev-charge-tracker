@@ -15,8 +15,25 @@ from .websocket import async_register as async_register_websocket
 
 EVChargeConfigEntry = ConfigEntry[EVChargeCoordinator]
 REGISTRY_DATA_KEY = "_profile_registry"
+STATIC_PATHS_REGISTERED_KEY = "_static_paths_registered"
 CARD_URL = "/ev_charge_tracker/ev-charge-tracker-card.js"
 C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"
+
+
+async def _async_register_static_paths(hass: HomeAssistant) -> None:
+    """Register the card and bundled vehicle image exactly once per HA runtime."""
+    domain_data = hass.data.setdefault(DOMAIN, {})
+    if domain_data.get(STATIC_PATHS_REGISTERED_KEY):
+        return
+    card_path = Path(__file__).parent / "frontend" / "ev-charge-tracker-card.js"
+    c10_image_path = Path(__file__).parent / "brand" / "leapmotor-c10-white.webp"
+    await hass.http.async_register_static_paths(
+        [
+            StaticPathConfig(CARD_URL, str(card_path), cache_headers=False),
+            StaticPathConfig(C10_IMAGE_URL, str(c10_image_path), cache_headers=False),
+        ]
+    )
+    domain_data[STATIC_PATHS_REGISTERED_KEY] = True
 
 
 def _refresh_profile_registry(hass: HomeAssistant) -> None:
@@ -31,19 +48,13 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     hass.data.setdefault(DOMAIN, {})
     _refresh_profile_registry(hass)
     async_register_websocket(hass)
-    card_path = Path(__file__).parent / "frontend" / "ev-charge-tracker-card.js"
-    c10_image_path = Path(__file__).parent / "brand" / "leapmotor-c10-white.webp"
-    await hass.http.async_register_static_paths(
-        [
-            StaticPathConfig(CARD_URL, str(card_path), cache_headers=False),
-            StaticPathConfig(C10_IMAGE_URL, str(c10_image_path), cache_headers=False),
-        ]
-    )
+    await _async_register_static_paths(hass)
     return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: EVChargeConfigEntry) -> bool:
     """Set up a configured vehicle/charger profile."""
+    await _async_register_static_paths(hass)
     coordinator = EVChargeCoordinator(hass, entry)
     hass.data.setdefault(DOMAIN, {})
     platform_setup_started = False
