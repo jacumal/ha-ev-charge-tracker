@@ -31,6 +31,8 @@ ChargeTrack brings your electric vehicle's charging sessions, energy, battery st
 - [Lovelace dashboard design](docs/dashboard-design.md)
 - [Implementation roadmap and status](docs/roadmap.md)
 - [Beta validation checklist](docs/beta-checklist.md)
+- [Beta 9 image catalog checklist](docs/beta-9-checklist.md)
+- [Beta 9 release notes](docs/release-notes-beta-9.md)
 - [Beta 6 plan](docs/beta-6-plan.md)
 
 ## Vehicle gallery and dashboard
