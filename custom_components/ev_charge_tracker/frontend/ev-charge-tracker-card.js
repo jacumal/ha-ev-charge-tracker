@@ -2,7 +2,7 @@
  * Copyright (c) ChargeTrack contributors. MIT.
  */
 const CARD_VERSION = "0.5.0";
-const DEFAULT_C10_IMAGE_URL = "https://www.leapmotor.net/_next/image?q=90&url=https%3A%2F%2Fwww.leapmotor.net%2Fimages%2Fdefault-source%2Fc10%2Fpearl-white-%2817%29.png%3Fsfvrsn%3Df11bcf73_36&w=1200";
+const DEFAULT_C10_IMAGE_URL = "https://www.leapmotor.net/_next/image?q=90&url=https%3A%2F%2Fwww.leapmotor.net%2Fimages%2Fdefault-source%2Fc10%2Fpearl-white-%2817%29.png%3Fsfvrsn%3Df11bcf73_36&w=3840";
 
 class EVChargeTrackerCard extends HTMLElement {
   setConfig(config) {
