@@ -21,7 +21,7 @@ jobs:
       - name: Install test dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install homeassistant pytest
+          pip install homeassistant pytest pillow
       - name: Compile Python files
         run: python -m compileall -q custom_components tests
       - name: Validate Lovelace card JavaScript syntax
@@ -68,11 +68,11 @@ jobs:
           manifest = json.loads(manifest_path.read_text())
           assert hacs.get("name") == manifest.get("name") == "ChargeTrack"
           assert manifest.get("domain") == "ev_charge_tracker"
-          assert manifest.get("version") == "0.1.0-beta.7"
+          assert manifest.get("version") == "0.1.0-beta.8"
           assert manifest.get("config_flow") is True
           frontend = root / "custom_components/ev_charge_tracker/frontend/ev-charge-tracker-card.js"
           assert frontend.is_file() and frontend.stat().st_size > 0
-          package = Path("dist/ev-charge-tracker-beta7.zip")
+          package = Path("dist/ev-charge-tracker-beta8.zip")
           package.parent.mkdir(exist_ok=True)
           with ZipFile(package, "w", ZIP_DEFLATED) as archive:
               for path in (root / "custom_components/ev_charge_tracker").rglob("*"):
@@ -83,7 +83,26 @@ jobs:
               assert "custom_components/ev_charge_tracker/manifest.json" in names
               assert "custom_components/ev_charge_tracker/frontend/ev-charge-tracker-card.js" in names
               assert archive.testzip() is None
-          print(f"Validated HACS package structure: {package}")
+          from PIL import Image
+          brand = root / "custom_components/ev_charge_tracker/brand"
+          with Image.open(brand / "icon.png") as icon:
+              assert icon.format == "PNG" and icon.size == (256, 256)
+          with Image.open(brand / "logo.png") as logo:
+              assert logo.format == "PNG" and logo.width > logo.height
+              assert min(logo.size) >= 128
+          with Image.open(brand / "leapmotor-c10-white.webp") as vehicle:
+              assert vehicle.format == "WEBP"
+              assert vehicle.mode in ("RGBA", "LA")
+              assert vehicle.width >= 400 and vehicle.height >= 180
+              vehicle.verify()
+          init = (root / "custom_components/ev_charge_tracker/__init__.py").read_text()
+          card = frontend.read_text()
+          assert 'C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"' in init
+          assert 'StaticPathConfig(C10_IMAGE_URL, str(c10_image_path), cache_headers=False)' in init
+          assert "await _async_register_static_paths(hass)" in init
+          assert 'const defaultC10Image = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"' in card
+          assert "customVehicleImage.dataset.c10FallbackAttempted" in card
+          print(f"Validated HACS package structure and visual assets: {package}")
           PY
       - name: Import integration modules
         env:
