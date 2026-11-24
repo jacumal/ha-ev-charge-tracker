@@ -235,11 +235,9 @@ class EVChargeTrackerCard extends HTMLElement {
     const fallbackMarkup = '<div class="vehicle-image fallback" role="img" aria-label="' +
       this._escape(vehicleLabel) + '"><span>Imagen del vehículo no disponible</span></div>';
     const vehicleMarkup = '<div class="vehicle-visual">' +
-      '<div class="vehicle-caption"><strong>' + this._escape(vehicleLabel) + '</strong>' +
-      (vehicleDetails ? '<small>' + this._escape(vehicleDetails) + '</small>' : '') + '</div>' +
       '<div class="vehicle-stage state-' + visualState + '" style="--vehicle-color:' + visualColor + '">' +
       (customImage
-        ? '<img class="vehicle-image custom" src="' + this._escape(customImage) + '" alt="' + this._escape(vehicleLabel) + '" loading="lazy">'
+        ? '<img class="vehicle-image custom" src="' + this._escape(customImage) + '" alt="' + this._escape(vehicleLabel) + '">'
         : fallbackMarkup) +
       '<svg class="cable-overlay" viewBox="0 0 260 110" aria-hidden="true">' +
         '<path class="cable-shadow" d="' + cablePath + '"/>' +
@@ -287,7 +285,7 @@ class EVChargeTrackerCard extends HTMLElement {
         .wrap[data-theme="light"] { --primary-text-color:#1d1d1f; --secondary-text-color:#6e6e73; --card-background-color:#ffffff; --secondary-background-color:#f5f5f7; --divider-color:#d2d2d7; --primary-color:#007aff; --success-color:#28a745; --warning-color:#c77c00; --ha-card-background:#ffffff; color-scheme:light; }
         .top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
         .eyebrow { color:var(--secondary-text-color); font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; }
-        h2 { margin:5px 0 0; font-size:21px; font-weight:650; letter-spacing:-.03em; }
+        h2 { margin:5px 0 0; font-size:21px; font-weight:650; letter-spacing:-.03em; }\n        .vehicle-header-details{margin-top:3px;color:var(--secondary-text-color);font-size:12px;line-height:1.35}
         .status { display:inline-flex; align-items:center; gap:7px; border-radius:30px; padding:7px 11px; background:var(--secondary-background-color); color:var(--secondary-text-color); font-size:12px; white-space:nowrap; }
         .dot { width:7px; height:7px; border-radius:50%; background:var(--success-color,#43a66b); }
         .status.active .dot { background:var(--state-active-color,var(--primary-color)); }
@@ -298,6 +296,8 @@ class EVChargeTrackerCard extends HTMLElement {
         .vehicle-caption small { display:block; margin-top:4px; color:var(--secondary-text-color); font-size:10px; line-height:1.3; }
         .vehicle-stage { position:relative; flex:1; min-width:0; height:86px; }
         .vehicle-image { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+        .vehicle-image.fallback { display:flex; align-items:center; justify-content:center; padding:12px; box-sizing:border-box; text-align:center; color:var(--secondary-text-color); font-size:12px; line-height:1.35; background:var(--secondary-background-color); border-radius:16px; }
+        .vehicle-image.fallback span { max-width:220px; }
         .vehicle-image-credit{margin-top:3px;color:var(--secondary-text-color);font-size:10px;line-height:1.35}
         .vehicle-image-credit a{color:inherit;text-decoration:underline}
         .cable-overlay { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
@@ -404,8 +404,8 @@ class EVChargeTrackerCard extends HTMLElement {
         .bar.cost{background:linear-gradient(180deg,var(--success-color),color-mix(in srgb,var(--success-color) 55%,var(--secondary-background-color)))}
         .chart-legend{padding-top:8px;border-top:1px solid var(--divider-color);line-height:1.4}
         /* Beta 6: vehicle-first composition matching the approved reference. */
-        .vehicle-visual{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"caption state" "stage stage" "credit credit";gap:5px 12px;margin-top:12px;padding:0 10px 8px;background:transparent;border-radius:0;align-items:center}
-        .vehicle-caption{grid-area:caption;flex:initial}
+        .vehicle-visual{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"stage state" "credit credit";gap:5px 12px;margin-top:12px;padding:0 10px 8px;background:transparent;border-radius:0;align-items:center}
+        .vehicle-caption{display:none}
         .vehicle-caption strong{font-size:clamp(20px,4vw,29px);letter-spacing:-.04em}
         .vehicle-caption small{font-size:12px}
         .vehicle-stage{grid-area:stage;width:100%;height:clamp(165px,31vw,245px);min-height:150px}
@@ -424,7 +424,7 @@ class EVChargeTrackerCard extends HTMLElement {
       <ha-card>
         <div class="wrap" data-theme="${themeMode}">
           <div class="top">
-            <div><div class="eyebrow">Cargas · Última carga</div><h2>${this._escape(title)}</h2></div>
+            <div><div class="eyebrow">Cargas · Última carga</div><h2>${this._escape(title)}</h2>${vehicleDetails ? `<div class="vehicle-header-details">${this._escape(vehicleDetails)}</div>` : ""}</div>
             <div class="status ${charging && !inconsistentConnection ? "active" : (statusWarning || inconsistentConnection) ? "warn" : ""}">
               <i class="dot"></i>${this._escape(statusLabel)}
             </div>
