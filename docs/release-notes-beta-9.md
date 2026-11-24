@@ -2,6 +2,9 @@
 
 ## Included in this candidate
 
+- Package the supplied 400-row source catalog (200 BEV + 200 PHEV) and add the separately requested Leapmotor B10 as entry 401.
+- Load the catalog from a local JSON resource and group the selector into BEV and PHEV sections, with commercial aliases and sales metadata retained.
+
 - Replaces the manual image-path field in the card editor with a vehicle selector.
 - Includes Leapmotor C10, B10 and T03, the leading BEV models from the 2025 global sales ranking, and additional European-market models.
 - Adds **Añadir una foto personal** as the final selector option.
@@ -26,7 +29,11 @@ The editor can check file type, dimensions, transparency and basic content prese
 
 ## Catalog image availability
 
-The catalog includes model identities even when a redistributable image is not yet available. Only the C10 has a bundled default render in this candidate. Other models remain selectable, but show the neutral no-image state until the user adds a personal image. This is intentional: images are not copied from manufacturer websites or other sources unless redistribution rights and visual consistency have been verified.
+The catalog includes model identities even when a redistributable image is not yet available. Each entry carries image status and provenance/license fields so the source, creator and reuse terms can be audited. Only the existing C10 package image is currently present; its licensing provenance still needs review. No new photos have been approved or bundled for the other 400 catalog entries. Other models remain selectable, but show the neutral no-image state until the user adds a personal image. This is intentional: images are not copied from manufacturer websites or other sources unless redistribution rights and visual consistency have been verified.
+
+## Image sourcing workflow
+
+A Wikimedia Commons candidate-discovery script has been added. It filters for recognized open licenses and records the source page, author, license URL and candidate image URL. It deliberately does not auto-download or auto-package results: the exact model, photo angle, orientation, derivative rights and background removal must be reviewed first. See `docs/vehicle-image-sourcing.md`.
 
 ## Validation and known gates
 
