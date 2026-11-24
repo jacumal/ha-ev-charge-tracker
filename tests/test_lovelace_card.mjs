@@ -563,7 +563,7 @@ test("Leapmotor C10 default image is rendered in the vehicle-first hero", () => 
     entities: {},
   });
   assert.match(html, /leapmotor-c10-white\.webp/);
-  assert.match(html, /class="vehicle-stage state-unknown"/);
+  assert.match(html, /class="vehicle-stage state-error"/);
   assert.match(html, /vehicle-state/);
   assert.doesNotMatch(html, /<svg class="cable-overlay"/);
 });
