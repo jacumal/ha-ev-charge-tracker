@@ -553,7 +553,7 @@ test("Leapmotor C10 default cable anchor is on the rear-left quarter", () => {
 
 test("editor image validation is available independently from the card class", () => {
   const editor = createEditorInstance();
-  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"), true);
+  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/pearl-white"), true);
   assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
   assert.equal(editor._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), true);
   assert.equal(editor._validVehicleImage("https://example.com/c10.jpg"), false);
@@ -580,4 +580,24 @@ test("editor preview derives the C10 default image from the selected profile ide
   assert.match(source, /const identityText = \[visual\.visual_brand, visual\.visual_model, activeProfile\?\.vehicle_name, this\._config\.name\]/);
   assert.match(source, /const image = this\._validVehicleImage\(visual\.visual_image\) \? visual\.visual_image : \(isLeapmotorC10 \? "\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp"/);
   assert.match(source, /preview\.innerHTML = '<div class="preview-stage">' \+ imageOrFallback/);
+});
+
+
+test("uses the same verified official transparent C10 image in card and editor", () => {
+  assert.match(source, /DEFAULT_C10_IMAGE_URL/);
+  assert.match(source, /www\\.leapmotor\\.net\\/_next\\/image/);
+  assert.match(source, /officialC10Image/);
+  const html = createCard(
+    { name: "Leap C10", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" }, entities: {} },
+  );
+  assert.match(html, /www\\.leapmotor\\.net\\/_next\\/image/);
+  assert.match(html, /vehicle-image custom/);
+  assert.match(source, /const image = this\\._validVehicleImage\\(visual\\.visual_image\\) \\? visual\\.visual_image : \\(isLeapmotorC10 \\? DEFAULT_C10_IMAGE_URL/);
+});
+
+test("uses the approved vehicle-first layout and neutral image fallback", () => {
+  assert.match(source, /grid-template-areas:"stage state"/);
+  assert.match(source, /vehicle-subtitle/);
+  assert.match(source, /history-summary/);
+  assert.match(source, /Imagen del vehículo no disponible/);
 });
