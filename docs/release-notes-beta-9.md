@@ -9,6 +9,7 @@
 - Stores uploaded files under `www/ev-charge-tracker/custom/`, addressed by SHA-256 content hash. No cloud image service is involved.
 - Requires a transparent PNG/WebP source, limits uploads to 8 MB and normalizes accepted images to a 1200 × 675 transparent PNG canvas.
 - Serves the bundled C10 render from the integration's local static route rather than the Leapmotor website.
+- Adds a control to restore the model's bundled default image or clear a personal image when no bundled render exists.
 - Keeps image selection in the Lovelace configuration per vehicle; it does not change charger profiles, session history, tariffs or sensor mappings.
 
 ## Visual asset policy
