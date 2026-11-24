@@ -729,6 +729,14 @@ class EVChargeTrackerCardEditor extends HTMLElement {
   }
 
   _selectCatalogVehicle(id) {
+    if (id === "__personal__") {
+      const picker = this.shadowRoot.getElementById("personalVehicleImage");
+      if (picker) picker.click();
+      const visual = this._config.vehicle_visual || {};
+      const selected = VEHICLE_CATALOG.find(item => item.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() && item.model.toLowerCase() === String(visual.visual_model || "").toLowerCase());
+      this.shadowRoot.getElementById("visual_catalog").value = selected?.id || "";
+      return;
+    }
     const item = VEHICLE_CATALOG.find(vehicle => vehicle.id === id);
     if (!item) return;
     const next = { ...this._config, vehicle_visual: { ...(this._config.vehicle_visual || {}) } };
@@ -938,10 +946,10 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const visual = this._config.vehicle_visual || {};
     const profile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
     const catalog = this.shadowRoot.getElementById("visual_catalog");
-    if (catalog && catalog.options.length !== VEHICLE_CATALOG.length + 1) {
+    if (catalog && catalog.options.length !== VEHICLE_CATALOG.length + 2) {
       catalog.innerHTML = '<option value="">Vehículo personalizado / no catalogado</option>' + VEHICLE_CATALOG.map(item =>
-        '<option value="' + this._esc(item.id) + '">' + this._esc(item.label) + (item.image ? '' : ' · imagen personal necesaria') + '</option>'
-      ).join("");
+        '<option value="' + this._esc(item.id) + '">' + this._esc(item.label) + (item.image ? '' : ' · imagen por añadir') + '</option>'
+      ).join("") + '<option value="__personal__">➕ Añadir una foto personal</option>';
     }
     const matchingCatalog = VEHICLE_CATALOG.find(item =>
       item.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() &&
