@@ -188,7 +188,7 @@ test("renders the official transparent C10 image and cable state without a custo
   );
   assert.match(html, /vehicle-visual/);
   assert.match(html, /Leapmotor C10/);
-  assert.ok(html.includes("https://www.leapmotor.net/_next/image"));
+  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"));
   assert.match(html, /state-unknown/);
   assert.match(html, /Conexión sin monitorizar/);
 });
@@ -557,7 +557,7 @@ test("editor image validation is available independently from the card class", (
   assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
   assert.equal(editor._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), true);
   assert.equal(editor._validVehicleImage("https://example.com/c10.jpg"), false);
-  assert.equal(editor._validVehicleImage("https://www.leapmotor.net/_next/image?q=90&url=https%3A%2F%2Fwww.leapmotor.net%2Fimages%2Fdefault-source%2Fc10%2Fpearl-white-%2817%29.png%3Fsfvrsn%3Df11bcf73_36&w=3840"), true);
+  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp?q=90&url=https%3A%2F%2Fwww.leapmotor.net%2Fimages%2Fdefault-source%2Fc10%2Fpearl-white-%2817%29.png%3Fsfvrsn%3Df11bcf73_36&w=3840"), true);
 });
 
 test("card uses the bundled C10 image when the selected vehicle identity names C10", () => {
@@ -565,7 +565,7 @@ test("card uses the bundled C10 image when the selected vehicle identity names C
     { name: "Leapmotor C10", entities: {} },
     {},
   );
-  assert.ok(html.includes("https://www.leapmotor.net/_next/image"));
+  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"));
 });
 
 test("card does not render the generic cartoon car when no vehicle image is configured", () => {
@@ -585,12 +585,12 @@ test("editor preview derives the C10 default image from the selected profile ide
 
 test("uses the same verified official transparent C10 image in card and editor", () => {
   assert.match(source, /DEFAULT_C10_IMAGE_URL/);
-  assert.ok(source.includes("www.leapmotor.net/_next/image"));
-  assert.match(source, /officialC10Image/);
+  assert.ok(source.includes("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"));
+  assert.doesNotMatch(source, /officialC10Image/);
   const html = createCard(
     { name: "Leap C10", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" }, entities: {} },
   );
-  assert.ok(html.includes("www.leapmotor.net/_next/image"));
+  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"));
   assert.match(html, /vehicle-image custom/);
 });
 
@@ -610,7 +610,7 @@ test("migrates beta 7 legacy C10 image setting to the official default", () => {
     }, entities: {} },
   );
   assert.ok(html.includes("www.leapmotor.net/_next/image"));
-  assert.doesNotMatch(html, /vehicle-images\/leapmotor-c10-white/);
+  assert.match(html, /vehicle-images\/leapmotor-c10-white\.webp/);
 });
 
 
@@ -623,4 +623,19 @@ test("deduplicates vehicle generation and model year in the hero subtitle", () =
   );
   assert.ok(html.includes("Design · 2026"));
   assert.doesNotMatch(html, /2026 · 2026/);
+});
+
+
+test("beta 9 exposes the ordered vehicle catalog and private personal-image upload", () => {
+  assert.match(source, /id="visual_catalog"/);
+  assert.match(source, /Leapmotor B10/);
+  assert.match(source, /Tesla Model Y/);
+  assert.match(source, /Geely Galaxy Xingyuan/);
+  assert.match(source, /BYD Seagull/);
+  assert.match(source, /id="personalVehicleImage"/);
+  assert.match(source, /1200/);
+  assert.match(source, /675/);
+  assert.match(source, /api\/ev_charge_tracker\/vehicle-image/);
+  assert.match(source, /credentials/); // upload is authenticated with the HA bearer token
+  assert.match(source, /vehicle-image/);
 });
