@@ -1,0 +1,38 @@
+name: Discover vehicle image candidates
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Models to scan (0 = all 401)"
+        required: false
+        default: "0"
+      delay:
+        description: "Seconds between Wikimedia Commons API requests"
+        required: false
+        default: "0.4"
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Search Wikimedia Commons and build review manifest
+        run: |
+          python scripts/find_vehicle_image_candidates.py \
+            --limit "${{ inputs.limit }}" \
+            --delay "${{ inputs.delay }}"
+      - name: Upload candidate manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: vehicle-image-candidates
+          path: docs/data/vehicle_image_candidates.json
+          if-no-files-found: error
+          retention-days: 30
