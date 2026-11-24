@@ -12,6 +12,7 @@ SPEC.loader.exec_module(MODULE)
 
 def test_license_normalization_and_allowed_filter():
     assert MODULE._license_key("<span>CC BY-SA 4.0</span>") == "cc by-sa 4.0"
+    assert MODULE._text({"Artist": {"value": '<a href="/wiki/User:Jane">Jane Doe</a>'}}, "Artist") == "Jane Doe"
     assert "cc by-sa 4.0" in MODULE.ALLOWED_LICENSES
     assert "all rights reserved" not in MODULE.ALLOWED_LICENSES
 
@@ -28,6 +29,6 @@ def test_commons_candidate_search_records_full_provenance():
     source = inspect.getsource(MODULE.search_model)
     for field in (
         "descriptionurl", "LicenseShortName", "LicenseUrl", "Artist",
-        "AttributionRequired", "thumburl", "review_status",
+        "AttributionRequired", "thumburl", "review_status", "aliases",
     ):
         assert field in source
