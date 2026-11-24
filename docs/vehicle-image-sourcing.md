@@ -6,7 +6,7 @@ The catalog is based on `docs/data/ChargeTrack_catalogo_global_400.csv` and pack
 
 ## Candidate source
 
-The first candidate source is Wikimedia Commons. Each file has its own author and license; Commons asks reusers to verify the file's license and comply with attribution and share-alike conditions where applicable. The repository must retain the file description page, author, license name and license URL for every bundled asset.
+The first candidate source is Wikimedia Commons. Each file has its own author and license; Commons asks reusers to verify the file's license and comply with attribution and share-alike conditions where applicable. The repository must retain the file description page, author, license name and license URL for every bundled asset. A first manually inspected candidate is recorded for Tesla Model Y: Daniel.Cardenas, CC BY-SA 4.0. It is marked as a candidate only because the photo still needs background removal and visual acceptance before it can become a local card asset.
 
 Run:
 
