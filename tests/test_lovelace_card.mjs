@@ -484,7 +484,7 @@ test("gallery choices are stored per vehicle and shared by that vehicle's charge
 });
 
 test("editor selector tracks the catalog model while keeping image choice per vehicle", () => {
-  assert.match(source, /const matchingCatalog = VEHICLE_CATALOG\.find/);
+  assert.match(source, /const matchingCatalog = this\._vehicleCatalog\.find/);
   assert.match(source, /next\.vehicle_visuals = \{ \.\.\.\(next\.vehicle_visuals \|\| \{\}\), \[visualKey\]: \{ \.\.\.next\.vehicle_visual \} \}/);
 });
 
