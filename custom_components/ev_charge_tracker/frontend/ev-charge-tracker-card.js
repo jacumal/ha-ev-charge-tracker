@@ -300,11 +300,6 @@ class EVChargeTrackerCard extends HTMLElement {
         .vehicle-image { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
         .vehicle-image-credit{margin-top:3px;color:var(--secondary-text-color);font-size:10px;line-height:1.35}
         .vehicle-image-credit a{color:inherit;text-decoration:underline}
-        .vehicle-body { fill:var(--vehicle-color); opacity:.95; }
-        .vehicle-window { fill:var(--secondary-background-color); stroke:color-mix(in srgb,var(--primary-text-color) 28%,transparent); stroke-width:2; }
-        .vehicle-detail { fill:none; stroke:color-mix(in srgb,var(--primary-text-color) 36%,transparent); stroke-width:2; }
-        .vehicle-wheel { fill:var(--primary-text-color); }
-        .vehicle-hub { fill:var(--secondary-background-color); }
         .cable-overlay { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
         .cable-shadow,.cable-line,.energy-line { fill:none; stroke-linecap:round; }
         .cable-shadow { stroke:var(--primary-text-color); stroke-width:5; opacity:.16; }
