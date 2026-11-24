@@ -9,6 +9,7 @@ and license details must be checked by a maintainer before packaging.
 from __future__ import annotations
 
 import argparse
+import html
 import json
 import re
 import time
@@ -31,7 +32,8 @@ BAD_TERMS = ("interior", "dashboard", "wheel", "engine", "logo", "toy", "model k
 
 def _text(metadata: dict, key: str) -> str:
     value = metadata.get(key, {})
-    return str(value.get("value", "")).strip() if isinstance(value, dict) else str(value).strip()
+    raw = str(value.get("value", "")) if isinstance(value, dict) else str(value)
+    return html.unescape(re.sub(r"<[^>]+>", " ", raw)).strip()
 
 
 def _license_key(value: str) -> str:
@@ -54,7 +56,8 @@ def _score(title: str, model: str) -> int:
 
 
 def search_model(vehicle: dict, limit: int = 8) -> list[dict]:
-    query = f'"{vehicle["label"]}" car'
+    names = [vehicle["label"], *(vehicle.get("aliases") or [])[:2]]
+    query = " OR ".join(f'"{name}"' for name in names) + " car"
     params = {
         "action": "query",
         "generator": "search",
