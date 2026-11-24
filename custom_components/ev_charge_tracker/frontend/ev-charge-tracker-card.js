@@ -233,7 +233,7 @@ class EVChargeTrackerCard extends HTMLElement {
       pickup: "M22 62 L32 43 Q37 36 53 35 L72 21 L132 21 L145 37 L187 37 L208 54 L214 77 L22 77 Z",
     };
     const fallbackMarkup = '<div class="vehicle-image fallback" role="img" aria-label="' +
-      this._escape(vehicleLabel) + '"><span>Imagen del vehículo no configurada</span></div>';
+      this._escape(vehicleLabel) + '"><span>Imagen del vehículo no disponible</span></div>';
     const vehicleMarkup = '<div class="vehicle-visual">' +
       '<div class="vehicle-caption"><strong>' + this._escape(vehicleLabel) + '</strong>' +
       (vehicleDetails ? '<small>' + this._escape(vehicleDetails) + '</small>' : '') + '</div>' +
@@ -802,7 +802,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     ["brand","model","generation","year","trim","color","body_style","image","port_x","port_y"].forEach(key => {
       const field = this.shadowRoot.getElementById("visual_" + key);
       if (field && field !== this.shadowRoot.activeElement) {
-        const isLeapmotorC10 = /leapmotor/i.test(visual.visual_brand || "") && /c10/i.test(visual.visual_model || "");
+        const activeProfile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
+      const identityText = [visual.visual_brand, visual.visual_model, activeProfile?.vehicle_name, this._config.name].filter(Boolean).join(" ");
+      const isLeapmotorC10 = /c10/i.test(identityText) && (!visual.visual_brand || /leapmotor/i.test(visual.visual_brand) || /leapmotor/i.test(identityText));
         const defaults = { color: "#71869A", body_style: "suv", port_x: isLeapmotorC10 ? 83 : 67, port_y: isLeapmotorC10 ? 57 : 44 };
         field.value = visual["visual_" + key] ?? (defaults[key] ?? "");
       }
@@ -832,7 +834,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const visual = this._config.vehicle_visual || {};
       const label = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") || this._config.name || "Vehículo";
       const details = [visual.visual_generation, visual.visual_year, visual.visual_trim].filter(Boolean).join(" · ");
-      const isLeapmotorC10 = /leapmotor/i.test(visual.visual_brand || "") && /c10/i.test(visual.visual_model || "");
+      const activeProfile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
+      const identityText = [visual.visual_brand, visual.visual_model, activeProfile?.vehicle_name, this._config.name].filter(Boolean).join(" ");
+      const isLeapmotorC10 = /c10/i.test(identityText) && (!visual.visual_brand || /leapmotor/i.test(visual.visual_brand) || /leapmotor/i.test(identityText));
       const image = this._validVehicleImage(visual.visual_image) ? visual.visual_image : (isLeapmotorC10 ? "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp" : "");
       const defaultPortX = isLeapmotorC10 ? 83 : 67;
       const defaultPortY = isLeapmotorC10 ? 57 : 44;
@@ -852,7 +856,12 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         preview.lastElementChild.appendChild(credit);
       }
       const imageNode = preview.querySelector("img");
-      if (imageNode) imageNode.addEventListener("error", () => { imageNode.replaceWith(Object.assign(document.createElement("div"), { className: "preview-fallback", textContent: "🚘" })); }, { once: true });
+      if (imageNode) imageNode.addEventListener("error", () => {
+        const fallback = document.createElement("div");
+        fallback.className = "preview-fallback";
+        fallback.textContent = "Imagen no disponible";
+        imageNode.replaceWith(fallback);
+      }, { once: true });
     }
     const entityFields = this.shadowRoot.getElementById("entityFields");
     entityFields.classList.toggle("hidden", !this._manualMode);

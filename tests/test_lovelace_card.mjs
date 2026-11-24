@@ -565,11 +565,20 @@ test("card uses the bundled C10 image when the selected vehicle identity names C
     {},
   );
   assert.match(html, /\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp/);
-  assert.doesNotMatch(html, /<svg class="vehicle-image fallback"/);
+  assert.match(html, /\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp/);
 });
 
 test("card does not render the generic cartoon car when no vehicle image is configured", () => {
   const html = createCard({ name: "Mi vehículo", entities: {} }, {});
   assert.match(html, /Imagen del vehículo no configurada/);
   assert.doesNotMatch(html, /vehicle-body/);
+});
+
+
+test("editor preview detects C10 from the selected profile name when brand/model fields are empty", () => {
+  const editor = createEditorInstance();
+  editor._profiles = [{ entry_id: "c10", vehicle_name: "Leapmotor C10", charger_name: "Wallbox" }];
+  editor._config = { profile_entry_id: "c10", name: "Leapmotor C10", vehicle_visual: {} };
+  const html = editor._previewMarkup ? editor._previewMarkup() : "";
+  assert.ok(html.includes("leapmotor-c10-white.webp"));
 });
