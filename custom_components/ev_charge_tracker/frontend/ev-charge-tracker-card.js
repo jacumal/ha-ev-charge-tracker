@@ -3,7 +3,7 @@
  */
 const CARD_VERSION = "0.6.0";
 const DEFAULT_C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp";
-const VEHICLE_CATALOG = [
+const DEFAULT_VEHICLE_CATALOG = [
   ["leapmotor-c10","Leapmotor C10","Leapmotor","C10","suv","/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"],
   ["leapmotor-b10","Leapmotor B10","Leapmotor","B10","suv",""],
   ["leapmotor-t03","Leapmotor T03","Leapmotor","T03","hatchback",""],
@@ -616,6 +616,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     this._galleryResults = [];
     this._gallerySequence = 0;
     this._galleryQueryEdited = false;
+    this._vehicleCatalog = DEFAULT_VEHICLE_CATALOG;
+    this._vehicleCatalogLoaded = false;
+    this._vehicleCatalogLoading = false;
   }
 
   setConfig(config) {
@@ -631,6 +634,27 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       picker.hass = hass;
     });
     this._loadProfiles();
+    this._loadVehicleCatalog();
+  }
+
+  async _loadVehicleCatalog() {
+    if (this._vehicleCatalogLoaded || this._vehicleCatalogLoading || !this._hass) return;
+    this._vehicleCatalogLoading = true;
+    try {
+      const path = "/ev_charge_tracker/vehicle-catalog.json";
+      const url = typeof this._hass.hassUrl === "function" ? this._hass.hassUrl(path) : path;
+      const response = await fetch(url, { credentials: "same-origin", cache: "no-store" });
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      const payload = await response.json();
+      if (!Array.isArray(payload.vehicles) || payload.vehicles.length < 400) throw new Error("Catálogo incompleto");
+      this._vehicleCatalog = payload.vehicles;
+      this._vehicleCatalogLoaded = true;
+      this._syncControls();
+    } catch (error) {
+      console.warn("ChargeTrack: no se pudo cargar el catálogo local de vehículos; se mantiene el catálogo de reserva.", error);
+    } finally {
+      this._vehicleCatalogLoading = false;
+    }
   }
 
   _ensureDom() {
@@ -734,11 +758,11 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const picker = this.shadowRoot.getElementById("personalVehicleImage");
       if (picker) picker.click();
       const visual = this._config.vehicle_visual || {};
-      const selected = VEHICLE_CATALOG.find(item => item.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() && item.model.toLowerCase() === String(visual.visual_model || "").toLowerCase());
+      const selected = this._vehicleCatalog.find(item => item.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() && item.model.toLowerCase() === String(visual.visual_model || "").toLowerCase());
       this.shadowRoot.getElementById("visual_catalog").value = selected?.id || "";
       return;
     }
-    const item = VEHICLE_CATALOG.find(vehicle => vehicle.id === id);
+    const item = this._vehicleCatalog.find(vehicle => vehicle.id === id);
     if (!item) return;
     const next = { ...this._config, vehicle_visual: { ...(this._config.vehicle_visual || {}) } };
     Object.assign(next.vehicle_visual, { visual_brand: item.brand, visual_model: item.model, visual_body_style: item.body, visual_image: item.image || "" });
@@ -755,7 +779,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
 
   _restoreCatalogVehicleImage() {
     const visual = this._config.vehicle_visual || {};
-    const item = VEHICLE_CATALOG.find(vehicle =>
+    const item = this._vehicleCatalog.find(vehicle =>
       vehicle.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() &&
       vehicle.model.toLowerCase() === String(visual.visual_model || "").toLowerCase()
     );
@@ -978,12 +1002,20 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const visual = this._config.vehicle_visual || {};
     const profile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
     const catalog = this.shadowRoot.getElementById("visual_catalog");
-    if (catalog && catalog.options.length !== VEHICLE_CATALOG.length + 2) {
-      catalog.innerHTML = '<option value="">Vehículo personalizado / no catalogado</option>' + VEHICLE_CATALOG.map(item =>
-        '<option value="' + this._esc(item.id) + '">' + this._esc(item.label) + (item.image ? '' : ' · imagen por añadir') + '</option>'
-      ).join("") + '<option value="__personal__">➕ Añadir una foto personal</option>';
+    if (catalog && catalog.dataset.catalogVersion !== (this._vehicleCatalogLoaded ? "full-400" : "fallback")) {
+      const groups = [["BEV", "100 % eléctricos (BEV)"], ["PHEV", "Híbridos enchufables (PHEV)"]];
+      const options = groups.map(([technology, label]) => {
+        const items = this._vehicleCatalog.filter(item => item.technology === technology);
+        return '<optgroup label="' + label + '">' + items.map(item =>
+          '<option value="' + this._esc(item.id) + '" title="' + this._esc((item.aliases || []).join(" · ")) + '">' +
+          this._esc(item.label) + (item.image ? '' : ' · imagen pendiente') + '</option>'
+        ).join("") + '</optgroup>';
+      }).join("");
+      catalog.innerHTML = '<option value="">Selecciona un vehículo…</option>' + options +
+        '<option value="__personal__">➕ Añadir una foto personal</option>';
+      catalog.dataset.catalogVersion = this._vehicleCatalogLoaded ? "full-400" : "fallback";
     }
-    const matchingCatalog = VEHICLE_CATALOG.find(item =>
+    const matchingCatalog = this._vehicleCatalog.find(item =>
       item.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() &&
       item.model.toLowerCase() === String(visual.visual_model || "").toLowerCase()
     );
