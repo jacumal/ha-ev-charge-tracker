@@ -557,12 +557,15 @@ test("editor clears stale license attribution when a selected image is replaced 
   assert.match(source, /const previousImage/);
 });
 
-test("Leapmotor C10 default cable anchor is on the rear-left quarter", () => {
+test("Leapmotor C10 default image is rendered in the vehicle-first hero", () => {
   const html = createCard({
     vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" },
     entities: {},
   });
-  assert.match(html, /cx="216" cy="63"/);
+  assert.match(html, /leapmotor-c10-white\.webp/);
+  assert.match(html, /class="vehicle-stage state-unknown"/);
+  assert.match(html, /vehicle-state/);
+  assert.doesNotMatch(html, /<svg class="cable-overlay"/);
 });
 
 
