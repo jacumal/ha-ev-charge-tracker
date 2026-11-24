@@ -554,6 +554,7 @@ test("editor image validation is available independently from the card class", (
   const editor = createEditorInstance();
   assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"), false);
   assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
+  assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/custom/" + "a".repeat(64) + ".png"), true);
   assert.equal(editor._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), true);
   assert.equal(editor._validVehicleImage("https://example.com/c10.jpg"), false);
   assert.equal(editor._validVehicleImage("https://www.leapmotor.net/_next/image?q=90"), false);
@@ -632,6 +633,7 @@ test("beta 9 exposes the ordered vehicle catalog and private personal-image uplo
   assert.match(source, /Geely Galaxy Xingyuan/);
   assert.match(source, /BYD Seagull/);
   assert.match(source, /id="personalVehicleImage"/);
+  assert.match(source, /value="__personal__">➕ Añadir una foto personal/);
   assert.match(source, /1200/);
   assert.match(source, /675/);
   assert.match(source, /api\/ev_charge_tracker\/vehicle-image/);
