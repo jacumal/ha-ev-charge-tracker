@@ -1,4 +1,4 @@
-"""Regression contract checks for the beta.6 Commons vehicle gallery.
+"""Regression contract checks for beta 8 vehicle visuals and brand assets.
 
 These static checks complement browser tests: Home Assistant's custom card must
 still be exercised in a real frontend before beta.6 is considered release-ready.
@@ -72,3 +72,17 @@ def test_lovelace_resource_uses_stable_url_without_long_lived_cache_headers():
     )
     assert 'CARD_URL = "/ev_charge_tracker/ev-charge-tracker-card.js"' in init
     assert "cache_headers=False" in init
+
+
+def test_brand_assets_have_marketplace_ready_png_dimensions():
+    import struct
+
+    brand = ROOT / "custom_components/ev_charge_tracker/brand"
+    icon = (brand / "icon.png").read_bytes()
+    logo = (brand / "logo.png").read_bytes()
+    assert icon[:8] == b"\\x89PNG\\r\\n\\x1a\\n"
+    assert logo[:8] == b"\\x89PNG\\r\\n\\x1a\\n"
+    assert struct.unpack(">II", icon[16:24]) == (256, 256)
+    logo_width, logo_height = struct.unpack(">II", logo[16:24])
+    assert logo_height == 128
+    assert logo_width >= logo_height
