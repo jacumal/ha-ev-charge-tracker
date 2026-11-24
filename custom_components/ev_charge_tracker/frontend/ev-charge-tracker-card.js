@@ -187,7 +187,12 @@ class EVChargeTrackerCard extends HTMLElement {
     const vehicle = this.config.vehicle_visual || {};
     const visualColor = /^#[0-9a-f]{6}$/i.test(vehicle.visual_color || "") ? vehicle.visual_color : "#71869A";
     const bodyStyle = ["suv", "sedan", "hatchback", "van", "pickup"].includes(vehicle.visual_body_style) ? vehicle.visual_body_style : "suv";
-    const isLeapmotorC10 = /leapmotor/i.test(vehicle.visual_brand || "") && /c10/i.test(vehicle.visual_model || "");
+    const vehicleIdentityText = [
+      vehicle.visual_brand, vehicle.visual_model, this.config.vehicle_name,
+      this.config.vehicle, this.config.name,
+    ].filter(Boolean).join(" ");
+    const isLeapmotorC10 = /c10/i.test(vehicle.visual_model || vehicleIdentityText) &&
+      (!vehicle.visual_brand || /leapmotor/i.test(vehicle.visual_brand));
     const customImage = this._validVehicleImage(vehicle.visual_image) ? vehicle.visual_image : (isLeapmotorC10 ? "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp" : "");
     const imageCredit = vehicle.visual_image_credit || "";
     const imageLicense = vehicle.visual_image_license || "";
@@ -227,13 +232,8 @@ class EVChargeTrackerCard extends HTMLElement {
       van: "M23 64 L31 34 Q34 27 45 25 L174 25 Q188 25 196 39 L212 54 L215 77 L23 77 Z",
       pickup: "M22 62 L32 43 Q37 36 53 35 L72 21 L132 21 L145 37 L187 37 L208 54 L214 77 L22 77 Z",
     };
-    const fallbackMarkup = '<svg class="vehicle-image fallback" viewBox="0 0 260 110" role="img" aria-label="' + this._escape(vehicleLabel) + '">' +
-      '<path class="vehicle-body" d="' + bodyPaths[bodyStyle] + '"/>' +
-      '<path class="vehicle-window" d="M70 39 L87 24 Q91 21 101 21 L147 22 Q158 23 166 36 Z"/>' +
-      '<path class="vehicle-detail" d="M28 64 H209 M72 39 L70 62 M167 39 L170 62"/>' +
-      '<circle class="vehicle-wheel" cx="66" cy="77" r="13"/><circle class="vehicle-wheel" cx="177" cy="77" r="13"/>' +
-      '<circle class="vehicle-hub" cx="66" cy="77" r="5"/><circle class="vehicle-hub" cx="177" cy="77" r="5"/>' +
-      '</svg>';
+    const fallbackMarkup = '<div class="vehicle-image fallback" role="img" aria-label="' +
+      this._escape(vehicleLabel) + '"><span>Imagen del vehículo no disponible</span></div>';
     const vehicleMarkup = '<div class="vehicle-visual">' +
       '<div class="vehicle-caption"><strong>' + this._escape(vehicleLabel) + '</strong>' +
       (vehicleDetails ? '<small>' + this._escape(vehicleDetails) + '</small>' : '') + '</div>' +
@@ -300,11 +300,6 @@ class EVChargeTrackerCard extends HTMLElement {
         .vehicle-image { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
         .vehicle-image-credit{margin-top:3px;color:var(--secondary-text-color);font-size:10px;line-height:1.35}
         .vehicle-image-credit a{color:inherit;text-decoration:underline}
-        .vehicle-body { fill:var(--vehicle-color); opacity:.95; }
-        .vehicle-window { fill:var(--secondary-background-color); stroke:color-mix(in srgb,var(--primary-text-color) 28%,transparent); stroke-width:2; }
-        .vehicle-detail { fill:none; stroke:color-mix(in srgb,var(--primary-text-color) 36%,transparent); stroke-width:2; }
-        .vehicle-wheel { fill:var(--primary-text-color); }
-        .vehicle-hub { fill:var(--secondary-background-color); }
         .cable-overlay { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
         .cable-shadow,.cable-line,.energy-line { fill:none; stroke-linecap:round; }
         .cable-shadow { stroke:var(--primary-text-color); stroke-width:5; opacity:.16; }
@@ -533,6 +528,16 @@ class EVChargeTrackerCard extends HTMLElement {
 }
 
 class EVChargeTrackerCardEditor extends HTMLElement {
+  _validVehicleImage(value) {
+    if (typeof value !== "string" || value.includes("..")) return false;
+    if (value === "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp") return true;
+    if (/^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(value)) return true;
+    try {
+      const url = new URL(value);
+      return url.protocol === "https:" && url.hostname === "upload.wikimedia.org" && /^\/wikipedia\/commons\/(?:thumb\/)?[A-Za-z0-9_./%()-]+\.(?:png|webp|jpe?g)(?:\/[^?#]+)?$/i.test(url.pathname);
+    } catch { return false; }
+  }
+
   constructor() {
     super();
     this._config = {};
@@ -792,7 +797,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     ["brand","model","generation","year","trim","color","body_style","image","port_x","port_y"].forEach(key => {
       const field = this.shadowRoot.getElementById("visual_" + key);
       if (field && field !== this.shadowRoot.activeElement) {
-        const isLeapmotorC10 = /leapmotor/i.test(visual.visual_brand || "") && /c10/i.test(visual.visual_model || "");
+        const activeProfile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
+      const identityText = [visual.visual_brand, visual.visual_model, activeProfile?.vehicle_name, this._config.name].filter(Boolean).join(" ");
+      const isLeapmotorC10 = /c10/i.test(identityText) && (!visual.visual_brand || /leapmotor/i.test(visual.visual_brand) || /leapmotor/i.test(identityText));
         const defaults = { color: "#71869A", body_style: "suv", port_x: isLeapmotorC10 ? 83 : 67, port_y: isLeapmotorC10 ? 57 : 44 };
         field.value = visual["visual_" + key] ?? (defaults[key] ?? "");
       }
@@ -822,7 +829,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const visual = this._config.vehicle_visual || {};
       const label = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") || this._config.name || "Vehículo";
       const details = [visual.visual_generation, visual.visual_year, visual.visual_trim].filter(Boolean).join(" · ");
-      const isLeapmotorC10 = /leapmotor/i.test(visual.visual_brand || "") && /c10/i.test(visual.visual_model || "");
+      const activeProfile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
+      const identityText = [visual.visual_brand, visual.visual_model, activeProfile?.vehicle_name, this._config.name].filter(Boolean).join(" ");
+      const isLeapmotorC10 = /c10/i.test(identityText) && (!visual.visual_brand || /leapmotor/i.test(visual.visual_brand) || /leapmotor/i.test(identityText));
       const image = this._validVehicleImage(visual.visual_image) ? visual.visual_image : (isLeapmotorC10 ? "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp" : "");
       const defaultPortX = isLeapmotorC10 ? 83 : 67;
       const defaultPortY = isLeapmotorC10 ? 57 : 44;
@@ -832,7 +841,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const portY = Number.isFinite(rawPortY) ? Math.min(100, Math.max(0, rawPortY)) : defaultPortY;
       const imageOrFallback = image
         ? '<img src="' + this._esc(image) + '" alt="' + this._esc(label) + '">'
-        : '<div class="preview-fallback" aria-hidden="true">🚘</div>';
+        : '<div class="preview-fallback" role="img" aria-label="Imagen del vehículo no disponible">Imagen del vehículo no disponible</div>';
       preview.innerHTML = '<div class="preview-stage">' + imageOrFallback +
         '<i class="preview-port" style="left:' + portX + '%;top:' + portY + '%"></i></div>' +
         '<div><strong>' + this._esc(label) + '</strong><small>' + this._esc(details || "Vista previa de identidad del vehículo") + '</small></div>';
@@ -842,7 +851,12 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         preview.lastElementChild.appendChild(credit);
       }
       const imageNode = preview.querySelector("img");
-      if (imageNode) imageNode.addEventListener("error", () => { imageNode.replaceWith(Object.assign(document.createElement("div"), { className: "preview-fallback", textContent: "🚘" })); }, { once: true });
+      if (imageNode) imageNode.addEventListener("error", () => {
+        const fallback = document.createElement("div");
+        fallback.className = "preview-fallback";
+        fallback.textContent = "Imagen no disponible";
+        imageNode.replaceWith(fallback);
+      }, { once: true });
     }
     const entityFields = this.shadowRoot.getElementById("entityFields");
     entityFields.classList.toggle("hidden", !this._manualMode);

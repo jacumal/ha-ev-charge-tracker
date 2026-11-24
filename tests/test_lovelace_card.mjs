@@ -15,6 +15,7 @@ function createEditorInstance(config = {}) {
     HTMLElement,
     customElements: { define: (name, constructor) => registry.set(name, constructor) },
     window: {},
+    URL,
   });
   const Editor = registry.get("ev-charge-tracker-card-editor");
   const editor = new Editor();
@@ -187,7 +188,7 @@ test("renders a transparent vehicle silhouette and cable state without a custom 
   );
   assert.match(html, /vehicle-visual/);
   assert.match(html, /Leapmotor C10/);
-  assert.match(html, /vehicle-body/);
+  assert.match(html, /leapmotor-c10-white\.webp/);
   assert.match(html, /state-unknown/);
   assert.match(html, /Conexión sin monitorizar/);
 });
@@ -547,4 +548,36 @@ test("Leapmotor C10 default cable anchor is on the rear-left quarter", () => {
     entities: {},
   });
   assert.match(html, /cx="216" cy="63"/);
+});
+
+
+test("editor image validation is available independently from the card class", () => {
+  const editor = createEditorInstance();
+  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"), true);
+  assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
+  assert.equal(editor._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), true);
+  assert.equal(editor._validVehicleImage("https://example.com/c10.jpg"), false);
+});
+
+test("card uses the bundled C10 image when the selected vehicle identity names C10", () => {
+  const html = createCard(
+    { name: "Leapmotor C10", entities: {} },
+    {},
+  );
+  assert.match(html, /\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp/);
+  assert.match(html, /\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp/);
+});
+
+test("card does not render the generic cartoon car when no vehicle image is configured", () => {
+  const html = createCard({ name: "Mi vehículo", entities: {} }, {});
+  assert.match(html, /Imagen del vehículo no disponible/);
+  assert.doesNotMatch(html, /vehicle-body/);
+});
+
+
+test("editor preview derives the C10 default image from the selected profile identity", () => {
+  assert.match(source, /const activeProfile = this\._profiles\.find\(item => item\.entry_id === this\._config\.profile_entry_id\)/);
+  assert.match(source, /const identityText = \[visual\.visual_brand, visual\.visual_model, activeProfile\?\.vehicle_name, this\._config\.name\]/);
+  assert.match(source, /const image = this\._validVehicleImage\(visual\.visual_image\) \? visual\.visual_image : \(isLeapmotorC10 \? "\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp"/);
+  assert.match(source, /preview\.innerHTML = '<div class="preview-stage">' \+ imageOrFallback/);
 });

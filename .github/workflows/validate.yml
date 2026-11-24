@@ -68,11 +68,11 @@ jobs:
           manifest = json.loads(manifest_path.read_text())
           assert hacs.get("name") == manifest.get("name") == "ChargeTrack"
           assert manifest.get("domain") == "ev_charge_tracker"
-          assert manifest.get("version") == "0.1.0-beta.6"
+          assert manifest.get("version") == "0.1.0-beta.7"
           assert manifest.get("config_flow") is True
           frontend = root / "custom_components/ev_charge_tracker/frontend/ev-charge-tracker-card.js"
           assert frontend.is_file() and frontend.stat().st_size > 0
-          package = Path("dist/ev-charge-tracker-beta6.zip")
+          package = Path("dist/ev-charge-tracker-beta7.zip")
           package.parent.mkdir(exist_ok=True)
           with ZipFile(package, "w", ZIP_DEFLATED) as archive:
               for path in (root / "custom_components/ev_charge_tracker").rglob("*"):
