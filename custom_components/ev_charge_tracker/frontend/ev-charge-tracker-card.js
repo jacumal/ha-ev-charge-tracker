@@ -53,6 +53,7 @@ class EVChargeTrackerCard extends HTMLElement {
 
   _validVehicleImage(value) {
     if (typeof value !== "string" || value.includes("..")) return false;
+    if (value === "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp") return true;
     if (/^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(value)) return true;
     try {
       const url = new URL(value);
@@ -186,12 +187,12 @@ class EVChargeTrackerCard extends HTMLElement {
     const vehicle = this.config.vehicle_visual || {};
     const visualColor = /^#[0-9a-f]{6}$/i.test(vehicle.visual_color || "") ? vehicle.visual_color : "#71869A";
     const bodyStyle = ["suv", "sedan", "hatchback", "van", "pickup"].includes(vehicle.visual_body_style) ? vehicle.visual_body_style : "suv";
-    const customImage = this._validVehicleImage(vehicle.visual_image) ? vehicle.visual_image : "";
+    const isLeapmotorC10 = /leapmotor/i.test(vehicle.visual_brand || "") && /c10/i.test(vehicle.visual_model || "");
+    const customImage = this._validVehicleImage(vehicle.visual_image) ? vehicle.visual_image : (isLeapmotorC10 ? "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp" : "");
     const imageCredit = vehicle.visual_image_credit || "";
     const imageLicense = vehicle.visual_image_license || "";
     const imageLicenseUrl = typeof vehicle.visual_image_license_url === "string" && /^https:\/\/creativecommons\.org\/(?:licenses|publicdomain)\//i.test(vehicle.visual_image_license_url) ? vehicle.visual_image_license_url : "";
     const imagePage = typeof vehicle.visual_image_page === "string" && /^https:\/\/commons\.wikimedia\.org\/wiki\//i.test(vehicle.visual_image_page) ? vehicle.visual_image_page : "";
-    const isLeapmotorC10 = /leapmotor/i.test(vehicle.visual_brand || "") && /c10/i.test(vehicle.visual_model || "");
     const defaultPortX = isLeapmotorC10 ? 83 : 67;
     const defaultPortY = isLeapmotorC10 ? 57 : 44;
     const portXValue = vehicle.visual_port_x == null || vehicle.visual_port_x === "" ? defaultPortX : Number(vehicle.visual_port_x);
@@ -821,8 +822,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const visual = this._config.vehicle_visual || {};
       const label = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") || this._config.name || "Vehículo";
       const details = [visual.visual_generation, visual.visual_year, visual.visual_trim].filter(Boolean).join(" · ");
-      const image = this._validVehicleImage(visual.visual_image) ? visual.visual_image : "";
       const isLeapmotorC10 = /leapmotor/i.test(visual.visual_brand || "") && /c10/i.test(visual.visual_model || "");
+      const image = this._validVehicleImage(visual.visual_image) ? visual.visual_image : (isLeapmotorC10 ? "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp" : "");
       const defaultPortX = isLeapmotorC10 ? 83 : 67;
       const defaultPortY = isLeapmotorC10 ? 57 : 44;
       const rawPortX = Number(visual.visual_port_x ?? defaultPortX);
