@@ -1,7 +1,8 @@
 /* ChargeTrack Lovelace card
  * Copyright (c) ChargeTrack contributors. MIT.
  */
-const CARD_VERSION = "0.4.0";
+const CARD_VERSION = "0.5.0";
+const DEFAULT_C10_IMAGE_URL = "https://www.leapmotor.net/images/default-source/c10/pearl-white-(3).png?sfvrsn=c8a0dd7c_39";
 
 class EVChargeTrackerCard extends HTMLElement {
   setConfig(config) {
@@ -57,7 +58,11 @@ class EVChargeTrackerCard extends HTMLElement {
     if (/^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(value)) return true;
     try {
       const url = new URL(value);
-      return url.protocol === "https:" && url.hostname === "upload.wikimedia.org" && /^\/wikipedia\/commons\/(?:thumb\/)?[A-Za-z0-9_./%()-]+\.(?:png|webp|jpe?g)(?:\/[^?#]+)?$/i.test(url.pathname);
+      const commonsImage = url.protocol === "https:" && url.hostname === "upload.wikimedia.org" &&
+        /^\/wikipedia\/commons\/(?:thumb\/)?[A-Za-z0-9_./%()-]+\.(?:png|webp|jpe?g)(?:\/[^?#]+)?$/i.test(url.pathname);
+      const officialC10Image = url.protocol === "https:" && url.hostname === "www.leapmotor.net" &&
+        url.pathname === "/images/default-source/c10/pearl-white-(3).png";
+      return commonsImage || officialC10Image;
     } catch { return false; }
   }
 
@@ -193,11 +198,12 @@ class EVChargeTrackerCard extends HTMLElement {
     ].filter(Boolean).join(" ");
     const isLeapmotorC10 = /c10/i.test(vehicle.visual_model || vehicleIdentityText) &&
       (!vehicle.visual_brand || /leapmotor/i.test(vehicle.visual_brand));
-    const customImage = this._validVehicleImage(vehicle.visual_image) ? vehicle.visual_image : (isLeapmotorC10 ? "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp" : "");
-    const imageCredit = vehicle.visual_image_credit || "";
+    const usingDefaultC10Image = isLeapmotorC10 && !this._validVehicleImage(vehicle.visual_image);
+    const customImage = this._validVehicleImage(vehicle.visual_image) ? vehicle.visual_image : (isLeapmotorC10 ? DEFAULT_C10_IMAGE_URL : "");
+    const imageCredit = vehicle.visual_image_credit || (usingDefaultC10Image ? "Leapmotor" : "");
     const imageLicense = vehicle.visual_image_license || "";
     const imageLicenseUrl = typeof vehicle.visual_image_license_url === "string" && /^https:\/\/creativecommons\.org\/(?:licenses|publicdomain)\//i.test(vehicle.visual_image_license_url) ? vehicle.visual_image_license_url : "";
-    const imagePage = typeof vehicle.visual_image_page === "string" && /^https:\/\/commons\.wikimedia\.org\/wiki\//i.test(vehicle.visual_image_page) ? vehicle.visual_image_page : "";
+    const imagePage = typeof vehicle.visual_image_page === "string" && /^https:\/\/commons\.wikimedia\.org\/wiki\//i.test(vehicle.visual_image_page) ? vehicle.visual_image_page : (usingDefaultC10Image ? "https://www.leapmotor.net/es-es/modelos/c10" : "");
     const defaultPortX = isLeapmotorC10 ? 83 : 67;
     const defaultPortY = isLeapmotorC10 ? 57 : 44;
     const portXValue = vehicle.visual_port_x == null || vehicle.visual_port_x === "" ? defaultPortX : Number(vehicle.visual_port_x);
@@ -534,7 +540,11 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     if (/^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(value)) return true;
     try {
       const url = new URL(value);
-      return url.protocol === "https:" && url.hostname === "upload.wikimedia.org" && /^\/wikipedia\/commons\/(?:thumb\/)?[A-Za-z0-9_./%()-]+\.(?:png|webp|jpe?g)(?:\/[^?#]+)?$/i.test(url.pathname);
+      const commonsImage = url.protocol === "https:" && url.hostname === "upload.wikimedia.org" &&
+        /^\/wikipedia\/commons\/(?:thumb\/)?[A-Za-z0-9_./%()-]+\.(?:png|webp|jpe?g)(?:\/[^?#]+)?$/i.test(url.pathname);
+      const officialC10Image = url.protocol === "https:" && url.hostname === "www.leapmotor.net" &&
+        url.pathname === "/images/default-source/c10/pearl-white-(3).png";
+      return commonsImage || officialC10Image;
     } catch { return false; }
   }
 
@@ -832,7 +842,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const activeProfile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
       const identityText = [visual.visual_brand, visual.visual_model, activeProfile?.vehicle_name, this._config.name].filter(Boolean).join(" ");
       const isLeapmotorC10 = /c10/i.test(identityText) && (!visual.visual_brand || /leapmotor/i.test(visual.visual_brand) || /leapmotor/i.test(identityText));
-      const image = this._validVehicleImage(visual.visual_image) ? visual.visual_image : (isLeapmotorC10 ? "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp" : "");
+      const image = this._validVehicleImage(visual.visual_image) ? visual.visual_image : (isLeapmotorC10 ? DEFAULT_C10_IMAGE_URL : "");
       const defaultPortX = isLeapmotorC10 ? 83 : 67;
       const defaultPortY = isLeapmotorC10 ? 57 : 44;
       const rawPortX = Number(visual.visual_port_x ?? defaultPortX);
