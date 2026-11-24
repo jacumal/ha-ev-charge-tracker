@@ -553,7 +553,7 @@ test("Leapmotor C10 default cable anchor is on the rear-left quarter", () => {
 
 test("editor image validation is available independently from the card class", () => {
   const editor = createEditorInstance();
-  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"), true);
+  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"), false);
   assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
   assert.equal(editor._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), true);
   assert.equal(editor._validVehicleImage("https://example.com/c10.jpg"), false);
@@ -601,4 +601,16 @@ test("uses the approved vehicle-first layout and neutral image fallback", () => 
   assert.match(source, /vehicle-subtitle/);
   assert.match(source, /history-summary/);
   assert.match(source, /Imagen del vehículo no disponible/);
+});
+
+
+test("migrates beta 7 legacy C10 image setting to the official default", () => {
+  const html = createCard(
+    { name: "Leapmotor C10", vehicle_visual: {
+      visual_brand: "Leapmotor", visual_model: "C10",
+      visual_image: "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp",
+    }, entities: {} },
+  );
+  assert.ok(html.includes("www.leapmotor.net/_next/image"));
+  assert.doesNotMatch(html, /vehicle-images\/leapmotor-c10-white/);
 });
