@@ -616,9 +616,10 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     this._galleryResults = [];
     this._gallerySequence = 0;
     this._galleryQueryEdited = false;
-    this._vehicleCatalog = DEFAULT_VEHICLE_CATALOG;
+    this._vehicleCatalog = DEFAULT_VEHICLE_CATALOG.map(item => ({ ...item, technology: "BEV", aliases: [] }));
     this._vehicleCatalogLoaded = false;
     this._vehicleCatalogLoading = false;
+    this._vehicleCatalogAttempted = false;
   }
 
   setConfig(config) {
@@ -638,7 +639,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
   }
 
   async _loadVehicleCatalog() {
-    if (this._vehicleCatalogLoaded || this._vehicleCatalogLoading || !this._hass) return;
+    if (this._vehicleCatalogLoaded || this._vehicleCatalogLoading || this._vehicleCatalogAttempted || !this._hass) return;
+    this._vehicleCatalogAttempted = true;
     this._vehicleCatalogLoading = true;
     try {
       const path = "/ev_charge_tracker/vehicle-catalog.json";
@@ -1003,7 +1005,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const profile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
     const catalog = this.shadowRoot.getElementById("visual_catalog");
     if (catalog && catalog.dataset.catalogVersion !== (this._vehicleCatalogLoaded ? "full-400" : "fallback")) {
-      const groups = [["BEV", "100 % eléctricos (BEV)"], ["PHEV", "Híbridos enchufables (PHEV)"]];
+      const bevCount = this._vehicleCatalog.filter(item => item.technology === "BEV").length;
+      const phevCount = this._vehicleCatalog.filter(item => item.technology === "PHEV").length;
+      const groups = [["BEV", "100 % eléctricos (BEV · " + bevCount + ")"], ["PHEV", "Híbridos enchufables (PHEV · " + phevCount + ")"]];
       const options = groups.map(([technology, label]) => {
         const items = this._vehicleCatalog.filter(item => item.technology === technology);
         return '<optgroup label="' + label + '">' + items.map(item =>
