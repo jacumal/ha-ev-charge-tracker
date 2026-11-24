@@ -4,7 +4,7 @@
 
 ChargeTrack brings your electric vehicle's charging sessions, energy, battery state of charge (SOC), mileage, costs, tariffs and history together in one platform. It is designed to work with existing Home Assistant entities, independently of vehicle and charger brands.
 
-**Project status:** beta `0.1.0-beta.6` candidate in development on `feature/beta-6-free-vehicle-gallery`. Beta 6 includes a free, license-filtered vehicle image gallery powered by Wikimedia Commons and a vehicle-first responsive Lovelace card. Existing charging, tariff, sensor and history behavior is retained. Real Home Assistant frontend validation and an update-in-place test are required before release.
+**Project status:** beta `0.1.0-beta.8` in development. This corrective beta focuses on the approved vehicle-first Lovelace design, reliable C10 image loading in both the card and editor, and complete light/dark branding. It is not considered release-ready until CI passes and the installed Home Assistant frontend is verified.
 
 ## ChargeTrack identity
 
@@ -34,6 +34,14 @@ ChargeTrack brings your electric vehicle's charging sessions, energy, battery st
 - [Beta 6 plan](docs/beta-6-plan.md)
 
 ## Vehicle gallery and dashboard
+
+Add the Lovelace resource as a **JavaScript Module**:
+
+```text
+/ev_charge_tracker/ev-charge-tracker-card.js?v=0.1.0-beta.8
+```
+
+The version query is a cache-busting value; update it when installing a newer beta so the browser requests the new card file.
 
 - Search Wikimedia Commons from the card editor.
 - Allowlist recognized CC0, Public Domain, CC BY and CC BY-SA licenses.
