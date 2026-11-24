@@ -514,7 +514,7 @@ class EVChargeTrackerCard extends HTMLElement {
               <div class="chart-legend">Los costes parciales se muestran atenuados</div>
             </section>
           </div>` : ""}
-          ${displayMode !== "compact" ? `<div class="history-head"><h3>Histórico de cargas</h3><span class="count">${completedSessions.length} registros</span></div>
+          ${displayMode !== "compact" ? `<div class="history-head"><h3>Histórico de cargas</h3><span class="count">${rows.length} registros</span></div>
           ${completedSessions.length ? `<section class="history-summary" aria-label="Resumen del histórico">
             <div class="history-summary-stats">
               <div><span>Energía total</span><strong>${this._fmt(totalHistoryEnergy,1)} kWh</strong></div>
@@ -571,7 +571,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const commonsImage = url.protocol === "https:" && url.hostname === "upload.wikimedia.org" &&
         /^\/wikipedia\/commons\/(?:thumb\/)?[A-Za-z0-9_./%()-]+\.(?:png|webp|jpe?g)(?:\/[^?#]+)?$/i.test(url.pathname);
       const officialC10Image = url.protocol === "https:" && url.hostname === "www.leapmotor.net" &&
-        url.pathname === "/_next/image" && (url.searchParams.get("url") || "").startsWith("https://www.leapmotor.net/images/default-source/c10/pearl-white-(3).png");
+        url.pathname === "/_next/image" && (url.searchParams.get("url") || "").startsWith("https://www.leapmotor.net/images/default-source/c10/pearl-white-(17).png");
       return commonsImage || officialC10Image;
     } catch { return false; }
   }
