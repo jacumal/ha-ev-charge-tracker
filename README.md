@@ -33,6 +33,7 @@ ChargeTrack brings your electric vehicle's charging sessions, energy, battery st
 - [Beta validation checklist](docs/beta-checklist.md)
 - [Beta 9 image catalog checklist](docs/beta-9-checklist.md)
 - [Beta 9 release notes](docs/release-notes-beta-9.md)
+- [Vehicle image sourcing and licensing](docs/vehicle-image-sourcing.md)
 - [Beta 6 plan](docs/beta-6-plan.md)
 
 ## Vehicle gallery and dashboard
