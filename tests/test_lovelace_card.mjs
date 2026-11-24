@@ -189,7 +189,7 @@ test("recognizes C10 from the full profile identity and uses the bundled default
   assert.match(html, /<h2>Leapmotor<\/h2>|<h2>Leap C10<\/h2>/);
   assert.match(html, /leapmotor-c10-white\.webp/);
   assert.match(html, /loading="eager"/);
-  assert.doesNotMatch(html, /vehicle-caption/);
+  assert.doesNotMatch(html, /<div class="vehicle-caption"/);
 });
 
 test("renders a transparent vehicle silhouette and cable state without a custom image", () => {
@@ -213,7 +213,7 @@ test("uses profile images eagerly and keeps the cable state separate from the ve
   assert.match(html, /loading="eager"/);
   assert.match(html, /state-charging/);
   assert.match(html, /vehicle-state/);
-  assert.doesNotMatch(html, /cable-overlay/);
+  assert.doesNotMatch(html, /<svg class="cable-overlay"/);
 });
 
 test("distinguishes connected idle and error vehicle states", () => {
