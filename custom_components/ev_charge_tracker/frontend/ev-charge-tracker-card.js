@@ -775,22 +775,31 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       bitmap.close?.();
       const pixels = sourceContext.getImageData(0, 0, source.width, source.height).data;
       let transparent = 0, opaque = 0, samples = 0;
+      let minX = source.width, minY = source.height, maxX = -1, maxY = -1;
       const stride = Math.max(4, Math.floor((source.width * source.height) / 200000) * 4);
       for (let i = 3; i < pixels.length; i += stride) {
         samples++;
-        if (pixels[i] < 24) transparent++;
-        if (pixels[i] > 240) opaque++;
+        const alpha = pixels[i];
+        if (alpha < 24) transparent++;
+        if (alpha > 24) {
+          opaque++;
+          const pixel = (i - 3) / 4;
+          const x = pixel % source.width, y = Math.floor(pixel / source.width);
+          minX = Math.min(minX, x); minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x); maxY = Math.max(maxY, y);
+        }
       }
-      if (transparent / Math.max(1,samples) < 0.12 || opaque / Math.max(1,samples) < 0.08) {
+      if (transparent / Math.max(1,samples) < 0.12 || opaque / Math.max(1,samples) < 0.08 || maxX < minX || maxY < minY) {
         throw new Error("La imagen debe tener un vehículo visible y una zona de fondo realmente transparente.");
       }
+      const cropWidth = maxX - minX + 1, cropHeight = maxY - minY + 1;
       const canvas = document.createElement("canvas");
       canvas.width = 1200;
       canvas.height = 675;
       const context = canvas.getContext("2d");
-      const scale = Math.min(1080 / source.width, 595 / source.height);
-      const width = source.width * scale, height = source.height * scale;
-      context.drawImage(source, (1200 - width) / 2, (675 - height) / 2, width, height);
+      const scale = Math.min(1080 / cropWidth, 595 / cropHeight);
+      const width = cropWidth * scale, height = cropHeight * scale;
+      context.drawImage(source, minX, minY, cropWidth, cropHeight, (1200 - width) / 2, (675 - height) / 2, width, height);
       const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
       if (!blob) throw new Error("No se pudo preparar la imagen.");
       if (feedback) feedback.textContent = "Normalizando imagen y guardándola en Home Assistant…";
