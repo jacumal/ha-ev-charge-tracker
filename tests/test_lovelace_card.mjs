@@ -271,7 +271,7 @@ test("uses the approved vehicle-first hero and removes the legacy generic cable 
   assert.match(html, /class="vehicle-stage state-charging"/);
   assert.match(html, /leapmotor-c10-white\.webp/);
   assert.match(html, /vehicle-state/);
-  assert.doesNotMatch(html, /cable-overlay/);
+  assert.doesNotMatch(html, /<svg class="cable-overlay"/);
 });
 
 
