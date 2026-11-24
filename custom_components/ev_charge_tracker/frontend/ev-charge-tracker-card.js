@@ -1,8 +1,40 @@
 /* ChargeTrack Lovelace card
  * Copyright (c) ChargeTrack contributors. MIT.
  */
-const CARD_VERSION = "0.5.0";
-const DEFAULT_C10_IMAGE_URL = "https://www.leapmotor.net/_next/image?q=90&url=https%3A%2F%2Fwww.leapmotor.net%2Fimages%2Fdefault-source%2Fc10%2Fpearl-white-%2817%29.png%3Fsfvrsn%3Df11bcf73_36&w=3840";
+const CARD_VERSION = "0.6.0";
+const DEFAULT_C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp";
+const VEHICLE_CATALOG = [
+  ["leapmotor-c10","Leapmotor C10","Leapmotor","C10","suv","/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"],
+  ["leapmotor-b10","Leapmotor B10","Leapmotor","B10","suv",""],
+  ["leapmotor-t03","Leapmotor T03","Leapmotor","T03","hatchback",""],
+  ["tesla-model-y","Tesla Model Y","Tesla","Model Y","suv",""],
+  ["tesla-model-3","Tesla Model 3","Tesla","Model 3","sedan",""],
+  ["geely-galaxy-xingyuan","Geely Galaxy Xingyuan / EX2","Geely","Galaxy Xingyuan / EX2","hatchback",""],
+  ["wuling-mini-ev","Wuling Hongguang Mini EV","Wuling","Hongguang Mini EV","hatchback",""],
+  ["byd-seagull","BYD Seagull / Dolphin Surf","BYD","Seagull / Dolphin Surf","hatchback",""],
+  ["xiaomi-su7","Xiaomi SU7","Xiaomi","SU7","sedan",""],
+  ["byd-yuan-up","BYD Yuan UP / Atto 2","BYD","Yuan UP / Atto 2","suv",""],
+  ["byd-dolphin","BYD Dolphin","BYD","Dolphin","hatchback",""],
+  ["byd-yuan-plus","BYD Yuan Plus / Atto 3","BYD","Yuan Plus / Atto 3","suv",""],
+  ["xpeng-mona-m03","XPeng Mona M03","XPeng","Mona M03","sedan",""],
+  ["vw-id3","Volkswagen ID.3","Volkswagen","ID.3","hatchback",""],
+  ["vw-id4","Volkswagen ID.4","Volkswagen","ID.4","suv",""],
+  ["vw-id7","Volkswagen ID.7","Volkswagen","ID.7","sedan",""],
+  ["skoda-enyaq","Škoda Enyaq","Škoda","Enyaq","suv",""],
+  ["skoda-elroq","Škoda Elroq","Škoda","Elroq","suv",""],
+  ["hyundai-kona-electric","Hyundai Kona Electric","Hyundai","Kona Electric","suv",""],
+  ["hyundai-ioniq-5","Hyundai IONIQ 5","Hyundai","IONIQ 5","suv",""],
+  ["kia-ev3","Kia EV3","Kia","EV3","suv",""],
+  ["kia-ev6","Kia EV6","Kia","EV6","suv",""],
+  ["kia-ev9","Kia EV9","Kia","EV9","suv",""],
+  ["renault-5","Renault 5 E-Tech","Renault","5 E-Tech","hatchback",""],
+  ["renault-megane","Renault Megane E-Tech","Renault","Megane E-Tech","hatchback",""],
+  ["volvo-ex30","Volvo EX30","Volvo","EX30","suv",""],
+  ["mg4","MG4 Electric","MG","4 Electric","hatchback",""],
+  ["ford-mach-e","Ford Mustang Mach-E","Ford","Mustang Mach-E","suv",""],
+  ["bmw-ix1","BMW iX1","BMW","iX1","suv",""],
+  ["bmw-i4","BMW i4","BMW","i4","sedan",""],
+].map(([id,label,brand,model,body,image]) => ({id,label,brand,model,body,image}));
 
 class EVChargeTrackerCard extends HTMLElement {
   setConfig(config) {
@@ -647,7 +679,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         <div id="profileHint" class="hint"></div>
         <div id="vehiclePreview" class="vehicle-preview" aria-live="polite"></div>
         <details id="vehicleEditor"><summary>Personalizar identidad y puerto de carga</summary>
-          <p class="hint">Los cambios se reflejan en la vista previa. Para una imagen propia, copia un PNG/WebP transparente en /config/www/ev-charge-tracker/ y utiliza su ruta /local.</p>
+          <p class="hint">Selecciona un modelo del catálogo o añade una imagen personal. Usa siempre tres cuartos delantero, morro hacia la derecha, coche completo y fondo transparente. Las imágenes personales se guardan solo en este Home Assistant.</p>
+          <label class="field">Modelo del vehículo<select id="visual_catalog"><option value="">Vehículo personalizado / no catalogado</option></select></label>
           <label class="field">Marca<input id="visual_brand" maxlength="40"></label>
           <label class="field">Modelo<input id="visual_model" maxlength="50"></label>
           <label class="field">Generación<input id="visual_generation" maxlength="40"></label>
@@ -655,8 +688,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
           <label class="field">Acabado<input id="visual_trim" maxlength="40"></label>
           <label class="field">Color<input id="visual_color" type="color"></label>
           <label class="field">Carrocería<select id="visual_body_style"><option value="suv">SUV</option><option value="sedan">Berlina</option><option value="hatchback">Compacto</option><option value="van">Furgoneta</option><option value="pickup">Pick-up</option></select></label>
-          <section class="gallery"><strong>Galería gratuita de vehículos</strong><p class="hint">Busca en Wikimedia Commons. Solo se muestran imágenes con licencia libre reconocida; autoría y licencia se conservan.</p><div class="gallery-search"><input id="galleryQuery" type="search" placeholder="Marca y modelo (Leapmotor C10)"><button id="searchVehicleGallery" type="button">Buscar imágenes</button></div><div id="galleryStatus" class="hint" role="status" aria-live="polite"></div><div id="galleryResults" class="gallery-results"></div></section>
-          <label class="field">Imagen local PNG/WebP<input id="visual_image" placeholder="/local/ev-charge-tracker/coche.webp o imagen de galería"></label>
+          <label class="field">Añadir fotografía personal<input id="personalVehicleImage" type="file" accept="image/png,image/webp"></label><p class="hint">PNG/WebP transparentes de hasta 8 MB. Se normalizan a 1200 × 675 px y se guardan localmente; no se envían a servicios externos.</p><input id="visual_image" type="hidden">
           <label class="field">Puerto horizontal (0-100)<input id="visual_port_x" type="number" min="0" max="100"></label>
           <label class="field">Puerto vertical (0-100)<input id="visual_port_y" type="number" min="0" max="100"></label>
         </details>
@@ -684,10 +716,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       if (selected) this._applyProfile(selected);
     });
     this.shadowRoot.getElementById("refreshProfiles").addEventListener("click", () => this._loadProfiles(true));
-    this.shadowRoot.getElementById("searchVehicleGallery").addEventListener("click", () => this._searchVehicleGallery());
-    this.shadowRoot.getElementById("galleryQuery").addEventListener("input", () => { this._galleryQueryEdited = true; });
-    this.shadowRoot.getElementById("galleryQuery").addEventListener("keydown", event => { if (event.key === "Enter") { event.preventDefault(); this._searchVehicleGallery(); } });
-    this.shadowRoot.getElementById("galleryResults").addEventListener("click", event => { const button = event.target.closest("button[data-gallery-index]"); if (button) this._selectGalleryImage(this._galleryResults[Number(button.dataset.galleryIndex)]); });
+    this.shadowRoot.getElementById("visual_catalog").addEventListener("change", event => this._selectCatalogVehicle(event.target.value));
+    this.shadowRoot.getElementById("personalVehicleImage").addEventListener("change", event => this._uploadPersonalVehicleImage(event.target.files?.[0]));
     this.shadowRoot.getElementById("manualToggle").addEventListener("click", () => {
       this._manualMode = !this._manualMode;
       this._syncControls();
@@ -700,6 +730,91 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     });
     this._built = true;
     this._syncControls();
+  }
+
+  _selectCatalogVehicle(id) {
+    const item = VEHICLE_CATALOG.find(vehicle => vehicle.id === id);
+    if (!item) return;
+    const next = { ...this._config, vehicle_visual: { ...(this._config.vehicle_visual || {}) } };
+    Object.assign(next.vehicle_visual, { visual_brand: item.brand, visual_model: item.model, visual_body_style: item.body, visual_image: item.image || "" });
+    for (const key of ["visual_image_credit","visual_image_license","visual_image_license_url","visual_image_page","visual_image_source"]) delete next.vehicle_visual[key];
+    next.vehicle_visual_override = true;
+    this._config = next;
+    this._syncControls();
+    this._updateConfig();
+    const feedback = this.shadowRoot.getElementById("editorFeedback");
+    if (feedback) feedback.textContent = item.image
+      ? "Modelo seleccionado. Se ha aplicado su imagen predeterminada."
+      : "Modelo seleccionado. Todavía no hay un render del catálogo con licencia y formato verificados; puedes añadir tu imagen personal.";
+  }
+
+  async _uploadPersonalVehicleImage(file) {
+    const feedback = this.shadowRoot.getElementById("editorFeedback");
+    const input = this.shadowRoot.getElementById("personalVehicleImage");
+    if (!file) return;
+    if (!["image/png","image/webp"].includes(file.type) || file.size > 8 * 1024 * 1024) {
+      if (feedback) feedback.textContent = "Selecciona un PNG o WebP de hasta 8 MB.";
+      if (input) input.value = "";
+      return;
+    }
+    try {
+      const bitmap = await createImageBitmap(file);
+      if (bitmap.width > 6000 || bitmap.height > 6000 || bitmap.width * bitmap.height > 25000000) {
+        bitmap.close?.();
+        throw new Error("La imagen supera las dimensiones máximas admitidas.");
+      }
+      const source = document.createElement("canvas");
+      source.width = bitmap.width;
+      source.height = bitmap.height;
+      const sourceContext = source.getContext("2d", { willReadFrequently: true });
+      sourceContext.drawImage(bitmap, 0, 0);
+      bitmap.close?.();
+      const pixels = sourceContext.getImageData(0, 0, source.width, source.height).data;
+      let transparent = 0, opaque = 0, samples = 0;
+      const stride = Math.max(4, Math.floor((source.width * source.height) / 200000) * 4);
+      for (let i = 3; i < pixels.length; i += stride) {
+        samples++;
+        if (pixels[i] < 24) transparent++;
+        if (pixels[i] > 240) opaque++;
+      }
+      if (transparent / Math.max(1,samples) < 0.12 || opaque / Math.max(1,samples) < 0.08) {
+        throw new Error("La imagen debe tener un vehículo visible y una zona de fondo realmente transparente.");
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = 1200;
+      canvas.height = 675;
+      const context = canvas.getContext("2d");
+      const scale = Math.min(1080 / source.width, 595 / source.height);
+      const width = source.width * scale, height = source.height * scale;
+      context.drawImage(source, (1200 - width) / 2, (675 - height) / 2, width, height);
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      if (!blob) throw new Error("No se pudo preparar la imagen.");
+      if (feedback) feedback.textContent = "Normalizando imagen y guardándola en Home Assistant…";
+      const token = this._hass?.auth?.data?.access_token;
+      if (!token) throw new Error("No se ha podido obtener la sesión autenticada de Home Assistant.");
+      const response = await fetch("/api/ev_charge_tracker/vehicle-image", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + token, "Content-Type": "image/png" },
+        body: blob,
+      });
+      if (!response.ok) throw new Error((await response.text()) || ("HTTP " + response.status));
+      const result = await response.json();
+      if (!/^\/local\/ev-charge-tracker\/custom\/[a-f0-9]{64}\.png$/.test(result.path || "")) {
+        throw new Error("Home Assistant devolvió una ruta de imagen no válida.");
+      }
+      const imageField = this.shadowRoot.getElementById("visual_image");
+      if (imageField) imageField.value = result.path;
+      const next = { ...this._config, vehicle_visual: { ...(this._config.vehicle_visual || {}), visual_image: result.path } };
+      for (const key of ["visual_image_credit","visual_image_license","visual_image_license_url","visual_image_page","visual_image_source"]) delete next.vehicle_visual[key];
+      next.vehicle_visual_override = true;
+      this._config = next;
+      this._updateConfig();
+      if (feedback) feedback.textContent = "Imagen personal guardada en este Home Assistant. Pulsa Guardar en el editor del panel.";
+    } catch (error) {
+      if (feedback) feedback.textContent = error?.message || "No se pudo guardar la imagen.";
+    } finally {
+      if (input) input.value = "";
+    }
   }
 
   async _searchVehicleGallery() {
@@ -825,13 +940,18 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     if (displayMode && displayMode !== this.shadowRoot.activeElement) displayMode.value = this._config.display_mode || "balanced";
     if (themeMode && themeMode !== this.shadowRoot.activeElement) themeMode.value = this._config.theme_mode || "auto";
     const visual = this._config.vehicle_visual || {};
-    const galleryQuery = this.shadowRoot.getElementById("galleryQuery");
     const profile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
-    const suggestedQuery = [visual.visual_brand, visual.visual_model].filter(Boolean).join(" ") ||
-      profile?.vehicle_name || this._config.name || "";
-    if (galleryQuery && !this._galleryQueryEdited && galleryQuery.value !== suggestedQuery) {
-      galleryQuery.value = suggestedQuery;
+    const catalog = this.shadowRoot.getElementById("visual_catalog");
+    if (catalog && catalog.options.length !== VEHICLE_CATALOG.length + 1) {
+      catalog.innerHTML = '<option value="">Vehículo personalizado / no catalogado</option>' + VEHICLE_CATALOG.map(item =>
+        '<option value="' + this._esc(item.id) + '">' + this._esc(item.label) + (item.image ? '' : ' · imagen personal necesaria') + '</option>'
+      ).join("");
     }
+    const matchingCatalog = VEHICLE_CATALOG.find(item =>
+      item.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() &&
+      item.model.toLowerCase() === String(visual.visual_model || "").toLowerCase()
+    );
+    if (catalog && this.shadowRoot.activeElement !== catalog) catalog.value = matchingCatalog?.id || "";
     ["brand","model","generation","year","trim","color","body_style","image","port_x","port_y"].forEach(key => {
       const field = this.shadowRoot.getElementById("visual_" + key);
       if (field && field !== this.shadowRoot.activeElement) {
