@@ -54,6 +54,7 @@ class VehicleImageUploadView(HomeAssistantView):
                 raise ValueError("Formato no permitido")
             if image.size != CANVAS_SIZE:
                 raise ValueError("La imagen debe estar normalizada a 1200 × 675 px")
+            image.load()
             if "A" not in image.getbands():
                 raise ValueError("La imagen debe incluir transparencia")
             alpha = image.getchannel("A")
@@ -71,7 +72,6 @@ class VehicleImageUploadView(HomeAssistantView):
                 raise ValueError(
                     "La imagen debe incluir un vehículo visible y al menos un 12 % de fondo transparente"
                 )
-            image.verify()
         except (ValueError, OSError, UnidentifiedImageError) as err:
             raise web.HTTPBadRequest(
                 text=f"Imagen no válida: {err}"
