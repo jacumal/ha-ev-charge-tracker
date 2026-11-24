@@ -43,3 +43,19 @@ The automated candidate checks do not close these live-instance gates. Do not tr
 
 Do not create simulated sessions or overwrite/delete existing history to satisfy
 this checklist. Record actual results and Home Assistant logs for each item.
+
+
+## Beta.6 candidate — gallery and card-only validation
+- [x] Add automated source-contract and Lovelace tests for gallery licensing, URL validation, attribution metadata and optional autonomy layout.
+- [ ] Search for Leapmotor C10 and confirm image results load from Wikimedia Commons.
+- [x] Keep the Lovelace resource URL stable and disable long-lived cache headers so a manual version query is not needed.
+- [ ] Confirm CC0/Public Domain/CC BY/CC BY-SA results appear and NC/ND/unknown-license results are excluded.
+- [ ] Select an image and verify author, license and Commons source page persist in the Lovelace card configuration.
+- [ ] Save, close and reopen the card editor; confirm the selected image and attribution remain.
+- [ ] Verify remote image host validation and fallback after an image load error.
+- [ ] Verify a user-provided local PNG/WebP still works.
+- [ ] Compare idle and charging layouts against the two beta.6 reference screenshots.
+- [ ] Check autonomy column only appears when an autonomy sensor is explicitly mapped.
+- [ ] Check responsive mobile/desktop and light/dark themes.
+- [ ] Verify existing battery, odometer, session, cost, tariff, chart and history values remain correct.
+- [ ] Update in place without deleting the integration, config entry or stored history.

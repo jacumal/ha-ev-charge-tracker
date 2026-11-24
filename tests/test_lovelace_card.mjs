@@ -8,6 +8,20 @@ const source = readFileSync(
   "utf8",
 );
 
+function createEditorInstance(config = {}) {
+  const registry = new Map();
+  class HTMLElement {}
+  runInNewContext(source, {
+    HTMLElement,
+    customElements: { define: (name, constructor) => registry.set(name, constructor) },
+    window: {},
+  });
+  const Editor = registry.get("ev-charge-tracker-card-editor");
+  const editor = new Editor();
+  editor.setConfig(config);
+  return editor;
+}
+
 function createCard(config, states = {}) {
   const registry = new Map();
   class HTMLElement {
@@ -326,9 +340,10 @@ test("shows only an explicitly configured range sensor and does not estimate ran
     { "sensor.range": { state: "410", last_updated: new Date().toISOString(), attributes: { unit_of_measurement: "km" } } },
   );
   const absent = createCard({ entities: { current_soc: "sensor.soc" } }, { "sensor.soc": { state: "80", attributes: {} } });
-  assert.match(configured, /Autonomía indicada/);
-  assert.match(configured, /410 km/);
-  assert.doesNotMatch(absent, /Autonomía indicada/);
+  assert.match(configured, /live-hero vehicle-telemetry with-range/);
+  assert.match(configured, /AUTONOMÍA/);
+  assert.match(configured, /410/);
+  assert.doesNotMatch(absent, /AUTONOMÍA/);
 });
 
 
@@ -430,4 +445,106 @@ test("editor forwards config changes to Lovelace and never claims persistence be
   assert.deepEqual(JSON.parse(JSON.stringify(editor.lastEvent.detail.config)), editor._config);
   assert.match(source, /Cambios enviados a Lovelace, pero aún pendientes de guardar/);
   assert.match(source, /no ofrece a esta tarjeta una confirmación fiable/);
+});
+
+function createCardInstance() {
+  const registry = new Map();
+  class HTMLElement {
+    attachShadow() { this.shadowRoot = { innerHTML: "" }; return this.shadowRoot; }
+  }
+  runInNewContext(source, {
+    HTMLElement,
+    URL,
+    customElements: { define: (name, constructor) => registry.set(name, constructor) },
+    window: {},
+  });
+  const Card = registry.get("ev-charge-tracker-card");
+  return new Card();
+}
+
+test("gallery choices are stored per vehicle and shared by that vehicle's charger profiles", () => {
+  const editor = createEditorInstance({
+    vehicle_visuals: {
+      "leapmotor-c10": { visual_image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/C10.jpg/900px-C10.jpg" },
+      "tesla-model-y": { visual_image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/ModelY.jpg/900px-ModelY.jpg" },
+    },
+  });
+  const c10Home = { entry_id: "c10-home", vehicle_name: "C10 casa", charger_name: "Wallbox", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" }, entities: {} };
+  const c10Work = { entry_id: "c10-work", vehicle_name: "C10 trabajo", charger_name: "AC", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" }, entities: {} };
+  const tesla = { entry_id: "tesla-home", vehicle_name: "Tesla Model Y", charger_name: "Wallbox", vehicle_visual: { visual_brand: "Tesla", visual_model: "Model Y" }, entities: {} };
+
+  editor._applyProfile(c10Home, false);
+  assert.equal(editor._config.vehicle_visual.visual_image, editor._config.vehicle_visuals["leapmotor-c10"].visual_image);
+  editor._applyProfile(c10Work, false);
+  assert.equal(editor._config.vehicle_visual.visual_image, editor._config.vehicle_visuals["leapmotor-c10"].visual_image);
+  editor._applyProfile(tesla, false);
+  assert.equal(editor._config.vehicle_visual.visual_image, editor._config.vehicle_visuals["tesla-model-y"].visual_image);
+  assert.notEqual(editor._profileVisualKey(c10Home), editor._profileVisualKey(tesla));
+});
+
+test("editor automatically suggests the selected vehicle identity for gallery searches", () => {
+  assert.match(source, /const suggestedQuery = \[visual\.visual_brand, visual\.visual_model\]/);
+  assert.match(source, /this\._galleryQueryEdited/);
+  assert.match(source, /next\.vehicle_visuals = \{ \.\.\.\(next\.vehicle_visuals \|\| \{\}\), \[visualKey\]: \{ \.\.\.next\.vehicle_visual \} \}/);
+});
+
+test("vehicle image gallery is present and queries Commons with machine-readable license metadata", () => {
+  assert.match(source, /Galería gratuita de vehículos/);
+  assert.match(source, /https:\/\/commons\.wikimedia\.org\/w\/api\.php/);
+  assert.match(source, /iiprop:"url\|extmetadata"/);
+  assert.match(source, /LicenseShortName/);
+  assert.match(source, /CC0/);
+  assert.match(source, /Public domain/);
+  assert.match(source, /CC BY-SA/);
+});
+
+test("only local images or HTTPS Wikimedia Commons uploads are accepted", () => {
+  const card = createCardInstance();
+  assert.equal(card._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
+  assert.equal(card._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/C10.jpg/900px-C10.jpg"), true);
+  assert.equal(card._validVehicleImage("http://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), false);
+  assert.equal(card._validVehicleImage("https://example.com/c10.jpg"), false);
+  assert.equal(card._validVehicleImage("https://upload.wikimedia.org.evil.example/c10.jpg"), false);
+  assert.equal(card._validVehicleImage("/local/ev-charge-tracker/../secret.png"), false);
+});
+
+test("selected Commons images retain creator, license and source-page attribution", () => {
+  assert.match(source, /visual_image_credit/);
+  assert.match(source, /visual_image_license/);
+  assert.match(source, /visual_image_license_url/);
+  assert.match(source, /visual_image_page/);
+  assert.match(source, /visual_image_source/);
+  assert.match(source, /vehicle-image-credit/);
+  assert.match(source, /noopener noreferrer/);
+});
+
+test("autonomy gets its own telemetry column only when explicitly mapped", () => {
+  const configured = createCard(
+    { entities: { range: "sensor.range" } },
+    { "sensor.range": { state: "282", last_updated: new Date().toISOString(), attributes: { unit_of_measurement: "km" } } },
+  );
+  const absent = createCard({ entities: {} });
+  assert.match(configured, /live-hero vehicle-telemetry with-range/);
+  assert.match(configured, /AUTONOMÍA/);
+  assert.match(configured, /282/);
+  assert.doesNotMatch(absent, /AUTONOMÍA/);
+});
+
+test("card links both image source and reusable license when attribution is available", () => {
+  assert.match(source, /visual_image_license_url/);
+  assert.match(source, /creativecommons/);
+  assert.match(source, /noopener noreferrer/);
+});
+
+test("editor clears stale license attribution when a selected image is replaced manually", () => {
+  assert.match(source, /delete next\.vehicle_visual\.visual_image_license_url/);
+  assert.match(source, /const previousImage/);
+});
+
+test("Leapmotor C10 default cable anchor is on the rear-left quarter", () => {
+  const html = createCard({
+    vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" },
+    entities: {},
+  });
+  assert.match(html, /cx="216" cy="63"/);
 });
