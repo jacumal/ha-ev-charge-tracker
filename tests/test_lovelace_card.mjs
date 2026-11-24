@@ -553,7 +553,7 @@ test("Leapmotor C10 default cable anchor is on the rear-left quarter", () => {
 
 test("editor image validation is available independently from the card class", () => {
   const editor = createEditorInstance();
-  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/pearl-white"), true);
+  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"), true);
   assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
   assert.equal(editor._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), true);
   assert.equal(editor._validVehicleImage("https://example.com/c10.jpg"), false);
