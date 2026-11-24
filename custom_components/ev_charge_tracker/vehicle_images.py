@@ -76,6 +76,10 @@ class VehicleImageUploadView(HomeAssistantView):
             raise web.HTTPBadRequest(
                 text=f"Imagen no válida: {err}"
             ) from err
+        except Exception as err:  # Pillow may raise decoder-specific errors.
+            raise web.HTTPBadRequest(
+                text="La imagen PNG no se puede decodificar."
+            ) from err
         digest = hashlib.sha256(body).hexdigest()
         relative = Path("www") / "ev-charge-tracker" / "custom" / f"{digest}.png"
         destination = Path(self.hass.config.path(str(relative)))
