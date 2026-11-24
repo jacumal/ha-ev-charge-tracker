@@ -13,18 +13,28 @@ def test_manifest_is_beta9():
     assert manifest["version"] == "0.1.0-beta.9"
 
 
-def test_catalog_contains_leapmotor_and_global_bev_models():
-    source = CARD.read_text(encoding="utf-8")
+def test_catalog_contains_all_400_source_models_plus_leapmotor_b10():
+    catalog = json.loads((PACKAGE / "vehicle_catalog.json").read_text(encoding="utf-8"))
+    vehicles = catalog["vehicles"]
+    assert catalog["source_row_count"] == 400
+    assert len(vehicles) == 401
+    assert len({vehicle["id"] for vehicle in vehicles}) == 401
+    assert sum(vehicle["technology"] == "BEV" for vehicle in vehicles) == 201
+    assert sum(vehicle["technology"] == "PHEV" for vehicle in vehicles) == 200
+    labels = {vehicle["label"] for vehicle in vehicles}
     for model in (
-        "Leapmotor C10", "Leapmotor B10", "Leapmotor T03",
+        "Leapmotor B10", "Leapmotor C10", "Leapmotor T03",
         "Tesla Model Y", "Tesla Model 3", "Geely Galaxy Xingyuan",
         "Wuling Hongguang Mini EV", "BYD Seagull", "Xiaomi SU7",
-        "BYD Yuan UP", "BYD Dolphin", "BYD Yuan Plus", "XPeng Mona M03",
+        "BYD Yuan Up", "BYD Dolphin", "BYD Yuan Plus", "XPeng Mona M03",
         "Volkswagen ID.3", "Volkswagen ID.4", "Kia EV3", "Renault 5 E-Tech",
     ):
-        assert model in source
-    assert 'id="visual_catalog"' in source
-    assert 'id="personalVehicleImage"' in source
+        assert model in labels
+    assert all(vehicle["image"] for vehicle in vehicles if vehicle["id"] == "leapmotor-c10")
+    card = CARD.read_text(encoding="utf-8")
+    assert 'id="visual_catalog"' in card
+    assert "Híbridos enchufables (PHEV)" in card
+    assert "100 % eléctricos (BEV)" in card
 
 
 def test_c10_default_is_served_from_the_integration_not_a_remote_host():
@@ -72,6 +82,9 @@ def test_card_resource_uses_stable_url_and_local_asset_route():
     assert 'CARD_URL = "/ev_charge_tracker/ev-charge-tracker-card.js"' in init
     assert "cache_headers=False" in init
     assert 'StaticPathConfig(C10_IMAGE_URL' in init
+    assert 'VEHICLE_CATALOG_URL = "/ev_charge_tracker/vehicle-catalog.json"' in init
+    assert 'StaticPathConfig(VEHICLE_CATALOG_URL' in init
+    assert (PACKAGE / "vehicle_catalog.json").is_file()
 
 
 def test_brand_assets_keep_marketplace_ready_dimensions():
