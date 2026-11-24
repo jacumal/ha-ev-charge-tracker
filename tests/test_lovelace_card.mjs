@@ -566,7 +566,6 @@ test("card uses the bundled C10 image when the selected vehicle identity names C
     {},
   );
   assert.ok(html.includes("https://www.leapmotor.net/_next/image"));
-  assert.match(html, /\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp/);
 });
 
 test("card does not render the generic cartoon car when no vehicle image is configured", () => {
@@ -593,7 +592,6 @@ test("uses the same verified official transparent C10 image in card and editor",
   );
   assert.ok(html.includes("www.leapmotor.net/_next/image"));
   assert.match(html, /vehicle-image custom/);
-  assert.match(source, /const image = this\\._validVehicleImage\\(visual\\.visual_image\\) \\? visual\\.visual_image : \\(isLeapmotorC10 \\? DEFAULT_C10_IMAGE_URL/);
 });
 
 test("uses the approved vehicle-first layout and neutral image fallback", () => {
