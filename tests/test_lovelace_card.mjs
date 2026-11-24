@@ -15,6 +15,7 @@ function createEditorInstance(config = {}) {
     HTMLElement,
     customElements: { define: (name, constructor) => registry.set(name, constructor) },
     window: {},
+    URL,
   });
   const Editor = registry.get("ev-charge-tracker-card-editor");
   const editor = new Editor();
