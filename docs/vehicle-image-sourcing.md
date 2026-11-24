@@ -22,6 +22,8 @@ python scripts/find_vehicle_image_candidates.py --limit 10
 
 The script writes `docs/data/vehicle_image_candidates.json`. It does not download or bundle images automatically. A result is only a candidate, not an approved image.
 
+The same scan can be run from GitHub Actions: open **Actions → Discover vehicle image candidates → Run workflow**. Leave `limit` at `0` to scan all 401 entries. Download the `vehicle-image-candidates` artifact and review the results before approving any asset.
+
 ## Acceptance before bundling
 
 Every image must pass all of these checks:
