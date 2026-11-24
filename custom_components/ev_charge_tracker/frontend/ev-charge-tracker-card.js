@@ -802,10 +802,14 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       context.drawImage(source, minX, minY, cropWidth, cropHeight, (1200 - width) / 2, (675 - height) / 2, width, height);
       const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
       if (!blob) throw new Error("No se pudo preparar la imagen.");
+      if (blob.size > 8 * 1024 * 1024) throw new Error("La imagen normalizada supera el límite de 8 MB. Usa un archivo de menor resolución.");
       if (feedback) feedback.textContent = "Normalizando imagen y guardándola en Home Assistant…";
       const token = this._hass?.auth?.data?.access_token;
       if (!token) throw new Error("No se ha podido obtener la sesión autenticada de Home Assistant.");
-      const response = await fetch("/api/ev_charge_tracker/vehicle-image", {
+      const uploadUrl = typeof this._hass.hassUrl === "function"
+        ? this._hass.hassUrl("/api/ev_charge_tracker/vehicle-image")
+        : "/api/ev_charge_tracker/vehicle-image";
+      const response = await fetch(uploadUrl, {
         method: "POST",
         headers: { Authorization: "Bearer " + token, "Content-Type": "image/png" },
         body: blob,
