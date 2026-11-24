@@ -56,9 +56,21 @@ class VehicleImageUploadView(HomeAssistantView):
                 raise ValueError("La imagen debe estar normalizada a 1200 × 675 px")
             if "A" not in image.getbands():
                 raise ValueError("La imagen debe incluir transparencia")
-            alpha_min, alpha_max = image.getchannel("A").getextrema()
-            if alpha_min == 255 or alpha_max == 0:
-                raise ValueError("La imagen debe contener contenido y fondo transparente")
+            alpha = image.getchannel("A")
+            alpha_min, alpha_max = alpha.getextrema()
+            histogram = alpha.histogram()
+            total_pixels = image.width * image.height
+            transparent_pixels = sum(histogram[:24])
+            visible_pixels = sum(histogram[24:])
+            if (
+                alpha_min == 255
+                or alpha_max == 0
+                or transparent_pixels < total_pixels * 0.12
+                or visible_pixels < total_pixels * 0.08
+            ):
+                raise ValueError(
+                    "La imagen debe incluir un vehículo visible y al menos un 12 % de fondo transparente"
+                )
             image.verify()
         except (ValueError, OSError, UnidentifiedImageError) as err:
             raise web.HTTPBadRequest(
