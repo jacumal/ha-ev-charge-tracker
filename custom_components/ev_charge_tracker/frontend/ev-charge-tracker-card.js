@@ -1045,7 +1045,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const configKey = "visual_" + key;
       let value = field.value.trim();
       if (key === "image") {
-        const validPath = new RegExp("^/local/ev-charge-tracker/[A-Za-z0-9_-][A-Za-z0-9._-]*[.](png|webp)$", "i").test(value) && !value.includes("..");
+        const validPath = new RegExp("^/local/ev-charge-tracker/(?:custom/)?[A-Za-z0-9_-][A-Za-z0-9._-]*[.](png|webp)$", "i").test(value) && !value.includes("..");
         const validCommons = this._validVehicleImage(value);
         if (value && !validPath && !validCommons) { field.setCustomValidity("Usa una ruta local o una imagen seleccionada de Wikimedia Commons."); imagePathError = true; value = ""; }
         else field.setCustomValidity("");
