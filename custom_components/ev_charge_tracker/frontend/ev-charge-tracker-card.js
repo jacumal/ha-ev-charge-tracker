@@ -2,7 +2,7 @@
  * Copyright (c) ChargeTrack contributors. MIT.
  */
 const CARD_VERSION = "0.5.0";
-const DEFAULT_C10_IMAGE_URL = "https://www.leapmotor.net/_next/image?q=90&url=https%3A%2F%2Fwww.leapmotor.net%2Fimages%2Fdefault-source%2Fc10%2Fpearl-white-%283%29.png%3Fsfvrsn%3Dc8a0dd7c_39&w=3840";
+const DEFAULT_C10_IMAGE_URL = "https://www.leapmotor.net/_next/image?q=90&url=https%3A%2F%2Fwww.leapmotor.net%2Fimages%2Fdefault-source%2Fc10%2Fpearl-white-%283%29.png%3Fsfvrsn%3Dc8a0dd7c_39&w=1200";
 
 class EVChargeTrackerCard extends HTMLElement {
   setConfig(config) {
@@ -54,7 +54,6 @@ class EVChargeTrackerCard extends HTMLElement {
 
   _validVehicleImage(value) {
     if (typeof value !== "string" || value.includes("..")) return false;
-    if (value === "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp") return true;
     if (/^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(value)) return true;
     try {
       const url = new URL(value);
