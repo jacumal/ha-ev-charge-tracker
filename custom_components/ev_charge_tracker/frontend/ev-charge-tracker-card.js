@@ -253,7 +253,7 @@ class EVChargeTrackerCard extends HTMLElement {
         '<g class="connector connector-plug" transform="translate(' + (portX - 8) + ' ' + (portY - 18) + ') rotate(90)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
         '<circle class="charge-port" cx="' + portX + '" cy="' + portY + '" r="4"/>' +
       '</svg></div><div class="vehicle-state"><i></i>' + this._escape(visualStateLabels[visualState]) + '</div>' +
-      (imageCredit && imageLicense ? '<div class="vehicle-image-credit">Imagen: ' + (imagePage ? '<a href="' + this._escape(imagePage) + '" target="_blank" rel="noopener noreferrer">' : '') + this._escape(imageCredit) + (imagePage ? '</a>' : '') + ' · ' + (imageLicenseUrl ? '<a href="' + this._escape(imageLicenseUrl) + '" target="_blank" rel="noopener noreferrer">' + this._escape(imageLicense) + '</a>' : this._escape(imageLicense)) + '</div>' : '') +
+      (imageCredit && (imageLicense || imagePage) ? '<div class="vehicle-image-credit">Imagen: ' + (imagePage ? '<a href="' + this._escape(imagePage) + '" target="_blank" rel="noopener noreferrer">' : '') + this._escape(imageCredit) + (imagePage ? '</a>' : '') + (imageLicense ? ' · ' : '') + (imageLicenseUrl ? '<a href="' + this._escape(imageLicenseUrl) + '" target="_blank" rel="noopener noreferrer">' + this._escape(imageLicense) + '</a>' : this._escape(imageLicense)) + '</div>' : '') +
       '</div>';
     const diagnostic = this._attr(e.history, "diagnostic", "");
     const record = current || latest || {};
@@ -272,7 +272,7 @@ class EVChargeTrackerCard extends HTMLElement {
     const maxHistory = Math.min(50, Math.max(1, Math.trunc(Number(this.config.max_history) || 8)));
     const allSessions = Array.isArray(history) ? history : [];
     const rows = allSessions.slice(0, maxHistory);
-    const completedSessions = allSessions.filter(item => item && (item.status === "completed" || item.completed_at || item.ended_at));
+    const completedSessions = allSessions;
     const totalHistoryEnergy = completedSessions.reduce((sum, item) => {
       const value = Number(item.energy_kwh);
       return item.energy_kwh != null && Number.isFinite(value) && value >= 0 ? sum + value : sum;
@@ -573,7 +573,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const commonsImage = url.protocol === "https:" && url.hostname === "upload.wikimedia.org" &&
         /^\/wikipedia\/commons\/(?:thumb\/)?[A-Za-z0-9_./%()-]+\.(?:png|webp|jpe?g)(?:\/[^?#]+)?$/i.test(url.pathname);
       const officialC10Image = url.protocol === "https:" && url.hostname === "www.leapmotor.net" &&
-        url.pathname === "/images/default-source/c10/pearl-white-(3).png";
+        url.pathname === "/_next/image" && (url.searchParams.get("url") || "").startsWith("https://www.leapmotor.net/images/default-source/c10/pearl-white-(3).png");
       return commonsImage || officialC10Image;
     } catch { return false; }
   }
