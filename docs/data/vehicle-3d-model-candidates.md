@@ -15,25 +15,52 @@ A model may be bundled only when all of these checks pass:
 
 ## Candidate assets
 
-| Catalog vehicle / possible match | Creator | Source | Listed license | Initial assessment |
+| Catalog vehicle / possible match | Creator | Source | Listed license | Verification status (24 Nov 2026) |
 |---|---|---|---|---|
-| Tesla Model 3 | dannzjs | https://sketchfab.com/3d-models/tesla-model-3-5af35a4772f240039a6e58c58998555b | CC Attribution | Candidate; verify provenance and design rights |
+| Tesla Model 3 | dannzjs | https://sketchfab.com/3d-models/tesla-model-3-5af35a4772f240039a6e58c58998555b | CC Attribution | Download button and CC BY badge visible; 684.3k triangles. Description contains an apparent SUV wording error; inspect model and provenance before approval |
 | Tesla Model Y (2021) | 763468712 | https://sketchfab.com/3d-models/tesla-model-y-2021-c0a86cac582d4b33aba0fb1b1912d970 | CC Attribution | Candidate; verify provenance and design rights |
 | Tesla Model S (2013) | Ibrahim3dee | https://sketchfab.com/3d-models/tesla-model-s-3b658ba88b8441c1a5881210bc65ed8e | CC Attribution | Candidate; verify provenance and design rights |
 | Tesla Roadster (2020) | metarex.4d | https://sketchfab.com/3d-models/tesla-roadster-2020-1fbf29e297bd4a17ac39a00a378441d8 | CC Attribution | Candidate; verify provenance and design rights |
 | Nissan Leaf (2010) | ImperialBlue3D | https://sketchfab.com/3d-models/2010-nissan-leaf-a4014e24480c46da8166560c19f24065 | CC Attribution | Candidate; creator asks for credit; inspect texture and provenance |
-| BMW i3 | MattDoesBlender | https://sketchfab.com/3d-models/bmw-i3-1f1cddd0c46e4ea4a54e703c8a9f2e6b | CC Attribution | Candidate; verify provenance and design rights |
-| Kia EV6 | MattDoesBlender | https://sketchfab.com/3d-models/kia-ev6-49eff30492bb4f8e875f378b41589c26 | CC Attribution | Candidate; verify provenance and design rights |
-| Hyundai IONIQ 5 | dannzjs | https://sketchfab.com/3d-models/hyundai-ioniq-5-a50cd53f948f4e5da0db9df921181855 | CC Attribution | Candidate; verify provenance and design rights |
+| BMW i3 | MattDoesBlender | https://sketchfab.com/3d-models/bmw-i3-1f1cddd0c46e4ea4a54e703c8a9f2e6b | CC Attribution | Download button and CC BY badge visible; 613.4k triangles. No description supplied; inspect model and provenance before approval |
+| Kia EV6 | MattDoesBlender | https://sketchfab.com/3d-models/kia-ev6-49eff30492bb4f8e875f378b41589c26 | CC Attribution | Download button and CC BY badge visible; 578.4k triangles. No description supplied; inspect model and provenance before approval |
+| Hyundai IONIQ 5 | dannzjs | https://sketchfab.com/3d-models/hyundai-ioniq-5-a50cd53f948f4e5da0db9df921181855 | CC Attribution | Download button and CC BY badge visible; 2.5M triangles. Description identifies IONIQ 5; inspect model and provenance before approval |
 | Hyundai IONIQ 5 | qkralsgur310 | https://sketchfab.com/3d-models/2022-hyundaiioniq5-b2fca33744e44313b2330044b4b87d01 | CC Attribution | Alternate candidate; verify provenance and design rights |
-| Porsche Taycan | Mikhail Hamanovich | https://sketchfab.com/3d-models/porshe-taycan-c6004141452e4d3ab048bf0fee52666d | CC Attribution | Candidate; verify provenance and design rights |
+| Porsche Taycan | Mikhail Hamanovich | https://sketchfab.com/3d-models/porshe-taycan-c6004141452e4d3ab048bf0fee52666d | CC Attribution | Download button and CC BY badge visible; 3M triangles. Creator describes accurate form/details and links rendering examples; inspect model and provenance before approval |
 | Porsche Taycan Cross Turismo | Mona x Supercars | https://sketchfab.com/3d-models/porsche-taycan-cross-turismo-cd97c516c0eb411789e7bb2bcd28622b | CC Attribution | Candidate; verify provenance and design rights |
 | Porsche Taycan Cross Turismo | dannzjs | https://sketchfab.com/3d-models/porsche-taycan-cross-turismo-2314f063f317403ea4aa3d2390f6977a | CC Attribution | Alternate candidate; verify provenance and design rights |
-| Volvo XC40 Recharge (2020) | Nieve5677 | https://sketchfab.com/3d-models/volvo-xc40-recharge-2020-2a80dae5c1804d25bdca7d36a988f59b | CC Attribution | Candidate; verify provenance and design rights |
+| Volvo XC40 Recharge (2020) | Nieve5677 | https://sketchfab.com/3d-models/volvo-xc40-recharge-2020-2a80dae5c1804d25bdca7d36a988f59b | CC Attribution | Download button and CC BY badge visible; 1.5M triangles. No description supplied; inspect model and provenance before approval |
 | Renault Zoe (2012) | tonielpro520 | https://sketchfab.com/3d-models/2012-renault-zoe-ffa8a5d60a7e4713855bacdea8bb3565 | CC Attribution | Candidate; verify provenance and design rights |
 | Audi e-tron concept (2010) | Res1n | https://sketchfab.com/3d-models/2010-audi-e-tron-concept-50507566347e4aec882f9887caf85ca5 | CC Attribution | Concept only; do not map to a production e-tron without review |
 | Tesla Cybertruck | TallyJanerd | https://blendswap.com/blend/23848 | CC-BY | Downloadable Blender mockup; creator says dimensions are not 1:1; visual quality review required |
 | Tesla Roadster (2010) | mark06gt | https://blendswap.com/blend/26295 | CC0 (listing index) | Unverified; asset detail page could not be independently inspected |
+
+
+## Re-check of high-priority Sketchfab candidates (24 Nov 2026)
+
+The following page-level facts were rechecked against the live Sketchfab pages. A visible download control and CC BY badge are evidence of a downloadable candidate, not approval to bundle it.
+
+| Candidate | Page evidence | Remaining gate |
+|---|---|---|
+| Tesla Model 3 | 2,155 downloads; 684.3k triangles; CC BY; download control shown. The description contains an apparent mismatch ("production SUV"), so treat its accuracy/provenance cautiously. | Download and inspect geometry, textures, logos, creator provenance and design rights |
+| BMW i3 | 178 downloads; 613.4k triangles; CC BY; download control shown; no model description. | Same full review; visual accuracy not established |
+| Kia EV6 | 57 downloads; 578.4k triangles; CC BY; download control shown; no model description. | Same full review; visual accuracy not established |
+| Hyundai IONIQ 5 (dannzjs) | 361 downloads; 2.5M triangles; CC BY; download control shown; description identifies IONIQ 5. | Same full review; visual accuracy not established |
+| Porsche Taycan | 5,504 downloads; 3M triangles; CC BY; download control shown; creator describes accurate form/details and links rendering examples. | Same full review; visual accuracy not established |
+| Volvo XC40 Recharge 2020 | 173 downloads; 1.5M triangles; CC BY; download control shown; no description. | Same full review; visual accuracy not established |
+
+### Sketchfab distribution requirements
+
+- Sketchfab's downloadable-model guidance says downloads require an authenticated account and the Download API requires an authenticated request. That is a download mechanism, not permission to bypass the asset's individual license.
+- Sketchfab's CC guidance says attribution to the creator and Sketchfab must remain accessible to end users, with the model license clearly presented.
+- Do not confuse Sketchfab's paid Standard/Editorial license terms with the CC license shown on a particular free model page. Always record the exact license displayed on the asset page and its version.
+- None of these six assets has been downloaded, opened in Blender, rendered, or cleared for third-party vehicle design/trademark rights.
+
+References:
+- https://sketchfab.com/developers/download-api/downloading-models
+- https://sketchfab.com/developers/download-api/guidelines
+- https://sketchfab.com/licenses
+- https://sketchfab.com/blogs/community/refine-downloadable-model-searches-with-new-license-filters/
 
 ## Explicit exclusions
 
