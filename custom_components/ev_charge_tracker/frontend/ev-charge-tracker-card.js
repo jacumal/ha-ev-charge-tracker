@@ -229,7 +229,7 @@ class EVChargeTrackerCard extends HTMLElement {
     };
     const vehicleLabel = [vehicle.visual_brand, vehicle.visual_model].filter(Boolean).join(" ") ||
       this.config.vehicle_name || this.config.vehicle || this.config.name || "ChargeTrack";
-    const vehicleDetails = [vehicle.visual_generation, vehicle.visual_year, vehicle.visual_trim].filter(Boolean).join(" · ");
+    const vehicleDetails = [...new Set([vehicle.visual_trim, vehicle.visual_year, vehicle.visual_generation].filter(Boolean))].join(" · ");
     const bodyPaths = {
       suv: "M24 65 L32 45 Q36 39 48 37 L66 22 Q72 17 88 17 L151 17 Q163 17 171 27 L190 43 Q204 47 211 56 L216 70 L209 78 L24 78 Z",
       sedan: "M22 65 L31 49 Q36 43 52 41 L76 25 Q83 20 99 20 L151 22 Q165 23 174 35 L194 45 Q207 49 214 61 L214 77 L22 77 Z",
