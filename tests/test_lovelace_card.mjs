@@ -183,7 +183,7 @@ test("shows live battery SOC and odometer from the selected profile entities", (
 
 test("recognizes C10 from the full profile identity and uses the bundled default image", () => {
   const html = createCard(
-    { name: "Leap C10", vehicle_visual: { visual_brand: "Leapmotor" }, entities: { status: "sensor.status" } },
+    { name: "Leapmotor C10", vehicle_visual: {}, entities: { status: "sensor.status" } },
     { "sensor.status": { state: "idle", attributes: {} } },
   );
   assert.match(html, /<h2>Leapmotor<\/h2>|<h2>Leap C10<\/h2>/);
