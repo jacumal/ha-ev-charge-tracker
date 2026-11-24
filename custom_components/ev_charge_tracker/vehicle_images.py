@@ -35,13 +35,19 @@ class VehicleImageUploadView(HomeAssistantView):
                 max_size=MAX_IMAGE_BYTES, actual_size=request.content_length
             )
 
-        body = await request.read()
+        body = await request.content.read(MAX_IMAGE_BYTES + 1)
         if not body or len(body) > MAX_IMAGE_BYTES:
             raise web.HTTPRequestEntityTooLarge(
                 max_size=MAX_IMAGE_BYTES, actual_size=len(body)
             )
 
-        from PIL import Image, UnidentifiedImageError
+        try:
+            from PIL import Image, UnidentifiedImageError
+        except ImportError as err:
+            raise web.HTTPInternalServerError(
+                text="El validador de imágenes no está disponible."
+            ) from err
+
         try:
             image = Image.open(io.BytesIO(body))
             if image.format != "PNG":
@@ -58,11 +64,6 @@ class VehicleImageUploadView(HomeAssistantView):
             raise web.HTTPBadRequest(
                 text=f"Imagen no válida: {err}"
             ) from err
-        except ImportError as err:
-            raise web.HTTPInternalServerError(
-                text="El validador de imágenes no está disponible."
-            ) from err
-
         digest = hashlib.sha256(body).hexdigest()
         relative = Path("www") / "ev-charge-tracker" / "custom" / f"{digest}.png"
         destination = Path(self.hass.config.path(str(relative)))
