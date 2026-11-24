@@ -12,6 +12,7 @@ from .const import DOMAIN, PLATFORMS
 from .coordinator import EVChargeCoordinator
 from .profile_registry import build_profile_registry
 from .websocket import async_register as async_register_websocket
+from .vehicle_images import async_register as async_register_vehicle_image
 
 EVChargeConfigEntry = ConfigEntry[EVChargeCoordinator]
 REGISTRY_DATA_KEY = "_profile_registry"
@@ -31,6 +32,7 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     hass.data.setdefault(DOMAIN, {})
     _refresh_profile_registry(hass)
     async_register_websocket(hass)
+    async_register_vehicle_image(hass)
     card_path = Path(__file__).parent / "frontend" / "ev-charge-tracker-card.js"
     c10_image_path = Path(__file__).parent / "brand" / "leapmotor-c10-white.webp"
     await hass.http.async_register_static_paths(
