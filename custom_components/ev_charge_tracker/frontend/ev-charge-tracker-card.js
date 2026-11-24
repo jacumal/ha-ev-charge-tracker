@@ -2,7 +2,7 @@
  * Copyright (c) ChargeTrack contributors. MIT.
  */
 const CARD_VERSION = "0.5.0";
-const DEFAULT_C10_IMAGE_URL = "https://www.leapmotor.net/images/default-source/c10/pearl-white-(3).png?sfvrsn=c8a0dd7c_39";
+const DEFAULT_C10_IMAGE_URL = "https://www.leapmotor.net/_next/image?q=90&url=https%3A%2F%2Fwww.leapmotor.net%2Fimages%2Fdefault-source%2Fc10%2Fpearl-white-%283%29.png%3Fsfvrsn%3Dc8a0dd7c_39&w=3840";
 
 class EVChargeTrackerCard extends HTMLElement {
   setConfig(config) {
@@ -61,7 +61,7 @@ class EVChargeTrackerCard extends HTMLElement {
       const commonsImage = url.protocol === "https:" && url.hostname === "upload.wikimedia.org" &&
         /^\/wikipedia\/commons\/(?:thumb\/)?[A-Za-z0-9_./%()-]+\.(?:png|webp|jpe?g)(?:\/[^?#]+)?$/i.test(url.pathname);
       const officialC10Image = url.protocol === "https:" && url.hostname === "www.leapmotor.net" &&
-        url.pathname === "/images/default-source/c10/pearl-white-(3).png";
+        url.pathname === "/_next/image" && (url.searchParams.get("url") || "").startsWith("https://www.leapmotor.net/images/default-source/c10/pearl-white-(3).png");
       return commonsImage || officialC10Image;
     } catch { return false; }
   }
