@@ -548,3 +548,27 @@ test("Leapmotor C10 default cable anchor is on the rear-left quarter", () => {
   });
   assert.match(html, /cx="216" cy="63"/);
 });
+
+
+test("editor image validation is available independently from the card class", () => {
+  const editor = createEditorInstance();
+  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"), true);
+  assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
+  assert.equal(editor._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), true);
+  assert.equal(editor._validVehicleImage("https://example.com/c10.jpg"), false);
+});
+
+test("card uses the bundled C10 image when the selected vehicle identity names C10", () => {
+  const html = createCard(
+    { name: "Leapmotor C10", entities: {} },
+    {},
+  );
+  assert.match(html, /\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp/);
+  assert.doesNotMatch(html, /<svg class="vehicle-image fallback"/);
+});
+
+test("card does not render the generic cartoon car when no vehicle image is configured", () => {
+  const html = createCard({ name: "Mi vehículo", entities: {} }, {});
+  assert.match(html, /Imagen del vehículo no configurada/);
+  assert.doesNotMatch(html, /vehicle-body/);
+});
