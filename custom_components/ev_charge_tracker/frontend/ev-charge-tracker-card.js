@@ -2,7 +2,7 @@
  * Copyright (c) ChargeTrack contributors. MIT.
  */
 const CARD_VERSION = "0.5.0";
-const DEFAULT_C10_IMAGE_URL = "https://www.leapmotor.net/_next/image?q=90&url=https%3A%2F%2Fwww.leapmotor.net%2Fimages%2Fdefault-source%2Fc10%2Fpearl-white-%283%29.png%3Fsfvrsn%3Dc8a0dd7c_39&w=1200";
+const DEFAULT_C10_IMAGE_URL = "https://www.leapmotor.net/_next/image?q=90&url=https%3A%2F%2Fwww.leapmotor.net%2Fimages%2Fdefault-source%2Fc10%2Fpearl-white-%2817%29.png%3Fsfvrsn%3Df11bcf73_36&w=1200";
 
 class EVChargeTrackerCard extends HTMLElement {
   setConfig(config) {
@@ -60,7 +60,7 @@ class EVChargeTrackerCard extends HTMLElement {
       const commonsImage = url.protocol === "https:" && url.hostname === "upload.wikimedia.org" &&
         /^\/wikipedia\/commons\/(?:thumb\/)?[A-Za-z0-9_./%()-]+\.(?:png|webp|jpe?g)(?:\/[^?#]+)?$/i.test(url.pathname);
       const officialC10Image = url.protocol === "https:" && url.hostname === "www.leapmotor.net" &&
-        url.pathname === "/_next/image" && (url.searchParams.get("url") || "").startsWith("https://www.leapmotor.net/images/default-source/c10/pearl-white-(3).png");
+        url.pathname === "/_next/image" && (url.searchParams.get("url") || "").startsWith("https://www.leapmotor.net/images/default-source/c10/pearl-white-(17).png");
       return commonsImage || officialC10Image;
     } catch { return false; }
   }
@@ -202,7 +202,7 @@ class EVChargeTrackerCard extends HTMLElement {
     const imageCredit = vehicle.visual_image_credit || (usingDefaultC10Image ? "Leapmotor" : "");
     const imageLicense = vehicle.visual_image_license || "";
     const imageLicenseUrl = typeof vehicle.visual_image_license_url === "string" && /^https:\/\/creativecommons\.org\/(?:licenses|publicdomain)\//i.test(vehicle.visual_image_license_url) ? vehicle.visual_image_license_url : "";
-    const imagePage = typeof vehicle.visual_image_page === "string" && /^https:\/\/commons\.wikimedia\.org\/wiki\//i.test(vehicle.visual_image_page) ? vehicle.visual_image_page : (usingDefaultC10Image ? "https://www.leapmotor.net/es-es/modelos/c10" : "");
+    const imagePage = typeof vehicle.visual_image_page === "string" && /^https:\/\/commons\.wikimedia\.org\/wiki\//i.test(vehicle.visual_image_page) ? vehicle.visual_image_page : (usingDefaultC10Image ? "https://www.leapmotor.net/en-ie/other-products/offers/other-products-offers-offers-for-private-customers/c10---design---hybrid-ev-28_4kwh" : "");
     const defaultPortX = isLeapmotorC10 ? 83 : 67;
     const defaultPortY = isLeapmotorC10 ? 57 : 44;
     const portXValue = vehicle.visual_port_x == null || vehicle.visual_port_x === "" ? defaultPortX : Number(vehicle.visual_port_x);
