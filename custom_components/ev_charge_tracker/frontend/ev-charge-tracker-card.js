@@ -841,7 +841,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const portY = Number.isFinite(rawPortY) ? Math.min(100, Math.max(0, rawPortY)) : defaultPortY;
       const imageOrFallback = image
         ? '<img src="' + this._esc(image) + '" alt="' + this._esc(label) + '">'
-        : '<div class="preview-fallback" aria-hidden="true">🚘</div>';
+        : '<div class="preview-fallback" role="img" aria-label="Imagen del vehículo no disponible">Imagen del vehículo no disponible</div>';
       preview.innerHTML = '<div class="preview-stage">' + imageOrFallback +
         '<i class="preview-port" style="left:' + portX + '%;top:' + portY + '%"></i></div>' +
         '<div><strong>' + this._esc(label) + '</strong><small>' + this._esc(details || "Vista previa de identidad del vehículo") + '</small></div>';
