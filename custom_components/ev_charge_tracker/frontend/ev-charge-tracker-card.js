@@ -270,7 +270,27 @@ class EVChargeTrackerCard extends HTMLElement {
     const start = this._date(record.started_at);
     const end = this._date(record.ended_at || record.completed_at);
     const maxHistory = Math.min(50, Math.max(1, Math.trunc(Number(this.config.max_history) || 8)));
-    const rows = Array.isArray(history) ? history.slice(0, maxHistory) : [];
+    const allSessions = Array.isArray(history) ? history : [];
+    const rows = allSessions.slice(0, maxHistory);
+    const completedSessions = allSessions.filter(item => item && (item.status === "completed" || item.completed_at || item.ended_at));
+    const totalHistoryEnergy = completedSessions.reduce((sum, item) => {
+      const value = Number(item.energy_kwh);
+      return item.energy_kwh != null && Number.isFinite(value) && value >= 0 ? sum + value : sum;
+    }, 0);
+    const fullyPricedSessions = completedSessions.filter(item =>
+      item.cost != null && Number.isFinite(Number(item.cost)) && Number(item.cost) >= 0 &&
+      item.cost_status !== "partial" && item.cost_status !== "unknown"
+    );
+    const totalHistoryCost = fullyPricedSessions.reduce((sum, item) => sum + Number(item.cost), 0);
+    const pricedHistoryEnergy = fullyPricedSessions.reduce((sum, item) => {
+      const value = Number(item.energy_kwh);
+      return item.energy_kwh != null && Number.isFinite(value) && value > 0 ? sum + value : sum;
+    }, 0);
+    const averageHistoryCost = pricedHistoryEnergy > 0 ? totalHistoryCost / pricedHistoryEnergy : null;
+    const historyBars = completedSessions.slice(0, 8).reverse().filter(item =>
+      item.energy_kwh != null && Number.isFinite(Number(item.energy_kwh)) && Number(item.energy_kwh) >= 0
+    );
+    const maxHistoryBar = Math.max(1, ...historyBars.map(item => Number(item.energy_kwh)));
     const recentRows = Array.isArray(history) ? history.slice(0, 8).slice().reverse() : [];
     const chartRows = recentRows.filter(item => item.energy_kwh != null && item.energy_kwh !== "" && Number.isFinite(Number(item.energy_kwh)) && Number(item.energy_kwh) >= 0);
     const maxEnergy = Math.max(1, ...chartRows.map(item => Number(item.energy_kwh)));
@@ -399,6 +419,13 @@ class EVChargeTrackerCard extends HTMLElement {
         .soc-progress{height:9px;border-radius:20px;overflow:hidden;background:var(--divider-color);margin:12px 0 16px}.soc-progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--primary-color),var(--success-color))}
         .session-footnote{margin-top:10px;font-size:10px;color:var(--secondary-text-color);line-height:1.4}
         .history-head{display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px;padding-top:17px;border-top:1px solid var(--divider-color)}.history-head h3{margin:0;font-size:15px;font-weight:700}.count{font-size:11px;color:var(--secondary-text-color);padding:4px 8px;border-radius:20px;background:var(--secondary-background-color)}
+        .history-summary{display:grid;grid-template-columns:minmax(0,1fr) minmax(90px,.55fr);gap:12px;align-items:end;padding:14px 12px;margin:0 0 12px;border:1px solid color-mix(in srgb,var(--divider-color) 65%,transparent);border-radius:17px;background:var(--secondary-background-color)}
+        .history-summary-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+        .history-summary-stats span{display:block;color:var(--secondary-text-color);font-size:10px;line-height:1.3}
+        .history-summary-stats strong{display:block;margin-top:5px;font-size:clamp(12px,2.2vw,17px);font-weight:700;overflow-wrap:anywhere}
+        .history-sparkline{display:flex;align-items:end;justify-content:flex-end;gap:6px;height:62px;padding:0 2px}
+        .history-sparkline i{display:block;flex:1;max-width:18px;min-width:5px;border-radius:4px 4px 1px 1px;background:color-mix(in srgb,var(--success-color) 60%,var(--card-background-color))}
+        @media(max-width:520px){.history-summary{grid-template-columns:1fr}.history-sparkline{height:42px;justify-content:flex-start}.history-sparkline i{max-width:24px}}
         .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 14px;align-items:center;padding:13px 14px;margin:8px 0;border:1px solid color-mix(in srgb,var(--divider-color) 65%,transparent);border-radius:15px;background:var(--secondary-background-color)}
         .row-main{min-width:0}.row-date{font-size:12px;font-weight:700}.row-sub{margin-top:4px;font-size:10px;color:var(--secondary-text-color)}.row-stats{display:flex;gap:14px;justify-content:flex-end}.row-value{text-align:right;font-size:13px;font-weight:700;white-space:nowrap}.row-value small{display:block;margin-top:3px;color:var(--secondary-text-color);font-size:9px;font-weight:500}.row-energy{grid-column:1/-1;height:3px;border-radius:5px;background:var(--divider-color);overflow:hidden}.row-energy span{display:block;height:100%;background:var(--primary-color);border-radius:inherit}.cost-partial{color:var(--warning-color)!important}.history-empty{padding:24px 16px;text-align:center;border:1px dashed var(--divider-color);border-radius:15px;color:var(--secondary-text-color);font-size:12px;line-height:1.5}
         .chart-card{border-radius:19px;background:linear-gradient(155deg,var(--secondary-background-color),color-mix(in srgb,var(--card-background-color) 84%,var(--secondary-background-color)));box-shadow:inset 0 1px color-mix(in srgb,var(--primary-text-color) 4%,transparent)}
@@ -488,7 +515,15 @@ class EVChargeTrackerCard extends HTMLElement {
               <div class="chart-legend">Los costes parciales se muestran atenuados</div>
             </section>
           </div>` : ""}
-          ${displayMode === "complete" ? `<div class="history-head"><h3>Histórico de cargas</h3><span class="count">${rows.length} registros</span></div>
+          ${displayMode === "complete" ? `<div class="history-head"><h3>Histórico de cargas</h3><span class="count">${completedSessions.length} registros</span></div>
+          ${completedSessions.length ? `<section class="history-summary" aria-label="Resumen del histórico">
+            <div class="history-summary-stats">
+              <div><span>Energía total</span><strong>${this._fmt(totalHistoryEnergy,1)} kWh</strong></div>
+              <div><span>Coste total</span><strong>${fullyPricedSessions.length ? this._fmt(totalHistoryCost,2) + " " + currency : "—"}</strong></div>
+              <div><span>Coste medio</span><strong>${averageHistoryCost === null ? "—" : this._fmt(averageHistoryCost,3) + " " + currency + "/kWh"}</strong></div>
+            </div>
+            <div class="history-sparkline" aria-hidden="true">${historyBars.map(item => `<i style="height:${Math.max(4,Number(item.energy_kwh)/maxHistoryBar*56)}px"></i>`).join("")}</div>
+          </section>` : ""}
           ${rows.length ? rows.map(item => {
             const itemEnergy = Number(item.energy_kwh);
             const itemCost = item.cost != null ? Number(item.cost) : (item.known_cost != null ? Number(item.known_cost) : null);
