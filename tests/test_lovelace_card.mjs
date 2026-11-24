@@ -483,9 +483,8 @@ test("gallery choices are stored per vehicle and shared by that vehicle's charge
   assert.notEqual(editor._profileVisualKey(c10Home), editor._profileVisualKey(tesla));
 });
 
-test("editor automatically suggests the selected vehicle identity for gallery searches", () => {
-  assert.match(source, /const suggestedQuery = \[visual\.visual_brand, visual\.visual_model\]/);
-  assert.match(source, /this\._galleryQueryEdited/);
+test("editor selector tracks the catalog model while keeping image choice per vehicle", () => {
+  assert.match(source, /const matchingCatalog = VEHICLE_CATALOG\.find/);
   assert.match(source, /next\.vehicle_visuals = \{ \.\.\.\(next\.vehicle_visuals \|\| \{\}\), \[visualKey\]: \{ \.\.\.next\.vehicle_visual \} \}/);
 });
 
