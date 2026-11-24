@@ -1004,7 +1004,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const visual = this._config.vehicle_visual || {};
     const profile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
     const catalog = this.shadowRoot.getElementById("visual_catalog");
-    if (catalog && catalog.dataset.catalogVersion !== (this._vehicleCatalogLoaded ? "full-400" : "fallback")) {
+    if (catalog && catalog.dataset.catalogVersion !== (this._vehicleCatalogLoaded ? "full-401" : "fallback")) {
       const bevCount = this._vehicleCatalog.filter(item => item.technology === "BEV").length;
       const phevCount = this._vehicleCatalog.filter(item => item.technology === "PHEV").length;
       const groups = [["BEV", "100 % eléctricos (BEV · " + bevCount + ")"], ["PHEV", "Híbridos enchufables (PHEV · " + phevCount + ")"]];
@@ -1017,7 +1017,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       }).join("");
       catalog.innerHTML = '<option value="">Selecciona un vehículo…</option>' + options +
         '<option value="__personal__">➕ Añadir una foto personal</option>';
-      catalog.dataset.catalogVersion = this._vehicleCatalogLoaded ? "full-400" : "fallback";
+      catalog.dataset.catalogVersion = this._vehicleCatalogLoaded ? "full-401" : "fallback";
     }
     const matchingCatalog = this._vehicleCatalog.find(item =>
       item.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() &&
