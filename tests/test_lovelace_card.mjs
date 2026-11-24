@@ -612,3 +612,15 @@ test("migrates beta 7 legacy C10 image setting to the official default", () => {
   assert.ok(html.includes("www.leapmotor.net/_next/image"));
   assert.doesNotMatch(html, /vehicle-images\/leapmotor-c10-white/);
 });
+
+
+test("deduplicates vehicle generation and model year in the hero subtitle", () => {
+  const html = createCard(
+    { name: "Leap C10", vehicle_visual: {
+      visual_brand: "Leapmotor", visual_model: "C10",
+      visual_generation: "2026", visual_year: "2026", visual_trim: "Design",
+    }, entities: {} },
+  );
+  assert.ok(html.includes("Design · 2026"));
+  assert.doesNotMatch(html, /2026 · 2026/);
+});
