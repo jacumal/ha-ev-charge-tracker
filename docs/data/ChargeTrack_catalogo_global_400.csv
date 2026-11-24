@@ -1,0 +1,401 @@
+index,technology,region_bucket,manufacturer_model,country_of_origin,markets,commercial_aliases,sales_2025_units,sales_rank_2025,sales_source_status,image_key,image_status,validation_status
+0,BEV,China,Geely Galaxy Xingyuan,,,Geely Geome Xingyuan; Geely EX2,"473,948",3.0,"EV Volumes / Autovista24, FY2025",,Pendiente de imagen local,Modelo y tecnología contrastados; ventas globales 2025 documentadas
+1,BEV,China,Wuling Hongguang Mini EV,,,,"431,779",4.0,"EV Volumes / Autovista24, FY2025",,Pendiente de imagen local,Modelo y tecnología contrastados; ventas globales 2025 documentadas
+2,BEV,China,BYD Seagull,,,BYD Dolphin Surf; BYD Dolphin Mini,"409,550",5.0,"EV Volumes / Autovista24, FY2025",,Pendiente de imagen local,Modelo y tecnología contrastados; ventas globales 2025 documentadas
+3,BEV,China,Xiaomi SU7,,,,"258,824",8.0,"EV Volumes / Autovista24, FY2025",,Pendiente de imagen local,Modelo y tecnología contrastados; ventas globales 2025 documentadas
+4,BEV,China,BYD Yuan Up,,,BYD Atto 2,"252,441",9.0,"EV Volumes / Autovista24, FY2025",,Pendiente de imagen local,Modelo y tecnología contrastados; ventas globales 2025 documentadas
+5,BEV,China,XPeng Mona M03,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+6,BEV,China,BYD Dolphin,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+7,BEV,China,Changan Lumin,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+8,BEV,China,Geely Panda Mini,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+9,BEV,China,Xiaomi YU7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+10,BEV,China,BYD Yuan Plus,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+11,BEV,China,Wuling Bingo,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+12,BEV,China,Geely Galaxy E5,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+13,BEV,China,BYD Qin Plus EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+14,BEV,China,BYD Song Plus EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+15,BEV,China,BYD Seal,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+16,BEV,China,BYD Han EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+17,BEV,China,BYD Tang EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+18,BEV,China,BYD Atto 3,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+19,BEV,China,BYD Dolphin Mini,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+20,BEV,China,BYD e2,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+21,BEV,China,BYD e3,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+22,BEV,China,BYD Seal 06 EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+23,BEV,China,BYD Sealion 7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+24,BEV,China,BYD Sealion 6 EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+25,BEV,China,BYD Song L EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+26,BEV,China,BYD Yuan Pro,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+27,BEV,China,BYD e7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+28,BEV,China,BYD D1,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+29,BEV,China,BYD e6,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+30,BEV,China,Geely Geometry A,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+31,BEV,China,Geely Geometry C,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+32,BEV,China,Geely Geometry E,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+33,BEV,China,Geely Geometry G6,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+34,BEV,China,Geely Geometry M6,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+35,BEV,China,Geely Galaxy E8,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+36,BEV,China,Geely Galaxy Starship 7 EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+37,BEV,China,Zeekr 001,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+38,BEV,China,Zeekr 007,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+39,BEV,China,Zeekr 007 GT,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+40,BEV,China,Zeekr 009,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+41,BEV,China,Zeekr X,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+42,BEV,China,Zeekr 7X,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+43,BEV,China,Zeekr MIX,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+44,BEV,China,Zeekr .001 FR,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+45,BEV,China,Nio ET5,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+46,BEV,China,Nio ET5 Touring,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+47,BEV,China,Nio ET7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+48,BEV,China,Nio ES6,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+49,BEV,China,Nio ES7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+50,BEV,China,Nio ES8,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+51,BEV,China,Nio EC6,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+52,BEV,China,Nio EC7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+53,BEV,China,Nio EL6,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+54,BEV,China,Nio EL7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+55,BEV,China,Nio EL8,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+56,BEV,China,Nio Onvo L60,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+57,BEV,China,Nio Firefly,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+58,BEV,China,XPeng P5,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+59,BEV,China,XPeng P7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+60,BEV,China,XPeng P7+,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+61,BEV,China,XPeng G3i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+62,BEV,China,XPeng G6,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+63,BEV,China,XPeng G9,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+64,BEV,China,XPeng X9,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+65,BEV,China,XPeng G7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+66,BEV,China,XPeng P7i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+67,BEV,China,Leapmotor T03,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+68,BEV,China,Leapmotor C10,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+69,BEV,China,Leapmotor C11,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+70,BEV,Europe,Renault 5 E-Tech,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+71,BEV,Europe,Renault 4 E-Tech,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+72,BEV,Europe,Renault Megane E-Tech,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+73,BEV,Europe,Renault Scenic E-Tech,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+74,BEV,Europe,Renault Zoe,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+75,BEV,Europe,Renault Twingo E-Tech,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+76,BEV,Europe,Renault Kangoo E-Tech,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+77,BEV,Europe,Renault Master E-Tech,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+78,BEV,Europe,Volkswagen ID.3,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+79,BEV,Europe,Volkswagen ID.4,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+80,BEV,Europe,Volkswagen ID.5,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+81,BEV,Europe,Volkswagen ID.7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+82,BEV,Europe,Volkswagen ID.7 Tourer,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+83,BEV,Europe,Volkswagen ID.Buzz,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+84,BEV,Europe,Volkswagen e-Up,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+85,BEV,Europe,Volkswagen e-Golf,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+86,BEV,Europe,Volkswagen e-Crafter,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+87,BEV,Europe,Škoda Enyaq,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+88,BEV,Europe,Škoda Enyaq Coupe,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+89,BEV,Europe,Škoda Elroq,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+90,BEV,Europe,Škoda Citigo-e iV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+91,BEV,Europe,CUPRA Born,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+92,BEV,Europe,CUPRA Tavascan,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+93,BEV,Europe,CUPRA Raval,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+94,BEV,Europe,Audi Q4 e-tron,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+95,BEV,Europe,Audi Q6 e-tron,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+96,BEV,Europe,Audi Q8 e-tron,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+97,BEV,Europe,Audi e-tron GT,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+98,BEV,Europe,Audi Q6L e-tron,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+99,BEV,Europe,BMW i3,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+100,BEV,Europe,BMW i4,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+101,BEV,Europe,BMW i5,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+102,BEV,Europe,BMW i5 Touring,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+103,BEV,Europe,BMW i7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+104,BEV,Europe,BMW iX,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+105,BEV,Europe,BMW iX1,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+106,BEV,Europe,BMW iX2,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+107,BEV,Europe,BMW iX3,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+108,BEV,Europe,Mercedes-Benz EQA,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+109,BEV,Europe,Mercedes-Benz EQB,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+110,BEV,Europe,Mercedes-Benz EQE,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+111,BEV,Europe,Mercedes-Benz EQE SUV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+112,BEV,Europe,Mercedes-Benz EQS,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+113,BEV,Europe,Mercedes-Benz EQS SUV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+114,BEV,Europe,Mercedes-Benz G 580 EQ,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+115,BEV,Europe,Mercedes-Benz eCitan,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+116,BEV,Europe,Mercedes-Benz eVito,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+117,BEV,Europe,Mercedes-Benz eSprinter,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+118,BEV,Europe,Porsche Taycan,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+119,BEV,Europe,Porsche Macan Electric,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+120,BEV,North America,Tesla Model Y,,,,"1,085,521",1.0,"EV Volumes / Autovista24, FY2025",,Pendiente de imagen local,Modelo y tecnología contrastados; ventas globales 2025 documentadas
+121,BEV,North America,Tesla Model 3,,,,"499,685",2.0,"EV Volumes / Autovista24, FY2025",,Pendiente de imagen local,Modelo y tecnología contrastados; ventas globales 2025 documentadas
+122,BEV,North America,Tesla Model S,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+123,BEV,North America,Tesla Model X,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+124,BEV,North America,Tesla Cybertruck,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+125,BEV,North America,Chevrolet Equinox EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+126,BEV,North America,Chevrolet Blazer EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+127,BEV,North America,Chevrolet Silverado EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+128,BEV,North America,Chevrolet Bolt EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+129,BEV,North America,Chevrolet Bolt EUV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+130,BEV,North America,Chevrolet Spark EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+131,BEV,North America,Cadillac Lyriq,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+132,BEV,North America,Cadillac Optiq,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+133,BEV,North America,Cadillac Vistiq,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+134,BEV,North America,Cadillac Celestiq,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+135,BEV,North America,GMC Hummer EV Pickup,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+136,BEV,North America,GMC Hummer EV SUV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+137,BEV,North America,GMC Sierra EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+138,BEV,North America,BrightDrop Zevo 600,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+139,BEV,North America,BrightDrop Zevo 400,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+140,BEV,North America,Ford Mustang Mach-E,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+141,BEV,North America,Ford F-150 Lightning,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+142,BEV,North America,Ford E-Transit,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+143,BEV,North America,Ford Focus Electric,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+144,BEV,North America,Rivian R1T,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+145,BEV,North America,Rivian R1S,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+146,BEV,North America,Rivian EDV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+147,BEV,North America,Rivian R2,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+148,BEV,North America,Rivian R3,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+149,BEV,North America,Lucid Air,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+150,BEV,North America,Lucid Gravity,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+151,BEV,North America,Lucid Sapphire,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+152,BEV,North America,Fisker Ocean,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+153,BEV,North America,Karma Revero EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+154,BEV,North America,Karma Gyesera,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+155,BEV,Japan and Korea,Nissan Leaf,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+156,BEV,Japan and Korea,Nissan Ariya,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+157,BEV,Japan and Korea,Nissan Sakura,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+158,BEV,Japan and Korea,Nissan e-NV200,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+159,BEV,Japan and Korea,Mitsubishi i-MiEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+160,BEV,Japan and Korea,Mitsubishi Minicab MiEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+161,BEV,Japan and Korea,Mitsubishi Fuso eCanter,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+162,BEV,Japan and Korea,Toyota bZ4X,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+163,BEV,Japan and Korea,Toyota C+pod,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+164,BEV,Japan and Korea,Toyota COMS,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+165,BEV,Japan and Korea,Toyota Lexus RZ,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+166,BEV,Japan and Korea,Lexus UX 300e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+167,BEV,Japan and Korea,Honda e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+168,BEV,Japan and Korea,Honda N-VAN e:,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+169,BEV,Japan and Korea,Honda e:Ny1,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+170,BEV,Japan and Korea,Honda Prologue,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+171,BEV,Japan and Korea,Mazda MX-30 EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+172,BEV,Japan and Korea,Mazda EZ-6 EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+173,BEV,Japan and Korea,Subaru Solterra,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+174,BEV,Japan and Korea,Subaru Trailseeker,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+175,BEV,Japan and Korea,Subaru Uncharted,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+176,BEV,Japan and Korea,Suzuki e Vitara,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+177,BEV,Japan and Korea,Daihatsu e-Hijet,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+178,BEV,Japan and Korea,Hyundai Ioniq 5,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+179,BEV,Japan and Korea,Hyundai Ioniq 6,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+180,BEV,Japan and Korea,Hyundai Ioniq 9,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+181,BEV,Japan and Korea,Hyundai Kona Electric,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+182,BEV,Japan and Korea,Hyundai Casper Electric,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+183,BEV,Japan and Korea,Hyundai Inster,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+184,BEV,Japan and Korea,Hyundai Porter Electric,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+185,BEV,India and Southeast Asia,Tata Nexon EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+186,BEV,India and Southeast Asia,Tata Punch EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+187,BEV,India and Southeast Asia,Tata Tiago EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+188,BEV,India and Southeast Asia,Tata Tigor EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+189,BEV,India and Southeast Asia,Tata Curvv EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+190,BEV,India and Southeast Asia,Tata Harrier EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+191,BEV,India and Southeast Asia,Tata Sierra EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+192,BEV,India and Southeast Asia,Mahindra XUV400,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+193,BEV,India and Southeast Asia,Mahindra BE 6,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+194,BEV,India and Southeast Asia,Mahindra XEV 9e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+195,BEV,India and Southeast Asia,Mahindra XUV 3XO EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+196,BEV,India and Southeast Asia,MG Comet EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+197,BEV,India and Southeast Asia,MG ZS EV India,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+198,BEV,India and Southeast Asia,MG Windsor EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+199,BEV,India and Southeast Asia,MG Cloud EV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+200,PHEV,China,BYD Qin Plus DM-i,,,,"292,572",2.0,"EV Volumes / Autovista24, FY2025",,Pendiente de imagen local,Modelo y tecnología contrastados; ventas globales 2025 documentadas
+201,PHEV,China,BYD Qin L DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+202,PHEV,China,BYD Song Pro DM-i,,,,"231,143",3.0,"EV Volumes / Autovista24, FY2025",,Pendiente de imagen local,Modelo y tecnología contrastados; ventas globales 2025 documentadas
+203,PHEV,China,BYD Song Plus DM-i,,,BYD Seal U DM-i,"328,094",1.0,"EV Volumes / Autovista24, FY2025",,Pendiente de imagen local,Modelo y tecnología contrastados; ventas globales 2025 documentadas
+204,PHEV,China,BYD Seal 06 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+205,PHEV,China,BYD Song L DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+206,PHEV,China,BYD Seal 05 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+207,PHEV,China,BYD Han DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+208,PHEV,China,BYD Tang DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+209,PHEV,China,BYD Destroyer 05,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+210,PHEV,China,BYD Destroyer 07,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+211,PHEV,China,BYD Frigate 07,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+212,PHEV,China,BYD Sealion 6 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+213,PHEV,China,BYD Sealion 7 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+214,PHEV,China,BYD Seal U DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+215,PHEV,China,BYD Shark 6 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+216,PHEV,China,BYD Song Max DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+217,PHEV,China,BYD Qin L,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+218,PHEV,China,BYD Seal 06 GT DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+219,PHEV,China,BYD Seal 07 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+220,PHEV,China,BYD Seal 08 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+221,PHEV,China,BYD Song Ultra DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+222,PHEV,China,BYD Tang L DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+223,PHEV,China,BYD Han L DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+224,PHEV,China,BYD Xia DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+225,PHEV,China,BYD Denza D9 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+226,PHEV,China,Denza N7 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+227,PHEV,China,Denza N8 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+228,PHEV,China,Denza Z9 GT DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+229,PHEV,China,Denza B5,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+230,PHEV,China,Denza B8,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+231,PHEV,China,Fangchengbao Bao 5,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+232,PHEV,China,Fangchengbao Bao 8,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+233,PHEV,China,Fangchengbao Tai 7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+234,PHEV,China,Geely Galaxy Starship 7 EM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+235,PHEV,China,Geely Galaxy L7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+236,PHEV,China,Geely Galaxy L6,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+237,PHEV,China,Geely Galaxy A7,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+238,PHEV,China,Geely Galaxy Starshine 8,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+239,PHEV,China,Geely Galaxy M9,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+240,PHEV,China,Geely Galaxy Starship 9,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+241,PHEV,China,Geely Xingyue L Hi-P,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+242,PHEV,China,Geely Boyue L Hi-P,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+243,PHEV,China,Geely Preface Hi-P,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+244,PHEV,China,Geely Monjaro Hi-P,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+245,PHEV,China,Lynk & Co 01 PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+246,PHEV,China,Lynk & Co 02 PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+247,PHEV,China,Lynk & Co 03 PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+248,PHEV,China,Lynk & Co 05 PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+249,PHEV,China,Lynk & Co 06 EM-P,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+250,PHEV,China,Lynk & Co 07 EM-P,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+251,PHEV,China,Lynk & Co 08 EM-P,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+252,PHEV,China,Lynk & Co 09 EM-P,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+253,PHEV,China,Lynk & Co 10 EM-P,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+254,PHEV,China,Lynk & Co 900,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+255,PHEV,China,Zeekr 9X,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+256,PHEV,China,Changan CS55 Plus iDD,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+257,PHEV,China,Changan CS75 Plus iDD,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+258,PHEV,China,Changan UNI-K iDD,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+259,PHEV,China,Changan UNI-V iDD,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+260,PHEV,China,Changan Qiyuan A05,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+261,PHEV,China,Changan Qiyuan A07,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+262,PHEV,China,Changan Qiyuan Q05,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+263,PHEV,China,Changan Qiyuan Q07,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+264,PHEV,China,Changan Deepal S07 PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+265,PHEV,China,Changan Deepal G318,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+266,PHEV,China,Changan Deepal S09,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+267,PHEV,China,Changan Nevo A05,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+268,PHEV,China,Changan Nevo A07,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+269,PHEV,China,Changan Nevo Q05,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+270,PHEV,Europe,Volkswagen Tiguan eHybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+271,PHEV,Europe,Volkswagen Passat eHybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+272,PHEV,Europe,Volkswagen Golf eHybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+273,PHEV,Europe,Volkswagen Golf GTE,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+274,PHEV,Europe,Volkswagen Arteon eHybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+275,PHEV,Europe,Volkswagen Touareg eHybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+276,PHEV,Europe,Volkswagen Multivan eHybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+277,PHEV,Europe,Volkswagen Caddy eHybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+278,PHEV,Europe,Skoda Superb iV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+279,PHEV,Europe,Skoda Kodiaq iV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+280,PHEV,Europe,Skoda Octavia iV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+281,PHEV,Europe,Skoda Octavia RS iV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+282,PHEV,Europe,CUPRA Formentor e-Hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+283,PHEV,Europe,CUPRA Leon e-Hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+284,PHEV,Europe,CUPRA Leon Sportstourer e-Hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+285,PHEV,Europe,CUPRA Terramar e-Hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+286,PHEV,Europe,Audi A3 TFSI e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+287,PHEV,Europe,Audi A5 e-hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+288,PHEV,Europe,Audi A6 e-hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+289,PHEV,Europe,Audi A7 TFSI e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+290,PHEV,Europe,Audi A8 TFSI e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+291,PHEV,Europe,Audi Q3 e-hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+292,PHEV,Europe,Audi Q5 TFSI e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+293,PHEV,Europe,Audi Q7 TFSI e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+294,PHEV,Europe,Audi Q8 TFSI e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+295,PHEV,Europe,BMW 225e Active Tourer,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+296,PHEV,Europe,BMW 230e Active Tourer,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+297,PHEV,Europe,BMW 330e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+298,PHEV,Europe,BMW 330e Touring,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+299,PHEV,Europe,BMW 530e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+300,PHEV,Europe,BMW 550e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+301,PHEV,Europe,BMW 750e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+302,PHEV,Europe,BMW X1 xDrive25e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+303,PHEV,Europe,BMW X1 xDrive30e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+304,PHEV,Europe,BMW X3 30e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+305,PHEV,Europe,BMW X5 xDrive50e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+306,PHEV,Europe,BMW XM,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+307,PHEV,Europe,BMW 545e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+308,PHEV,Europe,Mercedes A 250 e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+309,PHEV,Europe,Mercedes B 250 e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+310,PHEV,Europe,Mercedes C 300 e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+311,PHEV,Europe,Mercedes C 300 de,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+312,PHEV,Europe,Mercedes E 300 e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+313,PHEV,Europe,Mercedes E 300 de,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+314,PHEV,Europe,Mercedes E 400 e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+315,PHEV,Europe,Mercedes S 580 e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+316,PHEV,Europe,Mercedes GLA 250 e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+317,PHEV,Europe,Mercedes GLC 300 e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+318,PHEV,Europe,Mercedes GLC 400 e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+319,PHEV,Europe,Mercedes GLC 300 de,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+320,PHEV,North America,Toyota Prius Prime,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+321,PHEV,North America,Toyota RAV4 Prime,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+322,PHEV,North America,Mitsubishi Outlander PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+323,PHEV,North America,Chrysler Pacifica Hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+324,PHEV,North America,Jeep Wrangler 4xe,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+325,PHEV,North America,Jeep Grand Cherokee 4xe,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+326,PHEV,North America,Jeep Compass 4xe,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+327,PHEV,North America,Jeep Renegade 4xe,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+328,PHEV,North America,Ford Escape PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+329,PHEV,North America,Ford Kuga PHEV US,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+330,PHEV,North America,Ford C-Max Energi,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+331,PHEV,North America,Ford Fusion Energi,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+332,PHEV,North America,Lincoln Aviator Grand Touring,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+333,PHEV,North America,Lincoln Corsair Grand Touring,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+334,PHEV,North America,Volvo S60 Recharge,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+335,PHEV,North America,Volvo S90 Recharge,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+336,PHEV,North America,Volvo V60 Recharge,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+337,PHEV,North America,Volvo XC60 Recharge,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+338,PHEV,North America,Volvo XC90 Recharge,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+339,PHEV,North America,BMW X3 xDrive30e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+340,PHEV,North America,Mercedes C 300e US,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+341,PHEV,North America,Mercedes E 300e US,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+342,PHEV,North America,Mercedes S 580e US,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+343,PHEV,North America,Mercedes GLC 350e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+344,PHEV,North America,Mercedes GLE 450e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+345,PHEV,North America,Mercedes GLE 550e,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+346,PHEV,North America,Porsche Cayenne E-Hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+347,PHEV,North America,Porsche Cayenne S E-Hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+348,PHEV,North America,Porsche Panamera E-Hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+349,PHEV,North America,Porsche Panamera 4S E-Hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+350,PHEV,North America,Porsche Panamera Turbo E-Hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+351,PHEV,North America,Land Rover Range Rover PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+352,PHEV,North America,Range Rover Sport PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+353,PHEV,North America,Range Rover Velar PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+354,PHEV,North America,Range Rover Evoque PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+355,PHEV,Japan and Korea,Toyota Prius Plug-in Hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+356,PHEV,Japan and Korea,Toyota RAV4 PHV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+357,PHEV,Japan and Korea,Toyota C-HR PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+358,PHEV,Japan and Korea,Mitsubishi Eclipse Cross PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+359,PHEV,Japan and Korea,Mitsubishi Grandis PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+360,PHEV,Japan and Korea,Mitsubishi Delica D:5 PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+361,PHEV,Japan and Korea,Mitsubishi ASX PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+362,PHEV,Japan and Korea,Honda Clarity PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+363,PHEV,Japan and Korea,Honda Accord Plug-in Hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+364,PHEV,Japan and Korea,Honda CR-V e:PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+365,PHEV,Japan and Korea,Mazda CX-60 PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+366,PHEV,Japan and Korea,Mazda CX-80 PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+367,PHEV,Japan and Korea,Lexus NX 450h+,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+368,PHEV,Japan and Korea,Lexus RX 450h+,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+369,PHEV,Japan and Korea,Lexus TX 550h+,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+370,PHEV,Japan and Korea,Subaru Crosstrek PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+371,PHEV,Japan and Korea,Subaru Forester PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+372,PHEV,Japan and Korea,Hyundai Tucson PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+373,PHEV,Japan and Korea,Hyundai Santa Fe PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+374,PHEV,Japan and Korea,Hyundai Ioniq Plug-in,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+375,PHEV,Japan and Korea,Hyundai Sonata Plug-in Hybrid,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+376,PHEV,Japan and Korea,Kia Niro PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+377,PHEV,Japan and Korea,Kia Sportage PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+378,PHEV,Japan and Korea,Kia Sorento PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+379,PHEV,Japan and Korea,Kia Ceed Sportswagon PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+380,PHEV,Japan and Korea,Kia XCeed PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+381,PHEV,Japan and Korea,Genesis GV80 PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+382,PHEV,Japan and Korea,Genesis G80 PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+383,PHEV,Japan and Korea,KG Mobility Torres PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+384,PHEV,Japan and Korea,KG Mobility Korando PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+385,PHEV,India and Southeast Asia,BYD Seal 6 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+386,PHEV,India and Southeast Asia,BYD Atto 2 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+387,PHEV,India and Southeast Asia,BYD Sealion 5 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+388,PHEV,India and Southeast Asia,BYD Destroyer 05 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+389,PHEV,India and Southeast Asia,BYD Frigate 07 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+390,PHEV,India and Southeast Asia,BYD Denza N7 DM-i,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+391,PHEV,India and Southeast Asia,Chery Tiggo 7 Pro PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+392,PHEV,India and Southeast Asia,Chery Tiggo 8 Pro e+,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+393,PHEV,India and Southeast Asia,Chery Tiggo 8 CSH,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+394,PHEV,India and Southeast Asia,Chery Tiggo 9 CSH,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+395,PHEV,India and Southeast Asia,Chery Arrizo 8 PHEV,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+396,PHEV,India and Southeast Asia,Chery Fulwin T8,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+397,PHEV,India and Southeast Asia,Chery Fulwin A8,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+398,PHEV,India and Southeast Asia,Chery Fulwin T9,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
+399,PHEV,India and Southeast Asia,Chery Omoda 7 SHS,,,,,,Pendiente de contraste individual,,Pendiente de imagen local,Preselección; requiere validación de variante comercial antes de publicar
