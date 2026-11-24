@@ -80,9 +80,13 @@ def test_brand_assets_have_marketplace_ready_png_dimensions():
     brand = ROOT / "custom_components/ev_charge_tracker/brand"
     icon = (brand / "icon.png").read_bytes()
     logo = (brand / "logo.png").read_bytes()
-    assert icon[:8] == b"\\x89PNG\\r\\n\\x1a\\n"
-    assert logo[:8] == b"\\x89PNG\\r\\n\\x1a\\n"
+    dark_icon = (brand / "dark_icon.png").read_bytes()
+    dark_logo = (brand / "dark_logo.png").read_bytes()
+    for image in (icon, logo, dark_icon, dark_logo):
+        assert image[:8] == b"\x89PNG\r\n\x1a\n"
     assert struct.unpack(">II", icon[16:24]) == (256, 256)
-    logo_width, logo_height = struct.unpack(">II", logo[16:24])
-    assert logo_height == 128
-    assert logo_width >= logo_height
+    assert struct.unpack(">II", dark_icon[16:24]) == (256, 256)
+    for image in (logo, dark_logo):
+        logo_width, logo_height = struct.unpack(">II", image[16:24])
+        assert logo_height == 128
+        assert logo_width >= logo_height
