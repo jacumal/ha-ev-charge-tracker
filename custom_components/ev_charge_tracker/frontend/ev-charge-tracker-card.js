@@ -514,7 +514,7 @@ class EVChargeTrackerCard extends HTMLElement {
               <div class="chart-legend">Los costes parciales se muestran atenuados</div>
             </section>
           </div>` : ""}
-          ${displayMode === "complete" ? `<div class="history-head"><h3>Histórico de cargas</h3><span class="count">${completedSessions.length} registros</span></div>
+          ${displayMode !== "compact" ? `<div class="history-head"><h3>Histórico de cargas</h3><span class="count">${completedSessions.length} registros</span></div>
           ${completedSessions.length ? `<section class="history-summary" aria-label="Resumen del histórico">
             <div class="history-summary-stats">
               <div><span>Energía total</span><strong>${this._fmt(totalHistoryEnergy,1)} kWh</strong></div>
@@ -523,7 +523,7 @@ class EVChargeTrackerCard extends HTMLElement {
             </div>
             <div class="history-sparkline" aria-hidden="true">${historyBars.map(item => `<i style="height:${Math.max(4,Number(item.energy_kwh)/maxHistoryBar*56)}px"></i>`).join("")}</div>
           </section>` : ""}
-          ${rows.length ? rows.map(item => {
+          ${displayMode === "complete" && rows.length ? rows.map(item => {
             const itemEnergy = Number(item.energy_kwh);
             const itemCost = item.cost != null ? Number(item.cost) : (item.known_cost != null ? Number(item.known_cost) : null);
             const energyValid = item.energy_kwh != null && Number.isFinite(itemEnergy) && itemEnergy >= 0;
@@ -535,7 +535,7 @@ class EVChargeTrackerCard extends HTMLElement {
               <div class="row-stats"><div class="row-value">${energyValid ? this._fmt(itemEnergy,2)+" kWh" : "—"}<small>Energía</small></div><div class="row-value">${costValid ? this._fmt(itemCost,2)+" "+this._escape(item.currency || currency) : "—"}<small class="${item.cost_status === "partial" ? "cost-partial" : ""}">${item.cost_status === "partial" || (item.cost == null && item.known_cost != null) ? "Coste parcial" : (item.cost_status === "unknown" ? "Sin coste" : "Coste")}</small></div></div>
               <div class="row-energy"><span style="width:${energyValid && maxEnergy > 0 ? Math.max(0,Math.min(100,itemEnergy/maxEnergy*100)) : 0}%"></span></div>
             </div>`;
-          }).join("") : '<div class="history-empty">Aún no hay cargas consolidadas.<br>Cuando finalice tu primera sesión, aparecerá aquí el resumen.</div>'}
+          }).join("") : (displayMode === "complete" ? '<div class="history-empty">Aún no hay cargas consolidadas.<br>Cuando finalice tu primera sesión, aparecerá aquí el resumen.</div>' : "")}
           ${diagnostic ? `<div class="diagnostic">${this._escape(diagnostic)}</div>` : ""}
         </div>` : ""}
       </ha-card>`;
