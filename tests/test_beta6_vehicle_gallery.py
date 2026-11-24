@@ -55,7 +55,7 @@ def test_local_images_remain_supported_and_remote_hosts_are_validated():
     assert "url.hostname === \"upload.wikimedia.org\"" in source
 
 
-def test_beta6_manifest_version():
+def test_current_manifest_version_is_beta7():
     import json
 
     manifest = json.loads(
@@ -63,7 +63,7 @@ def test_beta6_manifest_version():
             encoding="utf-8"
         )
     )
-    assert manifest["version"] == "0.1.0-beta.6"
+    assert manifest["version"] == "0.1.0-beta.7"
 
 
 def test_lovelace_resource_uses_stable_url_without_long_lived_cache_headers():
