@@ -62,7 +62,8 @@ def test_upload_endpoint_requires_transparency_and_png_canvas():
     endpoint = (PACKAGE / "vehicle_images.py").read_text(encoding="utf-8")
     assert 'request.content_type != "image/png"' in endpoint
     assert 'if "A" not in image.getbands()' in endpoint
-    assert 'alpha_min == 255 or alpha_max == 0' in endpoint
+    assert "alpha_min == 255" in endpoint
+    assert "transparent_pixels < total_pixels * 0.12" in endpoint
     assert 'image.size != CANVAS_SIZE' in endpoint
 
 
