@@ -24,7 +24,7 @@ class VehicleImageUploadView(HomeAssistantView):
     def __init__(self, hass: HomeAssistant) -> None:
         self.hass = hass
 
-    async def post(self, request: web.Request) -> web.Response:
+    async def async_post(self, request: web.Request) -> web.Response:
         """Validate and persist a normalized transparent PNG."""
         if request.content_type != "image/png":
             raise web.HTTPUnsupportedMediaType(
@@ -41,9 +41,8 @@ class VehicleImageUploadView(HomeAssistantView):
                 max_size=MAX_IMAGE_BYTES, actual_size=len(body)
             )
 
+        from PIL import Image, UnidentifiedImageError
         try:
-            from PIL import Image, UnidentifiedImageError
-
             image = Image.open(io.BytesIO(body))
             if image.format != "PNG":
                 raise ValueError("Formato no permitido")
