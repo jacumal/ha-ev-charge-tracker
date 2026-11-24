@@ -632,6 +632,8 @@ test("beta 9 exposes the ordered vehicle catalog and private personal-image uplo
   assert.match(source, /Geely Galaxy Xingyuan/);
   assert.match(source, /BYD Seagull/);
   assert.match(source, /id="personalVehicleImage"/);
+  assert.match(source, /id="restoreVehicleImage"/);
+  assert.match(source, /_restoreCatalogVehicleImage/);
   assert.match(source, /value="__personal__">➕ Añadir una foto personal/);
   assert.match(source, /1200/);
   assert.match(source, /675/);
