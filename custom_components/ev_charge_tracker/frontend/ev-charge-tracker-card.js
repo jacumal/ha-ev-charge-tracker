@@ -192,8 +192,9 @@ class EVChargeTrackerCard extends HTMLElement {
       this.config.vehicle, this.config.name,
     ].filter(Boolean).join(" ");
     const isLeapmotorC10 = /c10/i.test(vehicleIdentityText) &&
-      (!vehicle.visual_brand || /leapmotor/i.test(vehicle.visual_brand) || /leapmotor/i.test(vehicleIdentityText));
-    const customImage = this._validVehicleImage(vehicle.visual_image) ? vehicle.visual_image : (isLeapmotorC10 ? "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp" : "");
+      (!vehicle.visual_brand || /leapmotor|leap/i.test(vehicle.visual_brand) || /leapmotor|leap/i.test(vehicleIdentityText));
+    const defaultC10Image = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp";
+    const customImage = this._validVehicleImage(vehicle.visual_image) ? vehicle.visual_image : (isLeapmotorC10 ? defaultC10Image : "");
     const imageCredit = vehicle.visual_image_credit || "";
     const imageLicense = vehicle.visual_image_license || "";
     const imageLicenseUrl = typeof vehicle.visual_image_license_url === "string" && /^https:\/\/creativecommons\.org\/(?:licenses|publicdomain)\//i.test(vehicle.visual_image_license_url) ? vehicle.visual_image_license_url : "";
@@ -510,8 +511,14 @@ class EVChargeTrackerCard extends HTMLElement {
     const customVehicleImage = typeof this.shadowRoot.querySelector === "function"
       ? this.shadowRoot.querySelector(".vehicle-image.custom") : null;
     if (customVehicleImage) customVehicleImage.addEventListener("error", () => {
+      const failedUrl = customVehicleImage.getAttribute("src") || "";
+      if (isLeapmotorC10 && failedUrl !== defaultC10Image && !customVehicleImage.dataset.c10FallbackAttempted) {
+        customVehicleImage.dataset.c10FallbackAttempted = "true";
+        customVehicleImage.src = defaultC10Image;
+        return;
+      }
       customVehicleImage.replaceWith(this._createFallbackVehicle(fallbackMarkup));
-    }, { once: true });
+    });
   }
 
   _createFallbackVehicle(markup) {
@@ -855,11 +862,18 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       }
       const imageNode = preview.querySelector("img");
       if (imageNode) imageNode.addEventListener("error", () => {
+        const failedUrl = imageNode.getAttribute("src") || "";
+        const defaultC10Image = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp";
+        if (isLeapmotorC10 && failedUrl !== defaultC10Image && !imageNode.dataset.c10FallbackAttempted) {
+          imageNode.dataset.c10FallbackAttempted = "true";
+          imageNode.src = defaultC10Image;
+          return;
+        }
         const fallback = document.createElement("div");
         fallback.className = "preview-fallback";
         fallback.textContent = "Imagen no disponible";
         imageNode.replaceWith(fallback);
-      }, { once: true });
+      });
     }
     const entityFields = this.shadowRoot.getElementById("entityFields");
     entityFields.classList.toggle("hidden", !this._manualMode);
