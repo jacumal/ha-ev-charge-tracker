@@ -36,7 +36,7 @@ def _text(metadata: dict, key: str) -> str:
 
 def _license_key(value: str) -> str:
     value = re.sub(r"<[^>]+>", " ", value).lower()
-    value = re.sub(r"\\s+", " ", value).strip()
+    value = re.sub(r"\s+", " ", value).strip()
     return value
 
 
