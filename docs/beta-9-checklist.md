@@ -2,13 +2,18 @@
 
 ## Repository / automated checks
 - [x] Version metadata set to `0.1.0-beta.9`.
-- [x] Catalog selector includes Leapmotor C10, B10 and T03.
+- [x] Packaged catalog contains the supplied 400 source rows: 200 BEV and 200 PHEV.
+- [x] Leapmotor B10 added as entry 401 because it was not in the source CSV.
+- [x] Selector groups the models into BEV and PHEV sections and preserves aliases and available FY2025 sales metadata.
 - [x] Catalog includes the 2025 global BEV leaders and representative European BEVs.
 - [x] The last selector option opens the personal image picker.
 - [x] Personal image upload uses the authenticated Home Assistant API.
 - [x] Uploaded files are stored only in the local Home Assistant `www/ev-charge-tracker/custom/` directory.
 - [x] Uploads are limited to 8 MB and normalized to 1200 × 675 PNG with alpha.
 - [x] C10 default render is served from the integration's local route.
+- [x] Added a Wikimedia Commons candidate discovery script with license/provenance filtering; it creates a review queue and does not auto-bundle images.
+- [ ] Review and approve a compatible photo/render for every model; preserve author, source page and license data.
+- [ ] Remove photo backgrounds and normalize every approved image to the agreed transparent 1200 × 675 visual standard.
 - [ ] Final GitHub Actions CI is green on the latest PR head.
 - [ ] Review generated HACS ZIP and confirm all new Python modules are packaged.
 
