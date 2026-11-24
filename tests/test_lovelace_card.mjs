@@ -488,19 +488,18 @@ test("editor selector tracks the catalog model while keeping image choice per ve
   assert.match(source, /next\.vehicle_visuals = \{ \.\.\.\(next\.vehicle_visuals \|\| \{\}\), \[visualKey\]: \{ \.\.\.next\.vehicle_visual \} \}/);
 });
 
-test("vehicle image gallery is present and queries Commons with machine-readable license metadata", () => {
-  assert.match(source, /Galería gratuita de vehículos/);
+test("beta 9 replaces new gallery selection with the catalog while retaining legacy Commons compatibility", () => {
+  assert.doesNotMatch(source, /Galería gratuita de vehículos/);
+  assert.match(source, /VEHICLE_CATALOG/);
+  assert.match(source, /__personal__/);
   assert.match(source, /https:\/\/commons\.wikimedia\.org\/w\/api\.php/);
-  assert.match(source, /iiprop:"url\|extmetadata"/);
   assert.match(source, /LicenseShortName/);
-  assert.match(source, /CC0/);
-  assert.match(source, /Public domain/);
-  assert.match(source, /CC BY-SA/);
 });
 
 test("only local images or HTTPS Wikimedia Commons uploads are accepted", () => {
   const card = createCardInstance();
   assert.equal(card._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
+  assert.equal(card._validVehicleImage("/local/ev-charge-tracker/custom/" + "b".repeat(64) + ".png"), true);
   assert.equal(card._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/C10.jpg/900px-C10.jpg"), true);
   assert.equal(card._validVehicleImage("http://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), false);
   assert.equal(card._validVehicleImage("https://example.com/c10.jpg"), false);
