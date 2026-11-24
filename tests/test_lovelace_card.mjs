@@ -181,14 +181,14 @@ test("shows live battery SOC and odometer from the selected profile entities", (
   assert.doesNotMatch(html, /Datos complementarios del vehículo/);
 });
 
-test("renders a transparent vehicle silhouette and cable state without a custom image", () => {
+test("renders the official transparent C10 image and cable state without a custom image", () => {
   const html = createCard(
     { name: "Leapmotor C10", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10", visual_color: "#AABBCC", visual_body_style: "suv" }, entities: { status: "sensor.status" } },
     { "sensor.status": { state: "idle", attributes: {} } },
   );
   assert.match(html, /vehicle-visual/);
   assert.match(html, /Leapmotor C10/);
-  assert.match(html, /leapmotor-c10-white\.webp/);
+  assert.ok(html.includes("https://www.leapmotor.net/_next/image"));
   assert.match(html, /state-unknown/);
   assert.match(html, /Conexión sin monitorizar/);
 });
@@ -564,7 +564,7 @@ test("card uses the bundled C10 image when the selected vehicle identity names C
     { name: "Leapmotor C10", entities: {} },
     {},
   );
-  assert.match(html, /\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp/);
+  assert.ok(html.includes("https://www.leapmotor.net/_next/image"));
   assert.match(html, /\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp/);
 });
 
@@ -578,19 +578,19 @@ test("card does not render the generic cartoon car when no vehicle image is conf
 test("editor preview derives the C10 default image from the selected profile identity", () => {
   assert.match(source, /const activeProfile = this\._profiles\.find\(item => item\.entry_id === this\._config\.profile_entry_id\)/);
   assert.match(source, /const identityText = \[visual\.visual_brand, visual\.visual_model, activeProfile\?\.vehicle_name, this\._config\.name\]/);
-  assert.match(source, /const image = this\._validVehicleImage\(visual\.visual_image\) \? visual\.visual_image : \(isLeapmotorC10 \? "\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp"/);
+  assert.match(source, /const image = this\._validVehicleImage\(visual\.visual_image\) \? visual\.visual_image : \(isLeapmotorC10 \? DEFAULT_C10_IMAGE_URL/);
   assert.match(source, /preview\.innerHTML = '<div class="preview-stage">' \+ imageOrFallback/);
 });
 
 
 test("uses the same verified official transparent C10 image in card and editor", () => {
   assert.match(source, /DEFAULT_C10_IMAGE_URL/);
-  assert.match(source, /www\\.leapmotor\\.net\\/_next\\/image/);
+  assert.ok(source.includes("www.leapmotor.net/_next/image"));
   assert.match(source, /officialC10Image/);
   const html = createCard(
     { name: "Leap C10", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" }, entities: {} },
   );
-  assert.match(html, /www\\.leapmotor\\.net\\/_next\\/image/);
+  assert.ok(html.includes("www.leapmotor.net/_next/image"));
   assert.match(html, /vehicle-image custom/);
   assert.match(source, /const image = this\\._validVehicleImage\\(visual\\.visual_image\\) \\? visual\\.visual_image : \\(isLeapmotorC10 \\? DEFAULT_C10_IMAGE_URL/);
 });
