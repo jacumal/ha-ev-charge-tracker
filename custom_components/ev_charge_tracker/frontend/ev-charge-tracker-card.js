@@ -565,7 +565,6 @@ class EVChargeTrackerCard extends HTMLElement {
 class EVChargeTrackerCardEditor extends HTMLElement {
   _validVehicleImage(value) {
     if (typeof value !== "string" || value.includes("..")) return false;
-    if (value === "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp") return true;
     if (/^\/local\/ev-charge-tracker\/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(value)) return true;
     try {
       const url = new URL(value);
