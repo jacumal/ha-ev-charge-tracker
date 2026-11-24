@@ -636,6 +636,6 @@ test("beta 9 exposes the ordered vehicle catalog and private personal-image uplo
   assert.match(source, /1200/);
   assert.match(source, /675/);
   assert.match(source, /api\/ev_charge_tracker\/vehicle-image/);
-  assert.match(source, /credentials/); // upload is authenticated with the HA bearer token
+  assert.match(source, /Authorization: "Bearer " \+ token/);
   assert.match(source, /vehicle-image/);
 });
