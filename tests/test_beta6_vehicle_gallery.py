@@ -33,8 +33,8 @@ def test_catalog_contains_all_400_source_models_plus_leapmotor_b10():
     assert all(vehicle["image"] for vehicle in vehicles if vehicle["id"] == "leapmotor-c10")
     card = CARD.read_text(encoding="utf-8")
     assert 'id="visual_catalog"' in card
-    assert "Híbridos enchufables (PHEV)" in card
-    assert "100 % eléctricos (BEV)" in card
+    assert "Híbridos enchufables (PHEV · " in card
+    assert "100 % eléctricos (BEV · " in card
 
 
 def test_c10_default_is_served_from_the_integration_not_a_remote_host():
