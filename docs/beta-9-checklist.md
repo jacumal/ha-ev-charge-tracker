@@ -25,6 +25,7 @@
 - [ ] Select different models on two vehicle profiles and verify their images do not overwrite each other.
 - [ ] Reopen the card editor and verify the selected image persists.
 - [ ] Restore the bundled C10 default after selecting a personal image.
+- [ ] Verify the restore control clears a personal image for models without a bundled default.
 - [ ] Check image composition on mobile/desktop and light/dark themes.
 
 ## Visual acceptance standard
