@@ -285,7 +285,8 @@ class EVChargeTrackerCard extends HTMLElement {
         .wrap[data-theme="light"] { --primary-text-color:#1d1d1f; --secondary-text-color:#6e6e73; --card-background-color:#ffffff; --secondary-background-color:#f5f5f7; --divider-color:#d2d2d7; --primary-color:#007aff; --success-color:#28a745; --warning-color:#c77c00; --ha-card-background:#ffffff; color-scheme:light; }
         .top { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
         .eyebrow { color:var(--secondary-text-color); font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase; }
-        h2 { margin:5px 0 0; font-size:21px; font-weight:650; letter-spacing:-.03em; }\n        .vehicle-header-details{margin-top:3px;color:var(--secondary-text-color);font-size:12px;line-height:1.35}
+        h2 { margin:5px 0 0; font-size:21px; font-weight:650; letter-spacing:-.03em; }
+        .vehicle-header-details{margin-top:3px;color:var(--secondary-text-color);font-size:12px;line-height:1.35}
         .status { display:inline-flex; align-items:center; gap:7px; border-radius:30px; padding:7px 11px; background:var(--secondary-background-color); color:var(--secondary-text-color); font-size:12px; white-space:nowrap; }
         .dot { width:7px; height:7px; border-radius:50%; background:var(--success-color,#43a66b); }
         .status.active .dot { background:var(--state-active-color,var(--primary-color)); }
@@ -583,7 +584,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       .hint{font-size:12px;color:var(--secondary-text-color);margin:7px 0 12px;line-height:1.45}
       .profile{margin:12px 0 18px;padding:15px;border:1px solid var(--divider-color);border-radius:16px;background:var(--secondary-background-color)}
       .vehicle-preview{display:flex;align-items:center;gap:12px;margin:12px 0;padding:12px;border-radius:14px;background:var(--card-background-color);min-height:62px}
-      .preview-stage{position:relative;width:112px;height:58px;flex:0 0 112px}.preview-stage img{width:100%;height:100%;object-fit:contain}.vehicle-preview .preview-fallback{width:100%;height:100%;border-radius:12px;background:linear-gradient(145deg,var(--secondary-background-color),var(--divider-color));display:grid;place-items:center;font-size:25px}.preview-port{position:absolute;width:9px;height:9px;border:2px solid var(--primary-color);border-radius:50%;background:var(--card-background-color);transform:translate(-50%,-50%);pointer-events:none}
+      .preview-stage{position:relative;width:112px;height:58px;flex:0 0 112px}.preview-stage img{width:100%;height:100%;object-fit:contain}.vehicle-preview .preview-fallback{width:100%;height:100%;box-sizing:border-box;padding:5px;border-radius:12px;background:linear-gradient(145deg,var(--secondary-background-color),var(--divider-color));display:grid;place-items:center;text-align:center;font-size:10px;line-height:1.2;overflow-wrap:anywhere}.preview-port{position:absolute;width:9px;height:9px;border:2px solid var(--primary-color);border-radius:50%;background:var(--card-background-color);transform:translate(-50%,-50%);pointer-events:none}
       .vehicle-preview strong{display:block;font-size:13px}.vehicle-preview small{display:block;margin-top:4px;color:var(--secondary-text-color);font-size:11px}
       .hidden{display:none}
       .gallery{margin:14px 0;padding:12px;border:1px solid var(--divider-color);border-radius:14px;background:var(--card-background-color)}
