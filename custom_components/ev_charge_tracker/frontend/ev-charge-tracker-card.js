@@ -684,7 +684,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
           <label class="field">Acabado<input id="visual_trim" maxlength="40"></label>
           <label class="field">Color<input id="visual_color" type="color"></label>
           <label class="field">Carrocería<select id="visual_body_style"><option value="suv">SUV</option><option value="sedan">Berlina</option><option value="hatchback">Compacto</option><option value="van">Furgoneta</option><option value="pickup">Pick-up</option></select></label>
-          <label class="field">Añadir fotografía personal<input id="personalVehicleImage" type="file" accept="image/png,image/webp"></label><p class="hint">PNG/WebP transparentes de hasta 8 MB. Se normalizan a 1200 × 675 px y se guardan localmente; no se envían a servicios externos.</p><input id="visual_image" type="hidden">
+          <label class="field">Añadir fotografía personal<input id="personalVehicleImage" type="file" accept="image/png,image/webp"></label><p class="hint">PNG/WebP transparentes de hasta 8 MB. Se normalizan a 1200 × 675 px y se guardan localmente; no se envían a servicios externos.</p><input id="visual_image" type="hidden"><button id="restoreVehicleImage" type="button">Restaurar imagen del catálogo</button>
           <label class="field">Puerto horizontal (0-100)<input id="visual_port_x" type="number" min="0" max="100"></label>
           <label class="field">Puerto vertical (0-100)<input id="visual_port_y" type="number" min="0" max="100"></label>
         </details>
@@ -714,6 +714,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     this.shadowRoot.getElementById("refreshProfiles").addEventListener("click", () => this._loadProfiles(true));
     this.shadowRoot.getElementById("visual_catalog").addEventListener("change", event => this._selectCatalogVehicle(event.target.value));
     this.shadowRoot.getElementById("personalVehicleImage").addEventListener("change", event => this._uploadPersonalVehicleImage(event.target.files?.[0]));
+    this.shadowRoot.getElementById("restoreVehicleImage").addEventListener("click", () => this._restoreCatalogVehicleImage());
     this.shadowRoot.getElementById("manualToggle").addEventListener("click", () => {
       this._manualMode = !this._manualMode;
       this._syncControls();
@@ -750,6 +751,24 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     if (feedback) feedback.textContent = item.image
       ? "Modelo seleccionado. Se ha aplicado su imagen predeterminada."
       : "Modelo seleccionado. Todavía no hay un render del catálogo con licencia y formato verificados; puedes añadir tu imagen personal.";
+  }
+
+  _restoreCatalogVehicleImage() {
+    const visual = this._config.vehicle_visual || {};
+    const item = VEHICLE_CATALOG.find(vehicle =>
+      vehicle.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() &&
+      vehicle.model.toLowerCase() === String(visual.visual_model || "").toLowerCase()
+    );
+    const next = { ...this._config, vehicle_visual: { ...visual, visual_image: item?.image || "" } };
+    for (const key of ["visual_image_credit","visual_image_license","visual_image_license_url","visual_image_page","visual_image_source"]) delete next.vehicle_visual[key];
+    next.vehicle_visual_override = true;
+    this._config = next;
+    this._syncControls();
+    this._updateConfig();
+    const feedback = this.shadowRoot.getElementById("editorFeedback");
+    if (feedback) feedback.textContent = item?.image
+      ? "Imagen predeterminada del modelo restaurada."
+      : "Se ha quitado la imagen personal. Este modelo todavía no tiene un render predeterminado incluido.";
   }
 
   async _uploadPersonalVehicleImage(file) {
