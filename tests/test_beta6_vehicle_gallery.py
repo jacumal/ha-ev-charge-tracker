@@ -32,7 +32,13 @@ def test_c10_default_is_served_from_the_integration_not_a_remote_host():
     init = (PACKAGE / "__init__.py").read_text(encoding="utf-8")
     assert 'DEFAULT_C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"' in source
     assert 'C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"' in init
-    assert (PACKAGE / "brand" / "leapmotor-c10-white.webp").is_file()
+    asset = PACKAGE / "brand" / "leapmotor-c10-white.webp"
+    assert asset.is_file()
+    from PIL import Image
+    with Image.open(asset) as image:
+        assert image.size[0] > 0 and image.size[1] > 0
+        assert "A" in image.getbands()
+        assert image.getchannel("A").getextrema()[0] < 255
     assert "www.leapmotor.net/_next/image" not in source
 
 
