@@ -91,9 +91,7 @@ class EVChargeTrackerCard extends HTMLElement {
       const url = new URL(value);
       const commonsImage = url.protocol === "https:" && url.hostname === "upload.wikimedia.org" &&
         /^\/wikipedia\/commons\/(?:thumb\/)?[A-Za-z0-9_./%()-]+\.(?:png|webp|jpe?g)(?:\/[^?#]+)?$/i.test(url.pathname);
-      const officialC10Image = url.protocol === "https:" && url.hostname === "www.leapmotor.net" &&
-        url.pathname === "/_next/image" && (url.searchParams.get("url") || "").startsWith("https://www.leapmotor.net/images/default-source/c10/pearl-white-(17).png");
-      return commonsImage || officialC10Image;
+      return commonsImage;
     } catch { return false; }
   }
 
@@ -602,9 +600,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const url = new URL(value);
       const commonsImage = url.protocol === "https:" && url.hostname === "upload.wikimedia.org" &&
         /^\/wikipedia\/commons\/(?:thumb\/)?[A-Za-z0-9_./%()-]+\.(?:png|webp|jpe?g)(?:\/[^?#]+)?$/i.test(url.pathname);
-      const officialC10Image = url.protocol === "https:" && url.hostname === "www.leapmotor.net" &&
-        url.pathname === "/_next/image" && (url.searchParams.get("url") || "").startsWith("https://www.leapmotor.net/images/default-source/c10/pearl-white-(17).png");
-      return commonsImage || officialC10Image;
+      return commonsImage;
     } catch { return false; }
   }
 
