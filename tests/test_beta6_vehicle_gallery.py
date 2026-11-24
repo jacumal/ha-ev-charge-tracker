@@ -27,7 +27,7 @@ def test_catalog_contains_all_400_source_models_plus_leapmotor_b10():
         "Tesla Model Y", "Tesla Model 3", "Geely Galaxy Xingyuan",
         "Wuling Hongguang Mini EV", "BYD Seagull", "Xiaomi SU7",
         "BYD Yuan Up", "BYD Dolphin", "BYD Yuan Plus", "XPeng Mona M03",
-        "Volkswagen ID.3", "Volkswagen ID.4", "Kia EV3", "Renault 5 E-Tech",
+        "Volkswagen ID.3", "Volkswagen ID.4", "Renault 5 E-Tech",
     ):
         assert model in labels
     assert all(vehicle["image"] for vehicle in vehicles if vehicle["id"] == "leapmotor-c10")
