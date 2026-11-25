@@ -4,39 +4,6 @@
 const CARD_VERSION = "0.6.0";
 const DEFAULT_C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/Leapmotor-C10.png";
 const DEFAULT_GENERIC_IMAGE_URL = "/ev_charge_tracker/vehicle-images/vehicle-generic.png";
-const DEFAULT_VEHICLE_CATALOG = [
-  ["leapmotor-c10","Leapmotor C10","Leapmotor","C10","suv","/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"],
-  ["leapmotor-b10","Leapmotor B10","Leapmotor","B10","suv",""],
-  ["leapmotor-t03","Leapmotor T03","Leapmotor","T03","hatchback",""],
-  ["tesla-model-y","Tesla Model Y","Tesla","Model Y","suv",""],
-  ["tesla-model-3","Tesla Model 3","Tesla","Model 3","sedan",""],
-  ["geely-galaxy-xingyuan","Geely Galaxy Xingyuan / EX2","Geely","Galaxy Xingyuan / EX2","hatchback",""],
-  ["wuling-mini-ev","Wuling Hongguang Mini EV","Wuling","Hongguang Mini EV","hatchback",""],
-  ["byd-seagull","BYD Seagull / Dolphin Surf","BYD","Seagull / Dolphin Surf","hatchback",""],
-  ["xiaomi-su7","Xiaomi SU7","Xiaomi","SU7","sedan",""],
-  ["byd-yuan-up","BYD Yuan UP / Atto 2","BYD","Yuan UP / Atto 2","suv",""],
-  ["byd-dolphin","BYD Dolphin","BYD","Dolphin","hatchback",""],
-  ["byd-yuan-plus","BYD Yuan Plus / Atto 3","BYD","Yuan Plus / Atto 3","suv",""],
-  ["xpeng-mona-m03","XPeng Mona M03","XPeng","Mona M03","sedan",""],
-  ["vw-id3","Volkswagen ID.3","Volkswagen","ID.3","hatchback",""],
-  ["vw-id4","Volkswagen ID.4","Volkswagen","ID.4","suv",""],
-  ["vw-id7","Volkswagen ID.7","Volkswagen","ID.7","sedan",""],
-  ["skoda-enyaq","Škoda Enyaq","Škoda","Enyaq","suv",""],
-  ["skoda-elroq","Škoda Elroq","Škoda","Elroq","suv",""],
-  ["hyundai-kona-electric","Hyundai Kona Electric","Hyundai","Kona Electric","suv",""],
-  ["hyundai-ioniq-5","Hyundai IONIQ 5","Hyundai","IONIQ 5","suv",""],
-  ["kia-ev3","Kia EV3","Kia","EV3","suv",""],
-  ["kia-ev6","Kia EV6","Kia","EV6","suv",""],
-  ["kia-ev9","Kia EV9","Kia","EV9","suv",""],
-  ["renault-5","Renault 5 E-Tech","Renault","5 E-Tech","hatchback",""],
-  ["renault-megane","Renault Megane E-Tech","Renault","Megane E-Tech","hatchback",""],
-  ["volvo-ex30","Volvo EX30","Volvo","EX30","suv",""],
-  ["mg4","MG4 Electric","MG","4 Electric","hatchback",""],
-  ["ford-mach-e","Ford Mustang Mach-E","Ford","Mustang Mach-E","suv",""],
-  ["bmw-ix1","BMW iX1","BMW","iX1","suv",""],
-  ["bmw-i4","BMW i4","BMW","i4","sedan",""],
-].map(([id,label,brand,model,body,image]) => ({id,label,brand,model,body,image}));
-
 class EVChargeTrackerCard extends HTMLElement {
   setConfig(config) {
     // Home Assistant calls setConfig with the stub while the user is still
@@ -619,7 +586,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     this._galleryResults = [];
     this._gallerySequence = 0;
     this._galleryQueryEdited = false;
-    this._vehicleCatalog = DEFAULT_VEHICLE_CATALOG.map(item => ({ ...item, technology: "BEV", aliases: [] }));
+    this._vehicleCatalog = [];
     this._vehicleCatalogLoaded = false;
     this._vehicleCatalogLoading = false;
     this._vehicleCatalogAttempted = false;
@@ -651,12 +618,18 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const response = await fetch(url, { credentials: "same-origin", cache: "no-store" });
       if (!response.ok) throw new Error("HTTP " + response.status);
       const payload = await response.json();
-      if (!Array.isArray(payload.vehicles) || payload.vehicles.length < 400) throw new Error("Catálogo incompleto");
-      this._vehicleCatalog = payload.vehicles;
+      if (!Array.isArray(payload.vehicles)) throw new Error("La galería local no tiene un formato válido");
+      this._vehicleCatalog = payload.vehicles.filter(item =>
+        item && typeof item.id === "string" && typeof item.brand === "string" &&
+        typeof item.model === "string" && this._validVehicleImage(item.image) &&
+        item.image.startsWith("/ev_charge_tracker/vehicle-images/")
+      );
       this._vehicleCatalogLoaded = true;
       this._syncControls();
     } catch (error) {
-      console.warn("ChargeTrack: no se pudo cargar el catálogo local de vehículos; se mantiene el catálogo de reserva.", error);
+      console.warn("ChargeTrack: no se pudo cargar la galería local de imágenes.", error);
+      this._vehicleCatalog = [];
+      this._syncControls();
     } finally {
       this._vehicleCatalogLoading = false;
     }
@@ -704,7 +677,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         <div id="profileHint" class="hint"></div>
         <div id="vehiclePreview" class="vehicle-preview" aria-live="polite"></div>
         <details id="vehicleEditor"><summary>Personalizar identidad y puerto de carga</summary>
-          <p class="hint">Elige un vehículo con imagen disponible, usa el vehículo genérico o sube tu propia imagen. Para que encajen el cable y el conector animados: vista de tres cuartos delantero, morro hacia la derecha, coche completo sin recortes, centrado, fondo transparente y lienzo PNG de 1200 × 675 px. Mantén una escala similar a las imágenes del catálogo. La imagen se guarda solo en este Home Assistant.</p>
+          <p class="hint">El selector solo muestra modelos con una imagen incluida en ChargeTrack. Si tu coche no aparece, elige «Vehículo genérico» o sube una foto personal. Para que el coche, el puerto y el cable animado encajen bien, prepara una imagen con estas características: vista exterior frontal de tres cuartos (se vean el frontal y un lateral), morro orientado hacia la derecha, vehículo completo sin recortar, centrado y ocupando aproximadamente el 80–90 % del ancho del lienzo, fondo realmente transparente (canal alfa, no un damero), PNG de 1200 × 675 px. Usa una escala y altura de ruedas parecidas a los renders incluidos y, si es posible, deja visible el puerto de carga. Evita fondos, sombras duras, textos, marcas de agua y perspectivas desde arriba. La imagen se guarda únicamente en este Home Assistant.</p>
           <label class="field">Modelo del vehículo<select id="visual_catalog"><option value="">Vehículo personalizado / no catalogado</option></select></label>
           <label class="field">Marca<input id="visual_brand" maxlength="40"></label>
           <label class="field">Modelo<input id="visual_model" maxlength="50"></label>
@@ -713,7 +686,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
           <label class="field">Acabado<input id="visual_trim" maxlength="40"></label>
           <label class="field">Color<input id="visual_color" type="color"></label>
           <label class="field">Carrocería<select id="visual_body_style"><option value="suv">SUV</option><option value="sedan">Berlina</option><option value="hatchback">Compacto</option><option value="van">Furgoneta</option><option value="pickup">Pick-up</option></select></label>
-          <label class="field">Añadir fotografía personal<input id="personalVehicleImage" type="file" accept="image/png,image/webp"></label><p class="hint">PNG/WebP transparentes de hasta 8 MB. Se normalizan a 1200 × 675 px y se guardan localmente; no se envían a servicios externos.</p><input id="visual_image" type="hidden"><button id="restoreVehicleImage" type="button">Restaurar imagen del catálogo</button>
+          <label class="field">Añadir fotografía personal<input id="personalVehicleImage" type="file" accept="image/png,image/webp"></label><p class="hint">Admite PNG o WebP con transparencia real, hasta 8 MB. ChargeTrack recorta el espacio transparente sobrante, centra el coche y lo normaliza a PNG de 1200 × 675 px. No se envía a ningún servicio externo.</p><input id="visual_image" type="hidden"><button id="restoreVehicleImage" type="button">Restaurar imagen predeterminada</button>
           <label class="field">Puerto horizontal (0-100)<input id="visual_port_x" type="number" min="0" max="100"></label>
           <label class="field">Puerto vertical (0-100)<input id="visual_port_y" type="number" min="0" max="100"></label>
         </details>
@@ -1017,7 +990,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const visual = this._config.vehicle_visual || {};
     const profile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
     const catalog = this.shadowRoot.getElementById("visual_catalog");
-    if (catalog && catalog.dataset.catalogVersion !== (this._vehicleCatalogLoaded ? "full-401" : "fallback")) {
+    if (catalog && catalog.dataset.catalogVersion !== "images-only-v2") {
       const available = this._vehicleCatalog
         .filter(item => Boolean(item.image))
         .sort((a, b) => a.brand.localeCompare(b.brand, "es") || a.model.localeCompare(b.model, "es"));
@@ -1032,7 +1005,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       catalog.innerHTML = '<option value="">Selecciona un vehículo…</option>' + options +
         '<option value="__generic__">Vehículo genérico</option>' +
         '<option value="__personal__">➕ Añadir una foto personal</option>';
-      catalog.dataset.catalogVersion = this._vehicleCatalogLoaded ? "images-only-v1" : "fallback-v1";
+      catalog.dataset.catalogVersion = "images-only-v2";
     }
     const matchingCatalog = this._vehicleCatalog.find(item =>
       item.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() &&
