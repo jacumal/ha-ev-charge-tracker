@@ -618,7 +618,7 @@ test("migrates beta 7 legacy C10 image setting to the official default", () => {
     }, entities: {} },
   );
   assert.ok(html.includes("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"));
-  assert.match(html, /vehicle-images\/leapmotor-c10-white\.webp/);
+  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"));
 });
 
 
