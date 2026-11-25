@@ -3,6 +3,7 @@
  */
 const CARD_VERSION = "0.6.0";
 const DEFAULT_C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/Leapmotor-C10.png";
+const DEFAULT_GENERIC_IMAGE_URL = "/ev_charge_tracker/vehicle-images/vehicle-generic.png";
 const DEFAULT_VEHICLE_CATALOG = [
   ["leapmotor-c10","Leapmotor C10","Leapmotor","C10","suv","/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"],
   ["leapmotor-b10","Leapmotor B10","Leapmotor","B10","suv",""],
@@ -228,7 +229,7 @@ class EVChargeTrackerCard extends HTMLElement {
     const isLeapmotorC10 = /c10/i.test(vehicle.visual_model || vehicleIdentityText) &&
       (!vehicle.visual_brand || /leapmotor/i.test(vehicle.visual_brand));
     const usingDefaultC10Image = isLeapmotorC10 && !this._validVehicleImage(vehicle.visual_image);
-    const customImage = this._validVehicleImage(vehicle.visual_image) ? vehicle.visual_image : (isLeapmotorC10 ? DEFAULT_C10_IMAGE_URL : "");
+    const customImage = this._validVehicleImage(vehicle.visual_image) ? vehicle.visual_image : (isLeapmotorC10 ? DEFAULT_C10_IMAGE_URL : DEFAULT_GENERIC_IMAGE_URL);
     const imageCredit = vehicle.visual_image_credit || (usingDefaultC10Image ? "Leapmotor" : "");
     const imageLicense = vehicle.visual_image_license || "";
     const imageLicenseUrl = typeof vehicle.visual_image_license_url === "string" && /^https:\/\/creativecommons\.org\/(?:licenses|publicdomain)\//i.test(vehicle.visual_image_license_url) ? vehicle.visual_image_license_url : "";
@@ -1023,7 +1024,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         const items = available.filter(item => item.brand === brand);
         return '<optgroup label="' + this._esc(brand) + '">' + items.map(item =>
           '<option value="' + this._esc(item.id) + '" title="' + this._esc((item.aliases || []).join(" · ")) + '">' +
-          this._esc(item.label) + '</option>'
+          this._esc([item.brand, item.model].filter(Boolean).join(" ")) + '</option>'
         ).join("") + '</optgroup>';
       }).join("");
       catalog.innerHTML = '<option value="">Selecciona un vehículo…</option>' + options +
