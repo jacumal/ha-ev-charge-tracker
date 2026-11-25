@@ -884,7 +884,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       next.vehicle_visual_override = true;
       this._config = next;
       this._updateConfig();
-      if (feedback) feedback.textContent = "Imagen personal guardada en este Home Assistant. Pulsa Guardar en el editor del panel.";
+      if (feedback) feedback.textContent = "Imagen guardada en este Home Assistant y aplicada a la vista previa. Para verla en el dashboard, pulsa Guardar en el editor del panel.";
     } catch (error) {
       if (feedback) feedback.textContent = error?.message || "No se pudo guardar la imagen.";
     } finally {
@@ -1129,8 +1129,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       let value = field.value.trim();
       if (key === "image") {
         const validPath = new RegExp("^/local/ev-charge-tracker/(?:custom/)?[A-Za-z0-9_-][A-Za-z0-9._-]*[.](png|webp)$", "i").test(value) && !value.includes("..");
+        const validBundled = /^\/ev_charge_tracker\/vehicle-images\/[A-Za-z0-9 _.-]+\.(png|webp)$/i.test(value) && !value.includes("..");
         const validCommons = this._validVehicleImage(value);
-        if (value && !validPath && !validCommons) { field.setCustomValidity("Usa una ruta local o una imagen seleccionada de Wikimedia Commons."); imagePathError = true; value = ""; }
+        if (value && !validPath && !validBundled && !validCommons) { field.setCustomValidity("Usa una imagen del catálogo, una ruta local o una imagen seleccionada de Wikimedia Commons."); imagePathError = true; value = ""; }
         else field.setCustomValidity("");
       }
       if (key === "color" && !new RegExp("^#[0-9a-f]{6}$", "i").test(value)) value = "#71869A";
