@@ -269,7 +269,7 @@ class EVChargeTrackerCard extends HTMLElement {
       pickup: "M22 62 L32 43 Q37 36 53 35 L72 21 L132 21 L145 37 L187 37 L208 54 L214 77 L22 77 Z",
     };
     const fallbackMarkup = '<div class="vehicle-image fallback" role="img" aria-label="' +
-      this._escape(vehicleLabel) + '"><span>Imagen del vehículo no disponible</span></div>';
+      this._escape(vehicleLabel) + '"><span>Vehículo genérico</span></div>';
     const vehicleMarkup = '<div class="vehicle-visual">' +
       '<div class="vehicle-stage state-' + visualState + '" style="--vehicle-color:' + visualColor + '">' +
       (customImage
@@ -1029,7 +1029,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       }).join("");
       catalog.innerHTML = '<option value="">Selecciona un vehículo…</option>' + options +
         '<option value="__generic__">Vehículo genérico</option>' +
-        '<option value="__personal__">Subir imagen propia…</option>';
+        '<option value="__personal__">➕ Añadir una foto personal</option>';
       catalog.dataset.catalogVersion = this._vehicleCatalogLoaded ? "images-only-v1" : "fallback-v1";
     }
     const matchingCatalog = this._vehicleCatalog.find(item =>
@@ -1075,7 +1075,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const activeProfile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
       const identityText = [visual.visual_brand, visual.visual_model, activeProfile?.vehicle_name, this._config.name].filter(Boolean).join(" ");
       const isLeapmotorC10 = /c10/i.test(identityText) && (!visual.visual_brand || /leapmotor/i.test(visual.visual_brand) || /leapmotor/i.test(identityText));
-      const image = this._validVehicleImage(visual.visual_image) ? visual.visual_image : (isLeapmotorC10 ? DEFAULT_C10_IMAGE_URL : "");
+      const image = this._validVehicleImage(visual.visual_image) ? visual.visual_image : (isLeapmotorC10 ? DEFAULT_C10_IMAGE_URL : DEFAULT_GENERIC_IMAGE_URL);
       const defaultPortX = isLeapmotorC10 ? 83 : 67;
       const defaultPortY = isLeapmotorC10 ? 57 : 44;
       const rawPortX = Number(visual.visual_port_x ?? defaultPortX);
@@ -1084,7 +1084,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       const portY = Number.isFinite(rawPortY) ? Math.min(100, Math.max(0, rawPortY)) : defaultPortY;
       const imageOrFallback = image
         ? '<img src="' + this._esc(image) + '" alt="' + this._esc(label) + '">'
-        : '<div class="preview-fallback" role="img" aria-label="Imagen del vehículo no disponible">Imagen del vehículo no disponible</div>';
+        : '<div class="preview-fallback" role="img" aria-label="Vehículo genérico">Vehículo genérico</div>';
       preview.innerHTML = '<div class="preview-stage">' + imageOrFallback +
         '<i class="preview-port" style="left:' + portX + '%;top:' + portY + '%"></i></div>' +
         '<div><strong>' + this._esc(label) + '</strong><small>' + this._esc(details || "Vista previa de identidad del vehículo") + '</small></div>';
