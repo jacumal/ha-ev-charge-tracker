@@ -2,9 +2,9 @@
  * Copyright (c) ChargeTrack contributors. MIT.
  */
 const CARD_VERSION = "0.6.0";
-const DEFAULT_C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp";
+const DEFAULT_C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/Leapmotor-C10.png";
 const DEFAULT_VEHICLE_CATALOG = [
-  ["leapmotor-c10","Leapmotor C10","Leapmotor","C10","suv","/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"],
+  ["leapmotor-c10","Leapmotor C10","Leapmotor","C10","suv","/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"],
   ["leapmotor-b10","Leapmotor B10","Leapmotor","B10","suv",""],
   ["leapmotor-t03","Leapmotor T03","Leapmotor","T03","hatchback",""],
   ["tesla-model-y","Tesla Model Y","Tesla","Model Y","suv",""],
