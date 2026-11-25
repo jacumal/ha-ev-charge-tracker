@@ -13,37 +13,38 @@ def test_manifest_is_beta9():
     assert manifest["version"] == "0.1.0-beta.9"
 
 
-def test_catalog_contains_all_400_source_models_plus_leapmotor_b10():
+def test_catalog_contains_only_models_with_bundled_vehicle_images():
     catalog = json.loads((PACKAGE / "vehicle_catalog.json").read_text(encoding="utf-8"))
     vehicles = catalog["vehicles"]
-    assert catalog["source_row_count"] == 400
-    assert len(vehicles) == 401
-    assert len({vehicle["id"] for vehicle in vehicles}) == 401
-    assert sum(vehicle["technology"] == "BEV" for vehicle in vehicles) == 201
-    assert sum(vehicle["technology"] == "PHEV" for vehicle in vehicles) == 200
-    labels = {vehicle["label"] for vehicle in vehicles}
-    for model in (
-        "Leapmotor B10", "Leapmotor C10", "Leapmotor T03",
-        "Tesla Model Y", "Tesla Model 3", "Geely Galaxy Xingyuan",
-        "Wuling Hongguang Mini EV", "BYD Seagull", "Xiaomi SU7",
-        "BYD Yuan Up", "BYD Dolphin", "BYD Yuan Plus", "XPeng Mona M03",
-        "Volkswagen ID.3", "Volkswagen ID.4", "Renault 5 E-Tech",
-    ):
-        assert model in labels
-    assert all(vehicle["image"] for vehicle in vehicles if vehicle["id"] == "leapmotor-c10")
-    tesla = next(vehicle for vehicle in vehicles if vehicle["id"] == "tesla-model-y")
-    assert tesla["image_status"] == "bundled_user_provided_asset_provenance_review"
-    assert tesla["image_source"] == "User-provided vehicle render bundle"
-    assert tesla["image_author"] == ""
-    assert tesla["image_license"] == "Unspecified; review required"
-    assert tesla["image_source_page"] == ""
+    assert catalog["source_row_count"] == 18
+    assert len(vehicles) == 18
+    assert len({vehicle["id"] for vehicle in vehicles}) == 18
+    assert all(vehicle["image"] for vehicle in vehicles)
+    assert all(vehicle["image"].startswith("/ev_charge_tracker/vehicle-images/") for vehicle in vehicles)
+    assert {vehicle["label"] for vehicle in vehicles} >= {
+        "Leapmotor B10", "Leapmotor C10", "Tesla Model Y", "Tesla Model 3",
+        "BYD Dolphin", "BYD Seagull", "Xiaomi SU7", "XPeng Mona M03",
+    }
+    assets = PACKAGE / "brand" / "vehicle-images"
+    from PIL import Image
+    for vehicle in vehicles:
+        filename = vehicle["image"].rsplit("/", 1)[-1]
+        asset = assets / filename
+        assert asset.is_file(), f"Missing bundled image: {filename}"
+        with Image.open(asset) as image:
+            assert image.width > 0 and image.height > 0
+            assert "A" in image.getbands(), f"Image has no alpha channel: {filename}"
+            alpha_min, alpha_max = image.getchannel("A").getextrema()
+            assert alpha_min < 255 and alpha_max > 0, f"Image is not transparent: {filename}"
+    generic = assets / "vehicle-generic.png"
+    assert generic.is_file()
     card = CARD.read_text(encoding="utf-8")
     assert 'id="visual_catalog"' in card
-    assert "Híbridos enchufables (PHEV · " not in card
-    assert "100 % eléctricos (BEV · " not in card
     assert 'option value="__generic__">Vehículo genérico' in card
     assert 'option value="__personal__">➕ Añadir una foto personal' in card
-    assert '.filter(item => Boolean(item.image))' in card
+    assert "DEFAULT_VEHICLE_CATALOG" not in card
+    assert "full-401" not in card
+    assert "morro hacia la derecha" in card
 
 
 def test_c10_default_is_served_from_the_integration_not_a_remote_host():
@@ -93,7 +94,7 @@ def test_card_resource_uses_stable_url_and_local_asset_route():
     assert 'StaticPathConfig(VEHICLE_IMAGES_URL' in init
     assert 'VEHICLE_CATALOG_URL = "/ev_charge_tracker/vehicle-catalog.json"' in init
     assert 'StaticPathConfig(VEHICLE_CATALOG_URL' in init
-    assert (PACKAGE / "vehicle_catalog.json").is_file()
+    assert len(json.loads((PACKAGE / "vehicle_catalog.json").read_text(encoding="utf-8"))["vehicles"]) == 18
 
 
 def test_brand_assets_keep_marketplace_ready_dimensions():
