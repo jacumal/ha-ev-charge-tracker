@@ -38,16 +38,19 @@ def test_catalog_contains_all_400_source_models_plus_leapmotor_b10():
     assert tesla["image_source_page"].startswith("https://commons.wikimedia.org/wiki/File:")
     card = CARD.read_text(encoding="utf-8")
     assert 'id="visual_catalog"' in card
-    assert "Híbridos enchufables (PHEV · " in card
-    assert "100 % eléctricos (BEV · " in card
+    assert "Híbridos enchufables (PHEV · " not in card
+    assert "100 % eléctricos (BEV · " not in card
+    assert 'option value="__generic__">Vehículo genérico' in card
+    assert 'option value="__personal__">Subir imagen propia…' in card
+    assert '.filter(item => Boolean(item.image))' in card
 
 
 def test_c10_default_is_served_from_the_integration_not_a_remote_host():
     source = CARD.read_text(encoding="utf-8")
     init = (PACKAGE / "__init__.py").read_text(encoding="utf-8")
-    assert 'DEFAULT_C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"' in source
-    assert 'C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"' in init
-    asset = PACKAGE / "brand" / "leapmotor-c10-white.webp"
+    assert 'DEFAULT_C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"' in source
+    assert 'VEHICLE_IMAGES_URL = "/ev_charge_tracker/vehicle-images"' in init
+    asset = PACKAGE / "brand" / "vehicle-images" / "Leapmotor-C10.png"
     assert asset.is_file()
     from PIL import Image
     with Image.open(asset) as image:
