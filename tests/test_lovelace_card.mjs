@@ -188,7 +188,7 @@ test("renders the official transparent C10 image and cable state without a custo
   );
   assert.match(html, /vehicle-visual/);
   assert.match(html, /Leapmotor C10/);
-  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"));
+  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"));
   assert.match(html, /state-unknown/);
   assert.match(html, /Conexión sin monitorizar/);
 });
@@ -551,7 +551,7 @@ test("Leapmotor C10 default cable anchor is on the rear-left quarter", () => {
 
 test("editor image validation is available independently from the card class", () => {
   const editor = createEditorInstance();
-  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"), false);
+  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"), false);
   assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
   assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/custom/" + "a".repeat(64) + ".png"), true);
   assert.equal(editor._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), true);
@@ -564,7 +564,7 @@ test("card uses the bundled C10 image when the selected vehicle identity names C
     { name: "Leapmotor C10", entities: {} },
     {},
   );
-  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"));
+  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"));
 });
 
 test("card does not render the generic cartoon car when no vehicle image is configured", () => {
@@ -584,12 +584,12 @@ test("editor preview derives the C10 default image from the selected profile ide
 
 test("uses the same verified official transparent C10 image in card and editor", () => {
   assert.match(source, /DEFAULT_C10_IMAGE_URL/);
-  assert.ok(source.includes("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"));
+  assert.ok(source.includes("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"));
   assert.doesNotMatch(source, /officialC10Image/);
   const html = createCard(
     { name: "Leap C10", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" }, entities: {} },
   );
-  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"));
+  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"));
   assert.match(html, /vehicle-image custom/);
 });
 
@@ -605,10 +605,10 @@ test("migrates beta 7 legacy C10 image setting to the official default", () => {
   const html = createCard(
     { name: "Leapmotor C10", vehicle_visual: {
       visual_brand: "Leapmotor", visual_model: "C10",
-      visual_image: "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp",
+      visual_image: "/ev_charge_tracker/vehicle-images/Leapmotor-C10.png",
     }, entities: {} },
   );
-  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"));
+  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"));
   assert.match(html, /vehicle-images\/leapmotor-c10-white\.webp/);
 });
 
