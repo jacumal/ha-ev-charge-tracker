@@ -1,14 +1,38 @@
-# ChargeTrack bundled vehicle images
+# ChargeTrack — galería de vehículos
 
-Place the approved, individually prepared vehicle PNG assets in this directory.
+Esta carpeta contiene las imágenes locales de los vehículos que se muestran en la tarjeta.
 
-## Asset requirements
+## Estructura
 
-- PNG, 1200 × 675 pixels
-- Real transparent background (RGBA alpha; no checkerboard pixels)
-- Full vehicle visible, no labels or captions
-- Consistent front three-quarter view and orientation matching the Leapmotor C10 reference
-- Consistent vehicle scale and composition
-- Use lowercase kebab-case filenames matching the vehicle catalog ID where possible (for example, `leapmotor-b10.png`, `tesla-model-3.png`)
+```text
+vehicle-images/
+├── bev/       # Vehículos 100 % eléctricos
+├── phev/      # Híbridos enchufables
+└── generic/   # Imagen genérica para vehículos sin imagen propia
+```
 
-Do not add collage sheets here. Add one vehicle per PNG. Before the images are wired into the catalog and served by the integration, verify visual quality, transparency, source/provenance and redistribution rights.
+## Requisitos de imagen
+
+- Un archivo por vehículo; nunca subir composiciones ni cuadrículas.
+- PNG, lienzo de 1200 × 675 px.
+- Transparencia real (canal alfa); no damero dibujado en el fondo ni en los cristales.
+- Vehículo completo, sin recortes.
+- Orientación coherente con la referencia Leapmotor C10: frontal tres cuartos, morro hacia la izquierda.
+- Encuadre y escala lo más homogéneos posible.
+- Nombre de archivo igual al identificador del catálogo, en minúsculas y con guiones. Ejemplos: `leapmotor-b10.png`, `byd-dolphin.png`, `tesla-model-3.png`.
+
+## Dónde subir cada imagen
+
+- BEV: `bev/<vehicle_id>.png`
+- PHEV: `phev/<vehicle_id>.png`
+- Imagen genérica: `generic/vehicle-generic.png`
+
+El identificador del vehículo se consulta en `vehicle_catalog.json`. El catálogo completo permanece como fuente interna; el selector de la tarjeta solo debe mostrar los vehículos que tengan una imagen propia disponible, además de las opciones genérica y de imagen personal.
+
+## Incorporación a la tarjeta
+
+Subir un PNG a GitHub no lo incorpora automáticamente a Home Assistant. Después hay que registrar su ruta en el catálogo y asegurarse de que la integración sirve la carpeta de imágenes como recurso estático. No marcar una imagen como disponible hasta validar el archivo, su transparencia, la identificación del modelo y los derechos de uso y redistribución.
+
+## Licencias y procedencia
+
+Para cada imagen de terceros, conservar la página de origen, autor y licencia. No asumir que una licencia del archivo cubre automáticamente los derechos sobre el diseño o las marcas del vehículo.
