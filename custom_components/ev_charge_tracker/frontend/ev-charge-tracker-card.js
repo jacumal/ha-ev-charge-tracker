@@ -1016,7 +1016,11 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       item.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() &&
       item.model.toLowerCase() === String(visual.visual_model || "").toLowerCase()
     );
-    if (catalog && this.shadowRoot.activeElement !== catalog) catalog.value = matchingCatalog?.id || "";
+    const isGenericVisual = String(visual.visual_brand || "").toLowerCase() === "genérico" ||
+      String(visual.visual_model || "").toLowerCase() === "vehículo";
+    if (catalog && this.shadowRoot.activeElement !== catalog) {
+      catalog.value = isGenericVisual ? "__generic__" : (matchingCatalog?.id || "");
+    }
     ["brand","model","generation","year","trim","color","body_style","image","port_x","port_y"].forEach(key => {
       const field = this.shadowRoot.getElementById("visual_" + key);
       if (field && field !== this.shadowRoot.activeElement) {
