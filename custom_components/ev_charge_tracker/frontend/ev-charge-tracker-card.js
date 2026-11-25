@@ -701,7 +701,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         <div id="profileHint" class="hint"></div>
         <div id="vehiclePreview" class="vehicle-preview" aria-live="polite"></div>
         <details id="vehicleEditor"><summary>Personalizar identidad y puerto de carga</summary>
-          <p class="hint">Selecciona un modelo del catálogo o añade una imagen personal. Usa siempre tres cuartos delantero, morro hacia la derecha, coche completo y fondo transparente. Las imágenes personales se guardan solo en este Home Assistant.</p>
+          <p class="hint">Elige un vehículo con imagen disponible, usa el vehículo genérico o sube tu propia imagen. Para que encajen el cable y el conector animados: vista de tres cuartos delantero, morro hacia la derecha, coche completo sin recortes, centrado, fondo transparente y lienzo PNG de 1200 × 675 px. Mantén una escala similar a las imágenes del catálogo. La imagen se guarda solo en este Home Assistant.</p>
           <label class="field">Modelo del vehículo<select id="visual_catalog"><option value="">Vehículo personalizado / no catalogado</option></select></label>
           <label class="field">Marca<input id="visual_brand" maxlength="40"></label>
           <label class="field">Modelo<input id="visual_model" maxlength="50"></label>
@@ -756,6 +756,16 @@ class EVChargeTrackerCardEditor extends HTMLElement {
   }
 
   _selectCatalogVehicle(id) {
+    if (id === "__generic__") {
+      const next = { ...this._config, vehicle_visual: { ...(this._config.vehicle_visual || {}) } };
+      Object.assign(next.vehicle_visual, { visual_brand: "Genérico", visual_model: "Vehículo", visual_image: "/ev_charge_tracker/vehicle-images/vehicle-generic.png" });
+      for (const key of ["visual_image_credit","visual_image_license","visual_image_license_url","visual_image_page","visual_image_source"]) delete next.vehicle_visual[key];
+      next.vehicle_visual_override = true;
+      this._config = next;
+      this._syncControls();
+      this._updateConfig();
+      return;
+    }
     if (id === "__personal__") {
       const picker = this.shadowRoot.getElementById("personalVehicleImage");
       if (picker) picker.click();
@@ -1005,19 +1015,21 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const profile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
     const catalog = this.shadowRoot.getElementById("visual_catalog");
     if (catalog && catalog.dataset.catalogVersion !== (this._vehicleCatalogLoaded ? "full-401" : "fallback")) {
-      const bevCount = this._vehicleCatalog.filter(item => item.technology === "BEV").length;
-      const phevCount = this._vehicleCatalog.filter(item => item.technology === "PHEV").length;
-      const groups = [["BEV", "100 % eléctricos (BEV · " + bevCount + ")"], ["PHEV", "Híbridos enchufables (PHEV · " + phevCount + ")"]];
-      const options = groups.map(([technology, label]) => {
-        const items = this._vehicleCatalog.filter(item => item.technology === technology);
-        return '<optgroup label="' + label + '">' + items.map(item =>
+      const available = this._vehicleCatalog
+        .filter(item => Boolean(item.image))
+        .sort((a, b) => a.brand.localeCompare(b.brand, "es") || a.model.localeCompare(b.model, "es"));
+      const brands = [...new Set(available.map(item => item.brand))];
+      const options = brands.map(brand => {
+        const items = available.filter(item => item.brand === brand);
+        return '<optgroup label="' + this._esc(brand) + '">' + items.map(item =>
           '<option value="' + this._esc(item.id) + '" title="' + this._esc((item.aliases || []).join(" · ")) + '">' +
-          this._esc(item.label) + (item.image ? '' : ' · imagen pendiente') + '</option>'
+          this._esc(item.label) + '</option>'
         ).join("") + '</optgroup>';
       }).join("");
       catalog.innerHTML = '<option value="">Selecciona un vehículo…</option>' + options +
-        '<option value="__personal__">➕ Añadir una foto personal</option>';
-      catalog.dataset.catalogVersion = this._vehicleCatalogLoaded ? "full-401" : "fallback";
+        '<option value="__generic__">Vehículo genérico</option>' +
+        '<option value="__personal__">Subir imagen propia…</option>';
+      catalog.dataset.catalogVersion = this._vehicleCatalogLoaded ? "images-only-v1" : "fallback-v1";
     }
     const matchingCatalog = this._vehicleCatalog.find(item =>
       item.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() &&
