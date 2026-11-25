@@ -89,7 +89,7 @@ def test_card_resource_uses_stable_url_and_local_asset_route():
     init = (PACKAGE / "__init__.py").read_text(encoding="utf-8")
     assert 'CARD_URL = "/ev_charge_tracker/ev-charge-tracker-card.js"' in init
     assert "cache_headers=False" in init
-    assert 'StaticPathConfig(C10_IMAGE_URL' in init
+    assert 'StaticPathConfig(VEHICLE_IMAGES_URL' in init
     assert 'VEHICLE_CATALOG_URL = "/ev_charge_tracker/vehicle-catalog.json"' in init
     assert 'StaticPathConfig(VEHICLE_CATALOG_URL' in init
     assert (PACKAGE / "vehicle_catalog.json").is_file()
