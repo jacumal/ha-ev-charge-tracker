@@ -46,7 +46,7 @@ Add the Lovelace resource as a **JavaScript Module**:
 
 The version query is a cache-busting value; update it when installing a newer beta so the browser requests the new card file.
 
-- The selector lists only the 18 models with bundled vehicle images; it does not expose the former 400-model catalogue.
+- The selector lists only the 16 models with bundled vehicle images; it does not expose the former 400-model catalogue.
 - The final selector option is **Añadir una foto personal**.
 - Personal images are uploaded directly to the authenticated Home Assistant instance and stored under `/config/www/ev-charge-tracker/custom/`; they are never sent to a third-party image service.
 - Personal images must be transparent PNG/WebP and are normalized to a 1200 × 675 transparent canvas.
