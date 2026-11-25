@@ -88,6 +88,7 @@ class EVChargeTrackerCard extends HTMLElement {
   _validVehicleImage(value) {
     if (typeof value !== "string" || value.includes("..")) return false;
     if (/^\/local\/ev-charge-tracker\/(?:custom\/)?[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(value)) return true;
+    if (/^\/ev_charge_tracker\/vehicle-images\/[A-Za-z0-9 _.-]+\.(png|webp)$/i.test(value)) return true;
     try {
       const url = new URL(value);
       const commonsImage = url.protocol === "https:" && url.hostname === "upload.wikimedia.org" &&
@@ -597,6 +598,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
   _validVehicleImage(value) {
     if (typeof value !== "string" || value.includes("..")) return false;
     if (/^\/local\/ev-charge-tracker\/(?:custom\/)?[A-Za-z0-9_-][A-Za-z0-9._-]*\.(png|webp)$/i.test(value)) return true;
+    if (/^\/ev_charge_tracker\/vehicle-images\/[A-Za-z0-9 _.-]+\.(png|webp)$/i.test(value)) return true;
     try {
       const url = new URL(value);
       const commonsImage = url.protocol === "https:" && url.hostname === "upload.wikimedia.org" &&
