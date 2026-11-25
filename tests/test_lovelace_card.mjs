@@ -634,19 +634,21 @@ test("deduplicates vehicle generation and model year in the hero subtitle", () =
 });
 
 
-test("beta 9 exposes the ordered vehicle catalog and private personal-image upload", () => {
+test("beta 9 selector is limited to bundled images plus generic and personal options", () => {
   assert.match(source, /id="visual_catalog"/);
-  assert.match(source, /Leapmotor B10/);
-  assert.match(source, /Tesla Model Y/);
-  assert.match(source, /Geely Galaxy Xingyuan/);
-  assert.match(source, /BYD Seagull/);
+  assert.match(source, /_vehicleCatalog = payload\\.vehicles\\.filter/);
+  assert.match(source, /item\\.image\\.startsWith\("\/ev_charge_tracker\/vehicle-images\/"\)/);
+  assert.match(source, /value="__generic__">Vehículo genérico/);
+  assert.match(source, /value="__personal__">➕ Añadir una foto personal/);
   assert.match(source, /id="personalVehicleImage"/);
   assert.match(source, /id="restoreVehicleImage"/);
   assert.match(source, /_restoreCatalogVehicleImage/);
-  assert.match(source, /value="__personal__">➕ Añadir una foto personal/);
+  assert.match(source, /morro hacia la derecha/);
+  assert.match(source, /vista exterior frontal de tres cuartos/);
   assert.match(source, /1200/);
   assert.match(source, /675/);
-  assert.match(source, /api\/ev_charge_tracker\/vehicle-image/);
-  assert.match(source, /Authorization: "Bearer " \+ token/);
-  assert.match(source, /vehicle-image/);
+  assert.match(source, /api\\/ev_charge_tracker\\/vehicle-image/);
+  assert.match(source, /Authorization: "Bearer " \\+ token/);
+  assert.doesNotMatch(source, /DEFAULT_VEHICLE_CATALOG/);
+  assert.doesNotMatch(source, /full-401/);
 });
