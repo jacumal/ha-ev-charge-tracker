@@ -767,20 +767,25 @@ class EVChargeTrackerCardEditor extends HTMLElement {
 
   _restoreCatalogVehicleImage() {
     const visual = this._config.vehicle_visual || {};
+    const isGeneric = String(visual.visual_brand || "").toLowerCase() === "genérico" ||
+      String(visual.visual_model || "").toLowerCase() === "vehículo";
     const item = this._vehicleCatalog.find(vehicle =>
       vehicle.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() &&
       vehicle.model.toLowerCase() === String(visual.visual_model || "").toLowerCase()
     );
-    const next = { ...this._config, vehicle_visual: { ...visual, visual_image: item?.image || "" } };
+    const defaultImage = isGeneric ? DEFAULT_GENERIC_IMAGE_URL : (item?.image || "");
+    const next = { ...this._config, vehicle_visual: { ...visual, visual_image: defaultImage } };
     for (const key of ["visual_image_credit","visual_image_license","visual_image_license_url","visual_image_page","visual_image_source"]) delete next.vehicle_visual[key];
     next.vehicle_visual_override = true;
     this._config = next;
     this._syncControls();
     this._updateConfig();
     const feedback = this.shadowRoot.getElementById("editorFeedback");
-    if (feedback) feedback.textContent = item?.image
-      ? "Imagen predeterminada del modelo restaurada."
-      : "Se ha quitado la imagen personal. Este modelo todavía no tiene un render predeterminado incluido.";
+    if (feedback) feedback.textContent = isGeneric
+      ? "Imagen genérica restaurada."
+      : item?.image
+        ? "Imagen predeterminada del modelo restaurada."
+        : "Se ha quitado la imagen personal. Este modelo todavía no tiene un render predeterminado incluido.";
   }
 
   async _uploadPersonalVehicleImage(file) {
@@ -990,7 +995,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const visual = this._config.vehicle_visual || {};
     const profile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
     const catalog = this.shadowRoot.getElementById("visual_catalog");
-    if (catalog && catalog.dataset.catalogVersion !== "images-only-v2") {
+    if (catalog && catalog.dataset.catalogVersion !== "images-only-v2-" + this._vehicleCatalog.length) {
       const available = this._vehicleCatalog
         .filter(item => Boolean(item.image))
         .sort((a, b) => a.brand.localeCompare(b.brand, "es") || a.model.localeCompare(b.model, "es"));
@@ -1005,7 +1010,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       catalog.innerHTML = '<option value="">Selecciona un vehículo…</option>' + options +
         '<option value="__generic__">Vehículo genérico</option>' +
         '<option value="__personal__">➕ Añadir una foto personal</option>';
-      catalog.dataset.catalogVersion = "images-only-v2";
+      catalog.dataset.catalogVersion = "images-only-v2-" + this._vehicleCatalog.length;
     }
     const matchingCatalog = this._vehicleCatalog.find(item =>
       item.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() &&
