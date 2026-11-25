@@ -42,7 +42,7 @@ def test_catalog_contains_all_400_source_models_plus_leapmotor_b10():
     assert "Híbridos enchufables (PHEV · " not in card
     assert "100 % eléctricos (BEV · " not in card
     assert 'option value="__generic__">Vehículo genérico' in card
-    assert 'option value="__personal__">Subir imagen propia…' in card
+    assert 'option value="__personal__">➕ Añadir una foto personal' in card
     assert '.filter(item => Boolean(item.image))' in card
 
 
@@ -110,5 +110,5 @@ def test_brand_assets_keep_marketplace_ready_dimensions():
     assert struct.unpack(">II", dark_icon[16:24]) == (256, 256)
     for image in (logo, dark_logo):
         width, height = struct.unpack(">II", image[16:24])
-        assert height == 110
+        assert height == 128
         assert width >= height
