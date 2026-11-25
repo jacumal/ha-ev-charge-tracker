@@ -507,6 +507,15 @@ test("only local images or HTTPS Wikimedia Commons uploads are accepted", () => 
   assert.equal(card._validVehicleImage("/local/ev-charge-tracker/../secret.png"), false);
 });
 
+test("bundled vehicle gallery images are accepted by card and editor validators", () => {
+  const card = createCardInstance();
+  const editor = createEditorInstance();
+  const image = "/ev_charge_tracker/vehicle-images/BYD-Seal.png";
+  assert.equal(card._validVehicleImage(image), true);
+  assert.equal(editor._validVehicleImage(image), true);
+  assert.equal(card._validVehicleImage("/ev_charge_tracker/vehicle-images/../secret.png"), false);
+});
+
 test("selected Commons images retain creator, license and source-page attribution", () => {
   assert.match(source, /visual_image_credit/);
   assert.match(source, /visual_image_license/);
@@ -551,7 +560,7 @@ test("Leapmotor C10 default cable anchor is on the rear-left quarter", () => {
 
 test("editor image validation is available independently from the card class", () => {
   const editor = createEditorInstance();
-  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"), false);
+  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"), true);
   assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
   assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/custom/" + "a".repeat(64) + ".png"), true);
   assert.equal(editor._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), true);
@@ -569,7 +578,7 @@ test("card uses the bundled C10 image when the selected vehicle identity names C
 
 test("card does not render the generic cartoon car when no vehicle image is configured", () => {
   const html = createCard({ name: "Mi vehículo", entities: {} }, {});
-  assert.match(html, /Imagen del vehículo no disponible/);
+  assert.match(html, /vehicle-generic\.png/);
   assert.doesNotMatch(html, /vehicle-body/);
 });
 
@@ -597,7 +606,7 @@ test("uses the approved vehicle-first layout and neutral image fallback", () => 
   assert.match(source, /grid-template-areas:"stage state"/);
   assert.match(source, /vehicle-subtitle/);
   assert.match(source, /history-summary/);
-  assert.match(source, /Imagen del vehículo no disponible/);
+  assert.match(source, /DEFAULT_GENERIC_IMAGE_URL/);
 });
 
 
