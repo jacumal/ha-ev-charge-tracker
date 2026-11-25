@@ -16,13 +16,13 @@ def test_manifest_is_beta9():
 def test_catalog_contains_only_models_with_bundled_vehicle_images():
     catalog = json.loads((PACKAGE / "vehicle_catalog.json").read_text(encoding="utf-8"))
     vehicles = catalog["vehicles"]
-    assert catalog["source_row_count"] == 18
-    assert len(vehicles) == 18
-    assert len({vehicle["id"] for vehicle in vehicles}) == 18
+    assert catalog["source_row_count"] == 16
+    assert len(vehicles) == 16
+    assert len({vehicle["id"] for vehicle in vehicles}) == 16
     assert all(vehicle["image"] for vehicle in vehicles)
     assert all(vehicle["image"].startswith("/ev_charge_tracker/vehicle-images/") for vehicle in vehicles)
     assert {vehicle["label"] for vehicle in vehicles} >= {
-        "Leapmotor B10", "Leapmotor C10", "Tesla Model Y", "Tesla Model 3",
+        "Leapmotor C10", "Tesla Model Y", "Tesla Model 3",
         "BYD Dolphin", "BYD Seagull", "Xiaomi SU7", "XPeng Mona M03",
     }
     assets = PACKAGE / "brand" / "vehicle-images"
@@ -31,6 +31,7 @@ def test_catalog_contains_only_models_with_bundled_vehicle_images():
         filename = vehicle["image"].rsplit("/", 1)[-1]
         asset = assets / filename
         assert asset.is_file(), f"Missing bundled image: {filename}"
+        assert asset.stat().st_size > 0, f"Empty bundled image: {filename}"
         with Image.open(asset) as image:
             assert image.width > 0 and image.height > 0
             assert "A" in image.getbands(), f"Image has no alpha channel: {filename}"
@@ -94,7 +95,7 @@ def test_card_resource_uses_stable_url_and_local_asset_route():
     assert 'StaticPathConfig(VEHICLE_IMAGES_URL' in init
     assert 'VEHICLE_CATALOG_URL = "/ev_charge_tracker/vehicle-catalog.json"' in init
     assert 'StaticPathConfig(VEHICLE_CATALOG_URL' in init
-    assert len(json.loads((PACKAGE / "vehicle_catalog.json").read_text(encoding="utf-8"))["vehicles"]) == 18
+    assert len(json.loads((PACKAGE / "vehicle_catalog.json").read_text(encoding="utf-8"))["vehicles"]) == 16
 
 
 def test_brand_assets_keep_marketplace_ready_dimensions():
