@@ -1,7 +1,7 @@
 # ChargeTrack — requisitos de imágenes y procedencia
 
 ## Galería incluida
-El selector de ChargeTrack no contiene un catálogo general de marcas y modelos. Solo muestra los vehículos para los que existe un render local dentro de la carpeta brand/vehicle-images. La galería actual contiene 18 modelos y una imagen genérica.
+El selector de ChargeTrack no contiene un catálogo general de marcas y modelos. Solo muestra los vehículos para los que existe un render local dentro de la carpeta brand/vehicle-images. La galería actual contiene 16 modelos y una imagen genérica.
 
 Para añadir otro modelo:
 1. Incorporar un PNG del vehículo en esta carpeta.
