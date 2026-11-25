@@ -635,20 +635,20 @@ test("deduplicates vehicle generation and model year in the hero subtitle", () =
 
 
 test("beta 9 selector is limited to bundled images plus generic and personal options", () => {
-  assert.match(source, /id="visual_catalog"/);
-  assert.match(source, /_vehicleCatalog = payload\\.vehicles\\.filter/);
-  assert.match(source, /item\\.image\\.startsWith\("\/ev_charge_tracker\/vehicle-images\/"\)/);
-  assert.match(source, /value="__generic__">Vehículo genérico/);
-  assert.match(source, /value="__personal__">➕ Añadir una foto personal/);
-  assert.match(source, /id="personalVehicleImage"/);
-  assert.match(source, /id="restoreVehicleImage"/);
-  assert.match(source, /_restoreCatalogVehicleImage/);
-  assert.match(source, /morro hacia la derecha/);
-  assert.match(source, /vista exterior frontal de tres cuartos/);
-  assert.match(source, /1200/);
-  assert.match(source, /675/);
-  assert.match(source, /api\\/ev_charge_tracker\\/vehicle-image/);
-  assert.match(source, /Authorization: "Bearer " \\+ token/);
-  assert.doesNotMatch(source, /DEFAULT_VEHICLE_CATALOG/);
-  assert.doesNotMatch(source, /full-401/);
+  assert.ok(source.includes('id="visual_catalog"'));
+  assert.ok(source.includes("payload.vehicles.filter"));
+  assert.ok(source.includes('item.image.startsWith("/ev_charge_tracker/vehicle-images/")'));
+  assert.ok(source.includes('value="__generic__">Vehículo genérico'));
+  assert.ok(source.includes('value="__personal__">➕ Añadir una foto personal'));
+  assert.ok(source.includes('id="personalVehicleImage"'));
+  assert.ok(source.includes('id="restoreVehicleImage"'));
+  assert.ok(source.includes("_restoreCatalogVehicleImage"));
+  assert.ok(source.includes("morro hacia la derecha"));
+  assert.ok(source.includes("vista exterior frontal de tres cuartos"));
+  assert.ok(source.includes("1200"));
+  assert.ok(source.includes("675"));
+  assert.ok(source.includes("api/ev_charge_tracker/vehicle-image"));
+  assert.ok(source.includes('Authorization: "Bearer " + token'));
+  assert.ok(!source.includes("DEFAULT_VEHICLE_CATALOG"));
+  assert.ok(!source.includes("full-401"));
 });
