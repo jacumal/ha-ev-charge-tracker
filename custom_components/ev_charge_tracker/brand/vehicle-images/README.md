@@ -1,38 +1,30 @@
-# ChargeTrack — galería de vehículos
+# ChargeTrack — galería local de vehículos
 
-Esta carpeta contiene las imágenes locales de los vehículos que se muestran en la tarjeta.
+Esta carpeta contiene exclusivamente los renders que pueden seleccionarse en la tarjeta, además de la imagen genérica.
 
-## Estructura
+## Requisitos para incorporar un vehículo
+- PNG RGBA, lienzo 1200 × 675 px.
+- Vista exterior frontal tres cuartos, mostrando frontal y un lateral.
+- Morro orientado hacia la derecha.
+- Vehículo completo, centrado y sin recortes.
+- Fondo transparente real, sin damero dibujado.
+- Escala homogénea: coche ocupando aproximadamente el 80–90 % del ancho y ruedas a una altura comparable.
+- Puerto de carga visible cuando sea posible.
+- Sin fondos fotográficos, marcas de agua ni textos.
 
-```text
-vehicle-images/
-├── bev/       # Vehículos 100 % eléctricos
-├── phev/      # Híbridos enchufables
-└── generic/   # Imagen genérica para vehículos sin imagen propia
-```
+## Selector de la tarjeta
+El selector se genera únicamente a partir de las entradas de vehicle_catalog.json que apuntan a un archivo local válido. No se mantiene una lista general de marcas/modelos. Los modelos sin imagen no aparecen.
 
-## Requisitos de imagen
+Al final del selector se muestran dos opciones fijas:
+1. Vehículo genérico.
+2. Añadir una foto personal.
 
-- Un archivo por vehículo; nunca subir composiciones ni cuadrículas.
-- PNG, lienzo de 1200 × 675 px.
-- Transparencia real (canal alfa); no damero dibujado en el fondo ni en los cristales.
-- Vehículo completo, sin recortes.
-- Orientación coherente con la referencia Leapmotor C10: frontal tres cuartos, morro hacia la izquierda.
-- Encuadre y escala lo más homogéneos posible.
-- Nombre de archivo igual al identificador del catálogo, en minúsculas y con guiones. Ejemplos: `leapmotor-b10.png`, `byd-dolphin.png`, `tesla-model-3.png`.
-
-## Dónde subir cada imagen
-
-- BEV: `bev/<vehicle_id>.png`
-- PHEV: `phev/<vehicle_id>.png`
-- Imagen genérica: `generic/vehicle-generic.png`
-
-El identificador del vehículo se consulta en `vehicle_catalog.json`. El catálogo completo permanece como fuente interna; el selector de la tarjeta solo debe mostrar los vehículos que tengan una imagen propia disponible, además de las opciones genérica y de imagen personal.
-
-## Incorporación a la tarjeta
-
-Subir un PNG a GitHub no lo incorpora automáticamente a Home Assistant. Después hay que registrar su ruta en el catálogo y asegurarse de que la integración sirve la carpeta de imágenes como recurso estático. No marcar una imagen como disponible hasta validar el archivo, su transparencia, la identificación del modelo y los derechos de uso y redistribución.
+## Incorporar un nuevo render
+1. Añadir el PNG a esta carpeta.
+2. Añadir su marca, modelo, carrocería y ruta exacta en vehicle_catalog.json.
+3. Comprobar que el archivo existe, tiene transparencia y se carga en la tarjeta.
+4. Añadir la información de procedencia y licencia a la documentación del proyecto.
+5. Ejecutar todas las pruebas y revisar la imagen en Home Assistant antes de publicar.
 
 ## Licencias y procedencia
-
-Para cada imagen de terceros, conservar la página de origen, autor y licencia. No asumir que una licencia del archivo cubre automáticamente los derechos sobre el diseño o las marcas del vehículo.
+No declarar validada la redistribución de un render sin autor, fuente y licencia o autorización verificables. Los derechos sobre el archivo 3D y los derechos sobre marcas/diseños del vehículo pueden ser distintos.
