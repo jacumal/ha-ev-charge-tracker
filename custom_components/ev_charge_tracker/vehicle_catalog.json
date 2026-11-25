@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source_file": "ChargeTrack bundled image gallery",
-  "source_row_count": 18,
+  "source_row_count": 16,
   "vehicles": [
     {
       "id": "byd-atto-2",
@@ -11,21 +11,6 @@
       "body": "suv",
       "technology": "BEV",
       "image": "/ev_charge_tracker/vehicle-images/BYD-Atto2.png",
-      "image_status": "bundled_user_provided_asset_provenance_review",
-      "image_source": "User-provided vehicle render bundle",
-      "image_author": "",
-      "image_license": "Unspecified; review required",
-      "image_license_url": "",
-      "image_source_page": ""
-    },
-    {
-      "id": "byd-dolphin-surf",
-      "label": "BYD Dolphin Surf",
-      "brand": "BYD",
-      "model": "Dolphin Surf",
-      "body": "hatchback",
-      "technology": "BEV",
-      "image": "/ev_charge_tracker/vehicle-images/BYD-Dolphin Surf.png",
       "image_status": "bundled_user_provided_asset_provenance_review",
       "image_source": "User-provided vehicle render bundle",
       "image_author": "",
@@ -131,21 +116,6 @@
       "body": "hatchback",
       "technology": "BEV",
       "image": "/ev_charge_tracker/vehicle-images/Geely-Panda Mini.png",
-      "image_status": "bundled_user_provided_asset_provenance_review",
-      "image_source": "User-provided vehicle render bundle",
-      "image_author": "",
-      "image_license": "Unspecified; review required",
-      "image_license_url": "",
-      "image_source_page": ""
-    },
-    {
-      "id": "leapmotor-b10",
-      "label": "Leapmotor B10",
-      "brand": "Leapmotor",
-      "model": "B10",
-      "body": "suv",
-      "technology": "BEV",
-      "image": "/ev_charge_tracker/vehicle-images/Leapmotor-B10.png",
       "image_status": "bundled_user_provided_asset_provenance_review",
       "image_source": "User-provided vehicle render bundle",
       "image_author": "",
