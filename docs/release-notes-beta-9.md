@@ -1,47 +1,47 @@
-# EV Charge Tracker 0.1.0-beta.9 — Vehicle image catalog
+# ChargeTrack 0.1.0-beta.9 — Galería visual de vehículos
 
-## Included in this candidate
+## Selector simplificado
+- Se elimina del producto el listado de 400 modelos BEV/PHEV.
+- El selector muestra únicamente los modelos que tienen una imagen local incluida en la integración.
+- Las opciones adicionales son **Vehículo genérico** y **Añadir una foto personal**.
+- El selector ya no necesita clasificar modelos por tecnología ni cargar una base de datos extensa.
 
-- Package the supplied 400-row source catalog (200 BEV + 200 PHEV) and add the separately requested Leapmotor B10 as entry 401.
-- Load the catalog from a local JSON resource and group the selector into BEV and PHEV sections, with commercial aliases and sales metadata retained.
+## Imágenes incluidas
+- Se mantiene la galería local de 18 modelos con render propio y la imagen genérica.
+- Los renders se sirven desde Home Assistant; no dependen de enlaces a páginas externas.
+- La procedencia y los derechos de redistribución de las imágenes suministradas deben quedar confirmados antes de publicar la release.
 
-- Replaces the manual image-path field in the card editor with a vehicle selector.
-- Includes Leapmotor C10, B10 and T03, the leading BEV models from the 2025 global sales ranking, and additional European-market models.
-- Adds **Añadir una foto personal** as the final selector option.
-- Uploads personal artwork directly to the authenticated Home Assistant instance.
-- Stores uploaded files under `www/ev-charge-tracker/custom/`, addressed by SHA-256 content hash. No cloud image service is involved.
-- Requires a transparent PNG/WebP source, limits uploads to 8 MB and normalizes accepted images to a 1200 × 675 transparent PNG canvas.
-- Serves the bundled C10 render from the integration's local static route rather than the Leapmotor website.
-- Adds a control to restore the model's bundled default image or clear a personal image when no bundled render exists.
-- Keeps image selection in the Lovelace configuration per vehicle; it does not change charger profiles, session history, tariffs or sensor mappings.
+## Imagen personal
+- La subida se realiza directamente a la instancia autenticada de Home Assistant.
+- Los archivos se guardan en /config/www/ev-charge-tracker/custom/ con nombre SHA-256.
+- Se aceptan PNG y WebP transparentes de hasta 8 MB; se normalizan a PNG 1200 × 675.
+- La tarjeta actualiza su vista previa y envía el cambio a Lovelace; el usuario debe pulsar **Guardar** en el editor del panel.
+- La imagen personal no se envía a servicios de terceros.
+- La selección es por vehículo y se comparte entre los perfiles de carga asociados al mismo vehículo.
 
-## Visual asset policy
+## Guía de composición de la imagen
+- Vista exterior frontal tres cuartos, mostrando frontal y un lateral.
+- Morro orientado hacia la derecha.
+- Vehículo completo, centrado y sin recortes.
+- Fondo transparente real (canal alfa), no un damero dibujado.
+- Lienzo PNG 1200 × 675 px y coche ocupando aproximadamente el 80–90 % del ancho.
+- Escala y altura de ruedas similares a los renders incluidos.
+- Puerto de carga visible cuando sea posible para facilitar el ajuste del cable.
+- Evitar fondos, sombras duras, textos, marcas de agua y perspectivas desde arriba.
 
-Every bundled render and user image must follow the same visual specification:
+## Tarjeta e integración
+- Se mantiene la tarjeta responsive y los datos dinámicos de batería, autonomía, odómetro, estado de cable/carga, sesiones, costes e histórico.
+- Se conserva el render local del Leapmotor C10 y la imagen genérica.
+- Se conserva la selección de imagen independiente por vehículo.
+- Se mantiene la integración con el dominio interno ev_charge_tracker para preservar instalaciones existentes.
 
-- front three-quarter view;
-- vehicle nose facing right;
-- entire vehicle visible, without cropping;
-- transparent background;
-- consistent 1200 × 675 canvas and visual scale.
+## Validación antes de publicar
+- CI verde en el commit final.
+- Revisar el paquete HACS.
+- Probar actualización desde Beta 8 conservando perfiles, entidades, tarifas e histórico.
+- Probar subida, rechazo de archivos inválidos, persistencia tras reinicio y selección por vehículo en Home Assistant real.
+- Verificar la ruta estática local.
+- Revisar las imágenes en móvil/escritorio y temas claro/oscuro, así como orientación, escala, puerto y animación del cable.
+- Confirmar procedencia y derechos de uso de los renders.
 
-The editor can check file type, dimensions, transparency and basic content presence, but it cannot reliably determine whether a source image has the correct vehicle orientation or camera angle. The user must choose an image that follows the visual guide.
-
-## Catalog image availability
-
-The catalog includes model identities even when a redistributable image is not yet available. Each entry carries image status and provenance/license fields so the source, creator and reuse terms can be audited. Only the existing C10 package image is currently present; its licensing provenance still needs review. No new photos have been approved or bundled for the other 400 catalog entries. Other models remain selectable, but show the neutral no-image state until the user adds a personal image. This is intentional: images are not copied from manufacturer websites or other sources unless redistribution rights and visual consistency have been verified.
-
-## Image sourcing workflow
-
-A Wikimedia Commons candidate-discovery script has been added. It filters for recognized open licenses and records the source page, author, license URL and candidate image URL. It deliberately does not auto-download or auto-package results: the exact model, photo angle, orientation, derivative rights and background removal must be reviewed first. See `docs/vehicle-image-sourcing.md`.
-
-## Validation and known gates
-
-- Automated JavaScript and Python tests must pass on the final PR head.
-- Verify upload authentication, rejection of non-PNG requests, oversize payloads, non-transparent images and invalid canvas dimensions.
-- In a real Home Assistant instance, verify the upload survives restart and is served from `/local/ev-charge-tracker/custom/`.
-- Verify selection persists after closing/reopening the Lovelace editor and is isolated per vehicle.
-- Compare all selected images in the card on mobile/desktop and light/dark themes.
-- Confirm update-in-place preserves all existing profiles, sensors, tariffs and charge history.
-
-This is a beta candidate, not a claim of completed live Home Assistant validation.
+Esta beta no se considera release final hasta completar las comprobaciones manuales anteriores.
