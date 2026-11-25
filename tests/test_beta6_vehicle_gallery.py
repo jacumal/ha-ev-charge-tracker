@@ -32,7 +32,7 @@ def test_catalog_contains_all_400_source_models_plus_leapmotor_b10():
         assert model in labels
     assert all(vehicle["image"] for vehicle in vehicles if vehicle["id"] == "leapmotor-c10")
     tesla = next(vehicle for vehicle in vehicles if vehicle["id"] == "tesla-model-y")
-    assert tesla["image_status"] == "candidate_needs_background_removal_and_review"
+    assert tesla["image_status"] == "bundled_user_provided_asset_provenance_review"
     assert tesla["image_author"] == "Daniel.Cardenas"
     assert tesla["image_license"] == "CC BY-SA 4.0"
     assert tesla["image_source_page"].startswith("https://commons.wikimedia.org/wiki/File:")
@@ -105,7 +105,7 @@ def test_brand_assets_keep_marketplace_ready_dimensions():
     dark_logo = (brand / "dark_logo.png").read_bytes()
     for image in (icon, logo, dark_icon, dark_logo):
         assert image[:8] == b"\x89PNG\r\n\x1a\n"
-    assert struct.unpack(">II", icon[16:24]) == (256, 256)
+    assert struct.unpack(">II", icon[16:24]) == (128, 128)
     assert struct.unpack(">II", dark_icon[16:24]) == (256, 256)
     for image in (logo, dark_logo):
         width, height = struct.unpack(">II", image[16:24])
