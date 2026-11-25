@@ -17,7 +17,7 @@ from .vehicle_images import async_register as async_register_vehicle_image
 EVChargeConfigEntry = ConfigEntry[EVChargeCoordinator]
 REGISTRY_DATA_KEY = "_profile_registry"
 CARD_URL = "/ev_charge_tracker/ev-charge-tracker-card.js"
-C10_IMAGE_URL = "/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"
+VEHICLE_IMAGES_URL = "/ev_charge_tracker/vehicle-images"
 VEHICLE_CATALOG_URL = "/ev_charge_tracker/vehicle-catalog.json"
 
 
@@ -35,12 +35,12 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     async_register_websocket(hass)
     async_register_vehicle_image(hass)
     card_path = Path(__file__).parent / "frontend" / "ev-charge-tracker-card.js"
-    c10_image_path = Path(__file__).parent / "brand" / "leapmotor-c10-white.webp"
+    vehicle_images_path = Path(__file__).parent / "brand" / "vehicle-images"
     vehicle_catalog_path = Path(__file__).parent / "vehicle_catalog.json"
     await hass.http.async_register_static_paths(
         [
             StaticPathConfig(CARD_URL, str(card_path), cache_headers=False),
-            StaticPathConfig(C10_IMAGE_URL, str(c10_image_path), cache_headers=False),
+            StaticPathConfig(VEHICLE_IMAGES_URL, str(vehicle_images_path), cache_headers=False),
             StaticPathConfig(VEHICLE_CATALOG_URL, str(vehicle_catalog_path), cache_headers=False),
         ]
     )
