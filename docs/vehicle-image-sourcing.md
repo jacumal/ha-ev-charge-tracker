@@ -1,55 +1,37 @@
-# Vehicle image sourcing and licensing
+# ChargeTrack — requisitos de imágenes y procedencia
 
-## Catalog
+## Galería incluida
+El selector de ChargeTrack no contiene un catálogo general de marcas y modelos. Solo muestra los vehículos para los que existe un render local dentro de la carpeta brand/vehicle-images. La galería actual contiene 18 modelos y una imagen genérica.
 
-The catalog is based on `docs/data/ChargeTrack_catalogo_global_400.csv` and packaged as `custom_components/ev_charge_tracker/vehicle_catalog.json`. It contains 200 BEV and 200 PHEV models. Leapmotor B10 is an additional 401st entry because it was requested separately and is not present in the supplied 400-row file.
+Para añadir otro modelo:
+1. Incorporar un PNG del vehículo en esta carpeta.
+2. Normalizarlo al estándar visual descrito abajo.
+3. Añadir una entrada a vehicle_catalog.json con marca, modelo, carrocería y ruta local exacta.
+4. Verificar que el archivo existe, tiene canal alfa y se carga correctamente en la tarjeta.
+5. Documentar autor, fuente y licencia o autorización de redistribución.
 
-## Candidate source
+No añadir al selector modelos que no tengan imagen incluida.
 
-The first candidate source is Wikimedia Commons. Each file has its own author and license; Commons asks reusers to verify the file's license and comply with attribution and share-alike conditions where applicable. The repository must retain the file description page, author, license name and license URL for every bundled asset. A first manually inspected candidate is recorded for Tesla Model Y: Daniel.Cardenas, CC BY-SA 4.0. It is marked as a candidate only because the photo still needs background removal and visual acceptance before it can become a local card asset.
+## Estándar visual
+- Vista exterior frontal tres cuartos, frontal y un lateral visibles.
+- Morro orientado hacia la derecha.
+- Vehículo completo, sin recortes y centrado.
+- Fondo transparente real (canal alfa).
+- PNG con lienzo de 1200 × 675 px.
+- Vehículo ocupando aproximadamente el 80–90 % del ancho, con altura de ruedas y escala comparables entre modelos.
+- Puerto de carga visible si es posible.
+- Sin fondos fotográficos, dameros dibujados, marcas de agua ni textos.
 
-Run:
+## Imágenes personales
+El editor acepta PNG/WebP transparentes de hasta 8 MB. La tarjeta elimina el margen transparente sobrante, centra el vehículo y lo guarda como PNG de 1200 × 675 en el Home Assistant del usuario. No se utiliza ningún servicio externo. La detección automática no puede determinar con fiabilidad si el modelo, el ángulo o la orientación son correctos; el usuario debe seguir la guía visual.
 
-```bash
-python scripts/find_vehicle_image_candidates.py
-```
+## Procedencia y derechos
+Para cada render incluido, conservar:
+- modelo y ruta del archivo;
+- autor/creador;
+- URL de origen o evidencia de creación propia;
+- licencia exacta y URL de licencia, o autorización de uso;
+- atribución exigida;
+- fecha de incorporación y revisión.
 
-For a small test batch:
-
-```bash
-python scripts/find_vehicle_image_candidates.py --limit 10
-```
-
-The script writes `docs/data/vehicle_image_candidates.json`. It does not download or bundle images automatically. A result is only a candidate, not an approved image.
-
-The same scan can be run from GitHub Actions: open **Actions → Discover vehicle image candidates → Run workflow**. Leave `limit` at `0` to scan all 401 entries. Download the `vehicle-image-candidates` artifact and review the results before approving any asset.
-
-## Acceptance before bundling
-
-Every image must pass all of these checks:
-
-- It depicts the exact model/generation or a clearly equivalent regional badge/alias.
-- The file's actual license permits redistribution in this repository and the attribution record is complete.
-- It shows the whole vehicle in a consistent front three-quarter view, nose facing right.
-- Background is removed cleanly; glass, mirrors, wheels, lights and body edges remain intact.
-- It is normalized to a transparent 1200 × 675 canvas with a consistent vehicle scale.
-- The final asset is visually reviewed in the card on mobile and desktop.
-
-The initial beta 9 implementation only bundles the C10 image. The remaining catalog entries intentionally have no default image until a candidate has passed review. Do not use an unverified thumbnail or hotlink as a bundled asset.
-
-## Sources not suitable for bulk mirroring
-
-Car Image API terms explicitly prohibit bulk downloading, scraping, mirroring or archiving its images and catalog data, and prohibit offering renders as a standalone image library/dataset. A bulk export or self-hosted catalog requires a separate written agreement. It is therefore not used as a source for a 400-image repository bundle.
-
-## Attribution
-
-Keep attribution beside each asset in a machine-readable manifest, including:
-- vehicle ID and display name;
-- local asset path;
-- original file title and source page;
-- author/creator;
-- exact license name and license URL;
-- any required credit line;
-- date retrieved and reviewer approval.
-
-For CC BY-SA or other share-alike material, check that the derivative created by background removal and resizing is distributed under compatible terms.
+No asumir que una licencia de un archivo 3D concede automáticamente derechos sobre marcas, diseños o elementos protegidos del vehículo. Si la procedencia o los derechos no están claros, no declarar la imagen como validada para redistribución.
