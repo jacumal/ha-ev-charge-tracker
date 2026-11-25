@@ -33,9 +33,10 @@ def test_catalog_contains_all_400_source_models_plus_leapmotor_b10():
     assert all(vehicle["image"] for vehicle in vehicles if vehicle["id"] == "leapmotor-c10")
     tesla = next(vehicle for vehicle in vehicles if vehicle["id"] == "tesla-model-y")
     assert tesla["image_status"] == "bundled_user_provided_asset_provenance_review"
-    assert tesla["image_author"] == "Daniel.Cardenas"
-    assert tesla["image_license"] == "CC BY-SA 4.0"
-    assert tesla["image_source_page"].startswith("https://commons.wikimedia.org/wiki/File:")
+    assert tesla["image_source"] == "User-provided vehicle render bundle"
+    assert tesla["image_author"] == ""
+    assert tesla["image_license"] == "Unspecified; review required"
+    assert tesla["image_source_page"] == ""
     card = CARD.read_text(encoding="utf-8")
     assert 'id="visual_catalog"' in card
     assert "Híbridos enchufables (PHEV · " not in card
@@ -109,5 +110,5 @@ def test_brand_assets_keep_marketplace_ready_dimensions():
     assert struct.unpack(">II", dark_icon[16:24]) == (256, 256)
     for image in (logo, dark_logo):
         width, height = struct.unpack(">II", image[16:24])
-        assert height == 128
+        assert height == 110
         assert width >= height
