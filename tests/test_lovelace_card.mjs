@@ -256,7 +256,9 @@ test("positions cable and connector using the vehicle-specific port anchor", () 
     { "sensor.status": { state: "charging", attributes: {} } },
   );
   assert.match(html, /cx="143" cy="33"/);
-  assert.match(html, /M143 33 C/);
+  assert.match(html, /M232 35 V65 C/);
+  assert.match(html, /translate\(135 15\) rotate\(90\)/);
+  assert.match(html, /143 33/);
 });
 
 
