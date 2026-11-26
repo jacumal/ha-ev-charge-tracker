@@ -251,7 +251,8 @@ class EVChargeTrackerCard extends HTMLElement {
             '<path class="cable-line" d="' + cablePath + '"/>' +
             '<path class="energy-line" d="' + cablePath + '"/>' +
             '<g class="connector connector-plug" transform="translate(' + (portX - 8) + ' ' + (portY - 18) + ') rotate(90)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>'
-          : '<circle class="charge-port" cx="' + portX + '" cy="' + portY + '" r="5"/>') +
+          : '') +
+        '<circle class="charge-port" cx="' + portX + '" cy="' + portY + '" r="5"/>' +
       '</svg></div><div class="vehicle-state"><i></i>' + this._escape(visualStateLabels[visualState]) + '</div>' +
       (imageCredit && (imageLicense || imagePage) ? '<div class="vehicle-image-credit">Imagen: ' + (imagePage ? '<a href="' + this._escape(imagePage) + '" target="_blank" rel="noopener noreferrer">' : '') + this._escape(imageCredit) + (imagePage ? '</a>' : '') + (imageLicense ? ' · ' : '') + (imageLicenseUrl ? '<a href="' + this._escape(imageLicenseUrl) + '" target="_blank" rel="noopener noreferrer">' + this._escape(imageLicense) + '</a>' : this._escape(imageLicense)) + '</div>' : '') +
       '</div>';
