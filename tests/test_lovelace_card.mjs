@@ -490,7 +490,7 @@ test("editor selector tracks the catalog model while keeping image choice per ve
 
 test("beta 9 replaces new gallery selection with the catalog while retaining legacy Commons compatibility", () => {
   assert.doesNotMatch(source, /Galería gratuita de vehículos/);
-  assert.match(source, /VEHICLE_CATALOG/);
+  assert.match(source, /this\._vehicleCatalog/);
   assert.match(source, /__personal__/);
   assert.match(source, /https:\/\/commons\.wikimedia\.org\/w\/api\.php/);
   assert.match(source, /LicenseShortName/);
@@ -643,7 +643,7 @@ test("beta 9 selector is limited to bundled images plus generic and personal opt
   assert.ok(source.includes('id="personalVehicleImage"'));
   assert.ok(source.includes('id="restoreVehicleImage"'));
   assert.ok(source.includes("_restoreCatalogVehicleImage"));
-  assert.ok(source.includes("morro hacia la derecha"));
+  assert.ok(/morro (?:orientado )?hacia la derecha/.test(source));
   assert.ok(source.includes("vista exterior frontal de tres cuartos"));
   assert.ok(source.includes("1200"));
   assert.ok(source.includes("675"));
