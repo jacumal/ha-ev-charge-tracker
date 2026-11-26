@@ -208,9 +208,10 @@ class EVChargeTrackerCard extends HTMLElement {
     const portYValue = vehicle.visual_port_y == null || vehicle.visual_port_y === "" ? defaultPortY : Number(vehicle.visual_port_y);
     const portX = Math.round((Number.isFinite(portXValue) ? Math.min(100, Math.max(0, portXValue)) : 67) * 2.6);
     const portY = Math.round((Number.isFinite(portYValue) ? Math.min(100, Math.max(0, portYValue)) : 44) * 1.1);
-    const cablePath = "M" + portX + " " + portY + " C" +
-      Math.min(250, portX + 37) + " " + Math.max(0, portY - 3) + " " +
-      Math.min(250, portX + 16) + " 91 236 91";
+    // Route a physical cable from the wallbox to the vehicle charge port.
+    const cablePath = "M232 35 V65 C232 82 222 91 205 91 H" +
+      Math.max(112, portX + 12) + " C" + Math.max(96, portX + 2) + " 91 " +
+      (portX + 4) + " " + (portY + 10) + " " + portX + " " + portY;
     const lastChargeCompleted = Boolean(
       !current && latest && (latest.status === "completed" || latest.completed_at || latest.ended_at)
     );
@@ -244,12 +245,14 @@ class EVChargeTrackerCard extends HTMLElement {
         ? '<img class="vehicle-image custom" src="' + this._escape(customImage) + '" alt="' + this._escape(vehicleLabel) + '" loading="lazy">'
         : fallbackMarkup) +
       '<svg class="cable-overlay" viewBox="0 0 260 110" aria-hidden="true">' +
-        '<path class="cable-shadow" d="' + cablePath + '"/>' +
-        '<path class="cable-line" d="' + cablePath + '"/>' +
-        '<path class="energy-line" d="' + cablePath + '"/>' +
-        '<g class="connector connector-free" transform="translate(232 82) rotate(8)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
-        '<g class="connector connector-plug" transform="translate(' + (portX - 8) + ' ' + (portY - 18) + ') rotate(90)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>' +
-        '<circle class="charge-port" cx="' + portX + '" cy="' + portY + '" r="4"/>' +
+        (cableConnected || charging
+          ? '<g class="wallbox"><rect x="220" y="12" width="24" height="31" rx="6"/><rect x="228" y="18" width="8" height="15" rx="3"/><path d="M232 43 V35"/></g>' +
+            '<path class="cable-shadow" d="' + cablePath + '"/>' +
+            '<path class="cable-line" d="' + cablePath + '"/>' +
+            '<path class="energy-line" d="' + cablePath + '"/>' +
+            '<g class="connector connector-plug" transform="translate(' + (portX - 8) + ' ' + (portY - 18) + ') rotate(90)"><rect x="0" y="0" width="15" height="18" rx="4"/><path d="M5 0 V-5 M10 0 V-5"/></g>'
+          : '') +
+        '<circle class="charge-port" cx="' + portX + '" cy="' + portY + '" r="5"/>' +
       '</svg></div><div class="vehicle-state"><i></i>' + this._escape(visualStateLabels[visualState]) + '</div>' +
       (imageCredit && (imageLicense || imagePage) ? '<div class="vehicle-image-credit">Imagen: ' + (imagePage ? '<a href="' + this._escape(imagePage) + '" target="_blank" rel="noopener noreferrer">' : '') + this._escape(imageCredit) + (imagePage ? '</a>' : '') + (imageLicense ? ' · ' : '') + (imageLicenseUrl ? '<a href="' + this._escape(imageLicenseUrl) + '" target="_blank" rel="noopener noreferrer">' + this._escape(imageLicense) + '</a>' : this._escape(imageLicense)) + '</div>' : '') +
       '</div>';
@@ -300,6 +303,10 @@ class EVChargeTrackerCard extends HTMLElement {
     });
     const maxCost = Math.max(1, ...costRows.map(item => Number(item.cost ?? item.known_cost)));
 
+    // Preserve the decoded image node across telemetry refreshes to prevent flicker.
+    const previousVehicleImage = typeof this.shadowRoot.querySelector === "function"
+      ? this.shadowRoot.querySelector(".vehicle-image.custom") : null;
+    const previousVehicleImageSrc = previousVehicleImage?.getAttribute?.("src") || previousVehicleImage?.src || null;
     this.shadowRoot.innerHTML = `
       <style>
         :host { display:block; color:var(--primary-text-color); }
@@ -327,17 +334,16 @@ class EVChargeTrackerCard extends HTMLElement {
         .cable-shadow { stroke:var(--primary-text-color); stroke-width:5; opacity:.16; }
         .cable-line { stroke:var(--secondary-text-color); stroke-width:3; }
         .energy-line { stroke:var(--success-color,#42a66b); stroke-width:3; stroke-dasharray:5 8; opacity:0; }
-        .connector { transition:opacity .25s ease; }
+        .wallbox rect:first-child { fill:var(--secondary-background-color); stroke:var(--secondary-text-color); stroke-width:1.5; }
+        .wallbox rect:nth-child(2) { fill:var(--success-color,#30a854); }
+        .wallbox path { stroke:var(--secondary-text-color); stroke-width:2; fill:none; }
+        .cable-shadow,.cable-line,.energy-line { transition:opacity .2s ease; }
         .connector rect { fill:var(--secondary-text-color); stroke:var(--card-background-color); stroke-width:1.5; }
         .connector path { stroke:var(--secondary-text-color); stroke-width:2; }
-        .connector-plug { opacity:0; }
-        .state-connected .connector-free,.state-charging .connector-free { opacity:0; }
-        .state-connected .connector-plug,.state-charging .connector-plug { opacity:1; }
-        .charge-port { fill:var(--secondary-background-color); stroke:var(--secondary-text-color); stroke-width:2; }
-        .state-disconnected .cable-line,.state-disconnected .cable-shadow,.state-disconnected .connector-free,.state-disconnected .energy-line,.state-disconnected .charge-port,.state-unknown .cable-line,.state-unknown .cable-shadow,.state-unknown .connector-free,.state-unknown .energy-line,.state-unknown .charge-port { opacity:.22; }
-        .state-connected .cable-line,.state-connected .connector-plug,.state-connected .charge-port { opacity:1; }
+        .charge-port { fill:var(--secondary-background-color); stroke:var(--secondary-text-color); stroke-width:2.5; }
+        .state-connected .cable-line,.state-connected .connector-plug { opacity:1; }
         .state-charging .energy-line { opacity:1; animation:energy-flow 1s linear infinite; }
-        .state-charging .cable-line { stroke:var(--success-color,#42a66b); }
+        .state-charging .cable-line { stroke:var(--success-color,#30a854); }
         .state-completed .energy-line { opacity:0; }
         .state-completed .charge-port { fill:var(--success-color,#42a66b); }
         .state-error .cable-line,.state-error .connector,.state-error .charge-port { stroke:var(--warning-color,#d69b32); }
@@ -538,11 +544,19 @@ class EVChargeTrackerCard extends HTMLElement {
           ${diagnostic ? `<div class="diagnostic">${this._escape(diagnostic)}</div>` : ""}
         </div>` : ""}
       </ha-card>`;
-    const customVehicleImage = typeof this.shadowRoot.querySelector === "function"
+    let customVehicleImage = typeof this.shadowRoot.querySelector === "function"
       ? this.shadowRoot.querySelector(".vehicle-image.custom") : null;
-    if (customVehicleImage) customVehicleImage.addEventListener("error", () => {
-      customVehicleImage.replaceWith(this._createFallbackVehicle(fallbackMarkup));
-    }, { once: true });
+    if (previousVehicleImage && customVehicleImage &&
+        previousVehicleImageSrc === (customVehicleImage.getAttribute?.("src") || customVehicleImage.src)) {
+      customVehicleImage.replaceWith(previousVehicleImage);
+      customVehicleImage = previousVehicleImage;
+    }
+    if (customVehicleImage && !customVehicleImage.dataset?.chargeTrackErrorHandler) {
+      if (customVehicleImage.dataset) customVehicleImage.dataset.chargeTrackErrorHandler = "true";
+      customVehicleImage.addEventListener("error", () => {
+        customVehicleImage.replaceWith(this._createFallbackVehicle(fallbackMarkup));
+      }, { once: true });
+    }
   }
 
   _createFallbackVehicle(markup) {

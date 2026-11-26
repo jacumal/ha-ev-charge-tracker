@@ -256,7 +256,9 @@ test("positions cable and connector using the vehicle-specific port anchor", () 
     { "sensor.status": { state: "charging", attributes: {} } },
   );
   assert.match(html, /cx="143" cy="33"/);
-  assert.match(html, /M143 33 C/);
+  assert.match(html, /M232 35 V65 C/);
+  assert.match(html, /translate\(135 15\) rotate\(90\)/);
+  assert.match(html, /143 33/);
 });
 
 
@@ -651,4 +653,51 @@ test("beta 9 selector is limited to bundled images plus generic and personal opt
   assert.ok(source.includes('Authorization: "Bearer " + token'));
   assert.ok(!source.includes("DEFAULT_VEHICLE_CATALOG"));
   assert.ok(!source.includes("full-401"));
+});
+
+
+test("keeps the vehicle image node between Home Assistant telemetry refreshes", () => {
+  assert.match(source, /previousVehicleImage/);
+  assert.match(source, /previousVehicleImageSrc/);
+  assert.match(source, /customVehicleImage\.replaceWith\(previousVehicleImage\)/);
+});
+
+test("renders no loose cable or wallbox while the vehicle is disconnected", () => {
+  const html = createCard(
+    { vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" }, entities: {
+      status: "sensor.status", plugged: "binary_sensor.plugged",
+    } },
+    {
+      "sensor.status": { state: "idle", attributes: {} },
+      "binary_sensor.plugged": { state: "off", attributes: {} },
+    },
+  );
+  assert.match(html, /state-disconnected/);
+  assert.match(html, /Cable desconectado/);
+  assert.match(html, /charge-port/);
+  assert.doesNotMatch(html, /class="wallbox"/);
+  assert.doesNotMatch(html, /class="cable-line"/);
+});
+
+test("renders a complete wallbox cable only while connected and animates it while charging", () => {
+  const connected = createCard(
+    { entities: { status: "sensor.status", plugged: "binary_sensor.plugged" } },
+    {
+      "sensor.status": { state: "idle", attributes: {} },
+      "binary_sensor.plugged": { state: "on", attributes: {} },
+    },
+  );
+  const charging = createCard(
+    { entities: { status: "sensor.status", plugged: "binary_sensor.plugged" } },
+    {
+      "sensor.status": { state: "charging", attributes: {} },
+      "binary_sensor.plugged": { state: "on", attributes: {} },
+    },
+  );
+  assert.match(connected, /class="wallbox"/);
+  assert.match(connected, /class="cable-line"/);
+  assert.match(connected, /class="connector connector-plug"/);
+  assert.match(charging, /state-charging/);
+  assert.match(charging, /class="energy-line"/);
+  assert.match(source, /animation:energy-flow 1s linear infinite/);
 });

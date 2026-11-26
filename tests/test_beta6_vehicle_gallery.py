@@ -111,9 +111,65 @@ def test_brand_assets_keep_marketplace_ready_dimensions():
     dark_logo = (brand / "dark_logo.png").read_bytes()
     for image in (icon, logo, dark_icon, dark_logo):
         assert image[:8] == b"\x89PNG\r\n\x1a\n"
-    assert struct.unpack(">II", icon[16:24]) == (128, 128)
+    assert struct.unpack(">II", icon[16:24]) == (256, 256)
     assert struct.unpack(">II", dark_icon[16:24]) == (256, 256)
     logo_width, logo_height = struct.unpack(">II", logo[16:24])
     dark_logo_width, dark_logo_height = struct.unpack(">II", dark_logo[16:24])
     assert (logo_width, logo_height) == (490, 110)
     assert (dark_logo_width, dark_logo_height) == (490, 110)
+
+
+def test_brand_icon_masters_use_rounded_centered_geometry_and_hidpi_assets():
+    import xml.etree.ElementTree as ET
+    from PIL import Image
+
+    brand = PACKAGE / "brand"
+    symbol_paths = {}
+    backgrounds = {"icon": (249, 251, 254), "dark_icon": (6, 27, 43)}
+
+    for stem in ("icon", "dark_icon"):
+        svg_path = brand / f"{stem}.svg"
+        root = ET.parse(svg_path).getroot()
+        assert root.attrib["viewBox"] == "0 0 256 256"
+        assert root.attrib["width"] == root.attrib["height"] == "256"
+
+        paths = root.findall(".//{http://www.w3.org/2000/svg}path")
+        assert len(paths) == 2
+        c_path, bolt_path = paths
+        assert c_path.attrib["stroke-linecap"] == "round"
+        assert c_path.attrib["stroke-linejoin"] == "round"
+        assert bolt_path.attrib["stroke-linejoin"] == "round"
+        symbol_paths[stem] = [path.attrib["d"] for path in paths]
+
+        for suffix, expected_size in (("", (256, 256)), ("@2x", (512, 512))):
+            asset = brand / f"{stem}{suffix}.png"
+            assert asset.is_file()
+            with Image.open(asset) as image:
+                assert image.size == expected_size
+                image = image.convert("RGBA")
+                background = backgrounds[stem]
+                pixels = image.load()
+                xs, ys = [], []
+                for y in range(image.height):
+                    for x in range(image.width):
+                        pixel = pixels[x, y]
+                        # Ignore transparent corners, the solid background and antialiasing noise.
+                        distance = sum((pixel[channel] - background[channel]) ** 2 for channel in range(3))
+                        if pixel[3] > 0 and distance > 50 ** 2:
+                            xs.append(x)
+                            ys.append(y)
+
+                assert xs and ys, f"No visible symbol found in {asset.name}"
+                center_x = (min(xs) + max(xs)) / 2
+                center_y = (min(ys) + max(ys)) / 2
+                canvas_center = (expected_size[0] - 1) / 2
+                assert abs(center_x - canvas_center) <= 3, (
+                    f"{asset.name}: symbol is horizontally off-centre ({center_x:.1f})"
+                )
+                assert abs(center_y - canvas_center) <= 3, (
+                    f"{asset.name}: symbol is vertically off-centre ({center_y:.1f})"
+                )
+
+    assert symbol_paths["icon"] == symbol_paths["dark_icon"], (
+        "Light and dark icons must use identical C and lightning geometry"
+    )
