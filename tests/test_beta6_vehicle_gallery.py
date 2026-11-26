@@ -1,6 +1,7 @@
 """Regression contract checks for beta 9 vehicle catalog and local image upload."""
 
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -47,7 +48,7 @@ def test_catalog_contains_only_models_with_bundled_vehicle_images():
     assert 'option value="__personal__">➕ Añadir una foto personal' in card
     assert "DEFAULT_VEHICLE_CATALOG" not in card
     assert "full-401" not in card
-    assert "morro hacia la derecha" in card
+    assert re.search(r"morro (?:orientado )?hacia la derecha", card)
 
 
 def test_c10_default_is_served_from_the_integration_not_a_remote_host():
