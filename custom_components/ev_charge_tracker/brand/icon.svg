@@ -8,8 +8,10 @@
     </linearGradient>
   </defs>
   <rect x="8" y="8" width="240" height="240" rx="42" fill="#F9FBFE"/>
+  <g transform="translate(13 0)">
   <path d="M 176 69 C 149 45 107 47 79 73 C 49 103 45 151 73 181 C 101 211 148 211 176 187"
         fill="none" stroke="url(#ct-gradient)" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M 143 73 L 109 130 H 135 L 111 184 L 159 119 H 133 Z"
         fill="#10263A" stroke="#10263A" stroke-width="2.5" stroke-linejoin="round"/>
+  </g>
 </svg>
