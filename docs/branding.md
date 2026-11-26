@@ -21,6 +21,8 @@
 
 ## Usage
 - Use the dark app icon on dark backgrounds and the light icon on light backgrounds.
+- The open C has rounded terminal caps (never pointed ends), and the combined C/lightning mark is optically centered consistently across both themes.
+- Keep the same symbol scale, stroke weight and geometry in light and dark variants; only the background and bolt treatment change.
 - Keep the symbol free of text at small sizes.
 - Use blue as the dominant interface accent; reserve green for active charging, battery and positive states.
 - Prefer white and neutral gray surfaces, subtle borders and restrained gradients.
@@ -37,7 +39,8 @@ Custom integration brand images are shipped locally in this folder and use the f
 
 - `icon.png` — 256×256 light-theme icon
 - `dark_icon.png` — 256×256 dark-theme icon
-- `logo.png` — 570×128 light-theme wordmark
-- `dark_logo.png` — 570×128 dark-theme wordmark
+- `icon@2x.png` and `dark_icon@2x.png` — 512×512 high-density variants
+- `logo.png` and `dark_logo.png` — existing landscape wordmarks (unchanged in this icon refinement)
+- `icon.svg` and `dark_icon.svg` — editable vector masters; PNG files are rendered from these sources by `scripts/render_brand_icons.py`
 
 The Marketplace reads these files from the latest published release. A release must include the `brand/` directory; publishing a source change without a new release does not refresh the Marketplace image index.
