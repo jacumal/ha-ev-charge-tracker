@@ -16,14 +16,14 @@ def test_manifest_is_beta9():
 def test_catalog_contains_only_models_with_bundled_vehicle_images():
     catalog = json.loads((PACKAGE / "vehicle_catalog.json").read_text(encoding="utf-8"))
     vehicles = catalog["vehicles"]
-    assert catalog["source_row_count"] == 16
-    assert len(vehicles) == 16
-    assert len({vehicle["id"] for vehicle in vehicles}) == 16
+    assert catalog["source_row_count"] == 18
+    assert len(vehicles) == 18
+    assert len({vehicle["id"] for vehicle in vehicles}) == 18
     assert all(vehicle["image"] for vehicle in vehicles)
     assert all(vehicle["image"].startswith("/ev_charge_tracker/vehicle-images/") for vehicle in vehicles)
     assert {vehicle["label"] for vehicle in vehicles} >= {
         "Leapmotor C10", "Tesla Model Y", "Tesla Model 3",
-        "BYD Dolphin", "BYD Seagull", "Xiaomi SU7", "XPeng Mona M03",
+        "BYD Dolphin", "BYD Dolphin Surf", "BYD Seagull", "Leapmotor B10", "Xiaomi SU7", "XPeng Mona M03",
     }
     assets = PACKAGE / "brand" / "vehicle-images"
     from PIL import Image
@@ -95,7 +95,7 @@ def test_card_resource_uses_stable_url_and_local_asset_route():
     assert 'StaticPathConfig(VEHICLE_IMAGES_URL' in init
     assert 'VEHICLE_CATALOG_URL = "/ev_charge_tracker/vehicle-catalog.json"' in init
     assert 'StaticPathConfig(VEHICLE_CATALOG_URL' in init
-    assert len(json.loads((PACKAGE / "vehicle_catalog.json").read_text(encoding="utf-8"))["vehicles"]) == 16
+    assert len(json.loads((PACKAGE / "vehicle_catalog.json").read_text(encoding="utf-8"))["vehicles"]) == 18
 
 
 def test_brand_assets_keep_marketplace_ready_dimensions():
@@ -108,9 +108,9 @@ def test_brand_assets_keep_marketplace_ready_dimensions():
     dark_logo = (brand / "dark_logo.png").read_bytes()
     for image in (icon, logo, dark_icon, dark_logo):
         assert image[:8] == b"\x89PNG\r\n\x1a\n"
-    assert struct.unpack(">II", icon[16:24]) == (128, 128)
-    assert struct.unpack(">II", dark_icon[16:24]) == (256, 256)
-    logo_width, logo_height = struct.unpack(">II", logo[16:24])
-    dark_logo_width, dark_logo_height = struct.unpack(">II", dark_logo[16:24])
+    assert struct.unpack(">II", icon[18:24]) == (128, 128)
+    assert struct.unpack(">II", dark_icon[18:24]) == (256, 256)
+    logo_width, logo_height = struct.unpack(">II", logo[18:24])
+    dark_logo_width, dark_logo_height = struct.unpack(">II", dark_logo[18:24])
     assert (logo_width, logo_height) == (490, 110)
     assert (dark_logo_width, dark_logo_height) == (570, 128)
