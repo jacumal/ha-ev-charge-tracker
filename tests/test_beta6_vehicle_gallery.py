@@ -23,7 +23,9 @@ def test_catalog_contains_only_models_with_bundled_vehicle_images():
     assert all(vehicle["image"].startswith("/ev_charge_tracker/vehicle-images/") for vehicle in vehicles)
     assert {vehicle["label"] for vehicle in vehicles} >= {
         "Leapmotor C10", "Tesla Model Y", "Tesla Model 3",
-        "BYD Dolphin", "BYD Dolphin Surf", "BYD Seagull", "Leapmotor B10", "Xiaomi SU7", "XPeng Mona M03",\n        "Mercedes-Benz EQA", "BMW iX1", "Audi Q4 e-tron", "Skoda Enyaq", "Cupra Born",\n        "Volkswagen ID.3", "Renault 4 E-Tech", "Renault 5 E-Tech",
+        "BYD Dolphin", "BYD Dolphin Surf", "BYD Seagull", "Leapmotor B10", "Xiaomi SU7", "XPeng Mona M03",
+        "Mercedes-Benz EQA", "BMW iX1", "Audi Q4 e-tron", "Skoda Enyaq", "Cupra Born",
+        "Volkswagen ID.3", "Renault 4 E-Tech", "Renault 5 E-Tech",
     }
     assets = PACKAGE / "brand" / "vehicle-images"
     from PIL import Image
@@ -107,7 +109,9 @@ def test_brand_assets_keep_marketplace_ready_dimensions():
     dark_icon = (brand / "dark_icon.png").read_bytes()
     dark_logo = (brand / "dark_logo.png").read_bytes()
     for image in (icon, logo, dark_icon, dark_logo):
-        assert image[:8] == b"\x89PNG\r\n\x1a\n"
+        assert image[:8] == b"\x89PNG\r
+\x1a
+"
     assert struct.unpack(">II", icon[18:24]) == (128, 128)
     assert struct.unpack(">II", dark_icon[18:24]) == (256, 256)
     logo_width, logo_height = struct.unpack(">II", logo[18:24])
