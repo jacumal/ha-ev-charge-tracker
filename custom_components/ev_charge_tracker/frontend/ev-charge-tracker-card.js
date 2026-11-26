@@ -733,9 +733,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     this.shadowRoot.getElementById("refreshProfiles").addEventListener("click", () => this._loadProfiles(true));
     this.shadowRoot.getElementById("visual_catalog").addEventListener("change", event => this._selectCatalogVehicle(event.target.value));
     this.shadowRoot.getElementById("choosePersonalVehicleImage").addEventListener("click", () => this.shadowRoot.getElementById("personalVehicleImage").click());
-    this.shadowRoot.getElementById("choosePersonalVehicleImage").addEventListener("click", () => this.shadowRoot.getElementById("personalVehicleImage").click());
     this.shadowRoot.getElementById("personalVehicleImage").addEventListener("change", event => this._uploadPersonalVehicleImage(event.target.files?.[0]));
-    ["visual_port_x","visual_port_y"].forEach(id => this.shadowRoot.getElementById(id).addEventListener("input", () => this._updateConfig()));
     this.shadowRoot.getElementById("restoreVehicleImage").addEventListener("click", () => this._restoreCatalogVehicleImage());
     ["visual_port_x","visual_port_y"].forEach(id => this.shadowRoot.getElementById(id).addEventListener("input", () => this._updateConfig()));
     this.shadowRoot.getElementById("manualToggle").addEventListener("click", () => {
