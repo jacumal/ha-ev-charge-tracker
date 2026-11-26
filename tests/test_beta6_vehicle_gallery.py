@@ -133,7 +133,7 @@ def test_brand_icon_masters_use_rounded_centered_geometry_and_hidpi_assets():
         assert root.attrib["viewBox"] == "0 0 256 256"
         assert root.attrib["width"] == root.attrib["height"] == "256"
 
-        paths = root.findall("{http://www.w3.org/2000/svg}path")
+        paths = root.findall(".//{http://www.w3.org/2000/svg}path")
         assert len(paths) == 2
         c_path, bolt_path = paths
         assert c_path.attrib["stroke-linecap"] == "round"
