@@ -8,6 +8,11 @@ on:
       - "custom_components/ev_charge_tracker/brand/*.svg"
       - "scripts/render_brand_icons.py"
       - ".github/workflows/render-brand-icons.yml"
+  pull_request:
+    paths:
+      - "custom_components/ev_charge_tracker/brand/*.svg"
+      - "scripts/render_brand_icons.py"
+      - ".github/workflows/render-brand-icons.yml"
 
 permissions:
   contents: write
@@ -18,7 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -33,5 +39,5 @@ jobs:
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add custom_components/ev_charge_tracker/brand/icon.png custom_components/ev_charge_tracker/brand/dark_icon.png custom_components/ev_charge_tracker/brand/icon@2x.png custom_components/ev_charge_tracker/brand/dark_icon@2x.png
             git commit -m "Render centered rounded ChargeTrack brand icons"
-            git push
+            git push origin HEAD:${{ github.event.pull_request.head.ref || github.ref_name }}
           fi
