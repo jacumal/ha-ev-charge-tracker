@@ -146,16 +146,16 @@ def test_brand_icon_masters_use_rounded_centered_geometry_and_hidpi_assets():
             assert asset.is_file()
             with Image.open(asset) as image:
                 assert image.size == expected_size
-                image = image.convert("RGB")
+                image = image.convert("RGBA")
                 background = backgrounds[stem]
                 pixels = image.load()
                 xs, ys = [], []
                 for y in range(image.height):
                     for x in range(image.width):
                         pixel = pixels[x, y]
-                        # Ignore the solid rounded-square background and antialiasing noise.
+                        # Ignore transparent corners, the solid background and antialiasing noise.
                         distance = sum((pixel[channel] - background[channel]) ** 2 for channel in range(3))
-                        if distance > 50 ** 2:
+                        if pixel[3] > 0 and distance > 50 ** 2:
                             xs.append(x)
                             ys.append(y)
 
