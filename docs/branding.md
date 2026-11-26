@@ -29,3 +29,15 @@
 
 ## Stable technical identifiers
 The Home Assistant domain `ev_charge_tracker`, Lovelace element type `ev-charge-tracker-card`, resource URL and existing entity IDs remain unchanged. The rebrand changes only user-facing naming and brand assets; it must not require deleting/recreating config entries or history.
+
+
+## Home Assistant brand image files
+
+Custom integration brand images are shipped locally in this folder and use the filenames Home Assistant 2026.3+ recognizes:
+
+- `icon.png` — 256×256 light-theme icon
+- `dark_icon.png` — 256×256 dark-theme icon
+- `logo.png` — 570×128 light-theme wordmark
+- `dark_logo.png` — 570×128 dark-theme wordmark
+
+The Marketplace reads these files from the latest published release. A release must include the `brand/` directory; publishing a source change without a new release does not refresh the Marketplace image index.

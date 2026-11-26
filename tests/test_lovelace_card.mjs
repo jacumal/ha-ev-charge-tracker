@@ -181,14 +181,14 @@ test("shows live battery SOC and odometer from the selected profile entities", (
   assert.doesNotMatch(html, /Datos complementarios del vehículo/);
 });
 
-test("renders a transparent vehicle silhouette and cable state without a custom image", () => {
+test("renders the official transparent C10 image and cable state without a custom image", () => {
   const html = createCard(
     { name: "Leapmotor C10", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10", visual_color: "#AABBCC", visual_body_style: "suv" }, entities: { status: "sensor.status" } },
     { "sensor.status": { state: "idle", attributes: {} } },
   );
   assert.match(html, /vehicle-visual/);
   assert.match(html, /Leapmotor C10/);
-  assert.match(html, /leapmotor-c10-white\.webp/);
+  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"));
   assert.match(html, /state-unknown/);
   assert.match(html, /Conexión sin monitorizar/);
 });
@@ -483,30 +483,37 @@ test("gallery choices are stored per vehicle and shared by that vehicle's charge
   assert.notEqual(editor._profileVisualKey(c10Home), editor._profileVisualKey(tesla));
 });
 
-test("editor automatically suggests the selected vehicle identity for gallery searches", () => {
-  assert.match(source, /const suggestedQuery = \[visual\.visual_brand, visual\.visual_model\]/);
-  assert.match(source, /this\._galleryQueryEdited/);
+test("editor selector tracks the catalog model while keeping image choice per vehicle", () => {
+  assert.match(source, /const matchingCatalog = this\._vehicleCatalog\.find/);
   assert.match(source, /next\.vehicle_visuals = \{ \.\.\.\(next\.vehicle_visuals \|\| \{\}\), \[visualKey\]: \{ \.\.\.next\.vehicle_visual \} \}/);
 });
 
-test("vehicle image gallery is present and queries Commons with machine-readable license metadata", () => {
-  assert.match(source, /Galería gratuita de vehículos/);
+test("beta 9 replaces new gallery selection with the catalog while retaining legacy Commons compatibility", () => {
+  assert.doesNotMatch(source, /Galería gratuita de vehículos/);
+  assert.match(source, /this\._vehicleCatalog/);
+  assert.match(source, /__personal__/);
   assert.match(source, /https:\/\/commons\.wikimedia\.org\/w\/api\.php/);
-  assert.match(source, /iiprop:"url\|extmetadata"/);
   assert.match(source, /LicenseShortName/);
-  assert.match(source, /CC0/);
-  assert.match(source, /Public domain/);
-  assert.match(source, /CC BY-SA/);
 });
 
 test("only local images or HTTPS Wikimedia Commons uploads are accepted", () => {
   const card = createCardInstance();
   assert.equal(card._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
+  assert.equal(card._validVehicleImage("/local/ev-charge-tracker/custom/" + "b".repeat(64) + ".png"), true);
   assert.equal(card._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/C10.jpg/900px-C10.jpg"), true);
   assert.equal(card._validVehicleImage("http://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), false);
   assert.equal(card._validVehicleImage("https://example.com/c10.jpg"), false);
   assert.equal(card._validVehicleImage("https://upload.wikimedia.org.evil.example/c10.jpg"), false);
   assert.equal(card._validVehicleImage("/local/ev-charge-tracker/../secret.png"), false);
+});
+
+test("bundled vehicle gallery images are accepted by card and editor validators", () => {
+  const card = createCardInstance();
+  const editor = createEditorInstance();
+  const image = "/ev_charge_tracker/vehicle-images/BYD-Seal.png";
+  assert.equal(card._validVehicleImage(image), true);
+  assert.equal(editor._validVehicleImage(image), true);
+  assert.equal(card._validVehicleImage("/ev_charge_tracker/vehicle-images/../secret.png"), false);
 });
 
 test("selected Commons images retain creator, license and source-page attribution", () => {
@@ -553,10 +560,12 @@ test("Leapmotor C10 default cable anchor is on the rear-left quarter", () => {
 
 test("editor image validation is available independently from the card class", () => {
   const editor = createEditorInstance();
-  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/leapmotor-c10-white.webp"), true);
+  assert.equal(editor._validVehicleImage("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"), true);
   assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);
+  assert.equal(editor._validVehicleImage("/local/ev-charge-tracker/custom/" + "a".repeat(64) + ".png"), true);
   assert.equal(editor._validVehicleImage("https://upload.wikimedia.org/wikipedia/commons/a/a1/C10.jpg"), true);
   assert.equal(editor._validVehicleImage("https://example.com/c10.jpg"), false);
+  assert.equal(editor._validVehicleImage("https://www.leapmotor.net/_next/image?q=90"), false);
 });
 
 test("card uses the bundled C10 image when the selected vehicle identity names C10", () => {
@@ -564,13 +573,12 @@ test("card uses the bundled C10 image when the selected vehicle identity names C
     { name: "Leapmotor C10", entities: {} },
     {},
   );
-  assert.match(html, /\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp/);
-  assert.match(html, /\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp/);
+  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"));
 });
 
 test("card does not render the generic cartoon car when no vehicle image is configured", () => {
   const html = createCard({ name: "Mi vehículo", entities: {} }, {});
-  assert.match(html, /Imagen del vehículo no disponible/);
+  assert.match(html, /vehicle-generic\.png/);
   assert.doesNotMatch(html, /vehicle-body/);
 });
 
@@ -578,6 +586,69 @@ test("card does not render the generic cartoon car when no vehicle image is conf
 test("editor preview derives the C10 default image from the selected profile identity", () => {
   assert.match(source, /const activeProfile = this\._profiles\.find\(item => item\.entry_id === this\._config\.profile_entry_id\)/);
   assert.match(source, /const identityText = \[visual\.visual_brand, visual\.visual_model, activeProfile\?\.vehicle_name, this\._config\.name\]/);
-  assert.match(source, /const image = this\._validVehicleImage\(visual\.visual_image\) \? visual\.visual_image : \(isLeapmotorC10 \? "\/ev_charge_tracker\/vehicle-images\/leapmotor-c10-white\.webp"/);
+  assert.match(source, /const image = this\._validVehicleImage\(visual\.visual_image\) \? visual\.visual_image : \(isLeapmotorC10 \? DEFAULT_C10_IMAGE_URL/);
   assert.match(source, /preview\.innerHTML = '<div class="preview-stage">' \+ imageOrFallback/);
+});
+
+
+test("uses the same verified official transparent C10 image in card and editor", () => {
+  assert.match(source, /DEFAULT_C10_IMAGE_URL/);
+  assert.ok(source.includes("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"));
+  assert.doesNotMatch(source, /officialC10Image/);
+  const html = createCard(
+    { name: "Leap C10", vehicle_visual: { visual_brand: "Leapmotor", visual_model: "C10" }, entities: {} },
+  );
+  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"));
+  assert.match(html, /vehicle-image custom/);
+});
+
+test("uses the approved vehicle-first layout and neutral image fallback", () => {
+  assert.match(source, /grid-template-areas:"stage state"/);
+  assert.match(source, /vehicle-subtitle/);
+  assert.match(source, /history-summary/);
+  assert.match(source, /DEFAULT_GENERIC_IMAGE_URL/);
+});
+
+
+test("migrates beta 7 legacy C10 image setting to the official default", () => {
+  const html = createCard(
+    { name: "Leapmotor C10", vehicle_visual: {
+      visual_brand: "Leapmotor", visual_model: "C10",
+      visual_image: "/ev_charge_tracker/vehicle-images/Leapmotor-C10.png",
+    }, entities: {} },
+  );
+  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"));
+  assert.ok(html.includes("/ev_charge_tracker/vehicle-images/Leapmotor-C10.png"));
+});
+
+
+test("deduplicates vehicle generation and model year in the hero subtitle", () => {
+  const html = createCard(
+    { name: "Leap C10", vehicle_visual: {
+      visual_brand: "Leapmotor", visual_model: "C10",
+      visual_generation: "2026", visual_year: "2026", visual_trim: "Design",
+    }, entities: {} },
+  );
+  assert.ok(html.includes("Design · 2026"));
+  assert.doesNotMatch(html, /2026 · 2026/);
+});
+
+
+test("beta 9 selector is limited to bundled images plus generic and personal options", () => {
+  assert.ok(source.includes('id="visual_catalog"'));
+  assert.ok(source.includes("payload.vehicles.filter"));
+  assert.ok(source.includes('item.image.startsWith("/ev_charge_tracker/vehicle-images/")'));
+  assert.ok(source.includes('value="__generic__">Vehículo genérico'));
+  assert.ok(source.includes('value="__personal__">➕ Añadir una foto personal'));
+  assert.ok(source.includes('id="personalVehicleImage"'));
+  assert.ok(source.includes('id="restoreVehicleImage"'));
+  assert.ok(source.includes("_restoreCatalogVehicleImage"));
+  assert.ok(/morro (?:orientado )?hacia la derecha/.test(source));
+  assert.ok(source.includes("vista exterior frontal de tres cuartos"));
+  assert.ok(source.includes("1200"));
+  assert.ok(source.includes("675"));
+  assert.ok(source.includes("api/ev_charge_tracker/vehicle-image"));
+  assert.ok(source.includes('Authorization: "Bearer " + token'));
+  assert.ok(!source.includes("DEFAULT_VEHICLE_CATALOG"));
+  assert.ok(!source.includes("full-401"));
 });
