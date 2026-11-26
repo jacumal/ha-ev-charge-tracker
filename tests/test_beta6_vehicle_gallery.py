@@ -111,9 +111,19 @@ def test_brand_assets_keep_marketplace_ready_dimensions():
     dark_logo = (brand / "dark_logo.png").read_bytes()
     for image in (icon, logo, dark_icon, dark_logo):
         assert image[:8] == b"\x89PNG\r\n\x1a\n"
-    assert struct.unpack(">II", icon[16:24]) == (128, 128)
+    assert struct.unpack(">II", icon[16:24]) == (256, 256)
     assert struct.unpack(">II", dark_icon[16:24]) == (256, 256)
     logo_width, logo_height = struct.unpack(">II", logo[16:24])
     dark_logo_width, dark_logo_height = struct.unpack(">II", dark_logo[16:24])
     assert (logo_width, logo_height) == (490, 110)
     assert (dark_logo_width, dark_logo_height) == (490, 110)
+
+
+def test_brand_icon_masters_use_rounded_centered_geometry_and_hidpi_assets():
+    brand = PACKAGE / "brand"
+    for stem in ("icon", "dark_icon"):
+        svg = (brand / f"{stem}.svg").read_text(encoding="utf-8")
+        assert 'stroke-linecap="round"' in svg
+        assert 'stroke-linejoin="round"' in svg
+        assert 'viewBox="0 0 256 256"' in svg
+        assert (brand / f"{stem}@2x.png").is_file()
