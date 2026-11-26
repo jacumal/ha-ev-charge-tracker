@@ -113,4 +113,4 @@ def test_brand_assets_keep_marketplace_ready_dimensions():
     logo_width, logo_height = struct.unpack(">II", logo[18:24])
     dark_logo_width, dark_logo_height = struct.unpack(">II", dark_logo[18:24])
     assert (logo_width, logo_height) == (490, 110)
-    assert (dark_logo_width, dark_logo_height) == (570, 128)
+    assert (dark_logo_width, dark_logo_height) == (490, 110)

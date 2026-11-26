@@ -11,7 +11,7 @@
 - [x] Imágenes personales con nombre basado en SHA-256 y ruta persistente en la carpeta www local.
 - [x] Selección de imagen guardada por vehículo y compartida por sus perfiles de carga.
 - [x] Restauración de la imagen predeterminada o limpieza de la imagen personal.
-- [x] Recursos estáticos locales para la tarjeta, galería y catálogo reducido.
+- [x] Recursos estáticos locales para la tarjeta, galería y catálogo reducido.\n- [x] `dark_logo.png` actualizado para usar la identidad gráfica ChargeTrack vigente y mantener coherencia con `logo.png`.
 - [x] Pruebas automáticas de inventario, existencia de imágenes, transparencia, endpoint y rutas.
 - [ ] Verificar y, cuando proceda, normalizar los 18 renders incluidos a un lienzo común de 1200 × 675 y escala visual uniforme.
 - [ ] Confirmar la procedencia y derechos de redistribución de cada render suministrado antes de publicar la release.

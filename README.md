@@ -12,7 +12,7 @@ ChargeTrack brings your electric vehicle's charging sessions, energy, battery st
 - Tagline: **EV Management Platform**.
 - Visual identity: minimalist open circular arc and lightning bolt.
 - Brand colors: Apple-inspired blue, green, white and neutral grays.
-- Dark and light icon variants are included in `custom_components/ev_charge_tracker/brand/`.
+- Dark and light icon variants and the current ChargeTrack logo asset are included in `custom_components/ev_charge_tracker/brand/`.
 - The internal Home Assistant domain remains `ev_charge_tracker` to preserve existing installations, config entries, entity IDs and stored history.
 
 ## Design principles
