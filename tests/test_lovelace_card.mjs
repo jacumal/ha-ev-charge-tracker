@@ -44,7 +44,7 @@ function createCard(config, states = {}) {
 }
 
 
-test("editor exposes live vehicle identity, image and charge-port controls", () => {
+test("editor exposes simplified vehicle selection, personal image and explained charge-port controls", () => {
   assert.match(source, /id="visual_brand"/);
   assert.match(source, /id="visual_model"/);
   assert.match(source, /id="visual_image"/);
@@ -641,12 +641,14 @@ test("beta 9 selector is limited to bundled images plus generic and personal opt
   assert.ok(source.includes("payload.vehicles.filter"));
   assert.ok(source.includes('item.image.startsWith("/ev_charge_tracker/vehicle-images/")'));
   assert.ok(source.includes('value="__generic__">Vehículo genérico'));
-  assert.ok(source.includes('value="__personal__">➕ Añadir una foto personal'));
+  assert.ok(source.includes('id="choosePersonalVehicleImage"'));
+  assert.ok(!source.includes('value="__personal__"'));
   assert.ok(source.includes('id="personalVehicleImage"'));
   assert.ok(source.includes('id="restoreVehicleImage"'));
   assert.ok(source.includes("_restoreCatalogVehicleImage"));
-  assert.ok(/morro (?:orientado )?hacia la derecha/.test(source));
-  assert.ok(source.includes("vista exterior frontal de tres cuartos"));
+  assert.ok(source.includes("Configuración del punto de carga"));
+  assert.ok(source.includes("ChargeTrack conectará visualmente el cable en ese punto"));
+  assert.ok(source.includes("portPreview"));
   assert.ok(source.includes("1200"));
   assert.ok(source.includes("675"));
   assert.ok(source.includes("api/ev_charge_tracker/vehicle-image"));
