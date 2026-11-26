@@ -729,7 +729,9 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     });
     this.shadowRoot.getElementById("refreshProfiles").addEventListener("click", () => this._loadProfiles(true));
     this.shadowRoot.getElementById("visual_catalog").addEventListener("change", event => this._selectCatalogVehicle(event.target.value));
+    this.shadowRoot.getElementById("choosePersonalVehicleImage").addEventListener("click", () => this.shadowRoot.getElementById("personalVehicleImage").click());
     this.shadowRoot.getElementById("personalVehicleImage").addEventListener("change", event => this._uploadPersonalVehicleImage(event.target.files?.[0]));
+    ["visual_port_x","visual_port_y"].forEach(id => this.shadowRoot.getElementById(id).addEventListener("input", () => this._updateConfig()));
     this.shadowRoot.getElementById("restoreVehicleImage").addEventListener("click", () => this._restoreCatalogVehicleImage());
     this.shadowRoot.getElementById("manualToggle").addEventListener("click", () => {
       this._manualMode = !this._manualMode;
@@ -1023,8 +1025,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       }).join("");
       catalog.innerHTML = '<option value="">Selecciona un vehículo…</option>' + options +
         '<option value="__generic__">Vehículo genérico</option>' +
-        '<option value="__personal__">➕ Añadir una foto personal</option>';
-      catalog.dataset.catalogVersion = "images-only-v2-" + this._vehicleCatalog.length;
+        '';
+      catalog.dataset.catalogVersion = "beta11-images-only-v3-" + this._vehicleCatalog.length;
     }
     const matchingCatalog = this._vehicleCatalog.find(item =>
       item.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() &&
