@@ -87,16 +87,16 @@ def test_upload_endpoint_requires_transparency_and_png_canvas():
     assert 'if "A" not in image.getbands()' in endpoint
     assert "alpha_min == 255" in endpoint
     assert "transparent_pixels < total_pixels * 0.12" in endpoint
-    assert 'image.size != CANVAS_SIZE' in endpoint
+    assert "image.size != CANVAS_SIZE" in endpoint
 
 
 def test_card_resource_uses_stable_url_and_local_asset_route():
     init = (PACKAGE / "__init__.py").read_text(encoding="utf-8")
     assert 'CARD_URL = "/ev_charge_tracker/ev-charge-tracker-card.js"' in init
     assert "cache_headers=False" in init
-    assert 'StaticPathConfig(VEHICLE_IMAGES_URL' in init
+    assert "StaticPathConfig(VEHICLE_IMAGES_URL" in init
     assert 'VEHICLE_CATALOG_URL = "/ev_charge_tracker/vehicle-catalog.json"' in init
-    assert 'StaticPathConfig(VEHICLE_CATALOG_URL' in init
+    assert "StaticPathConfig(VEHICLE_CATALOG_URL" in init
     assert len(json.loads((PACKAGE / "vehicle_catalog.json").read_text(encoding="utf-8"))["vehicles"]) == 26
 
 
@@ -109,12 +109,10 @@ def test_brand_assets_keep_marketplace_ready_dimensions():
     dark_icon = (brand / "dark_icon.png").read_bytes()
     dark_logo = (brand / "dark_logo.png").read_bytes()
     for image in (icon, logo, dark_icon, dark_logo):
-        assert image[:8] == b"\x89PNG\r
-\x1a
-"
-    assert struct.unpack(">II", icon[18:24]) == (128, 128)
-    assert struct.unpack(">II", dark_icon[18:24]) == (256, 256)
-    logo_width, logo_height = struct.unpack(">II", logo[18:24])
-    dark_logo_width, dark_logo_height = struct.unpack(">II", dark_logo[18:24])
+        assert image[:8] == b"\\x89PNG\\r\\n\\x1a\\n"
+    assert struct.unpack(">II", icon[16:24]) == (128, 128)
+    assert struct.unpack(">II", dark_icon[16:24]) == (256, 256)
+    logo_width, logo_height = struct.unpack(">II", logo[16:24])
+    dark_logo_width, dark_logo_height = struct.unpack(">II", dark_logo[16:24])
     assert (logo_width, logo_height) == (490, 110)
     assert (dark_logo_width, dark_logo_height) == (490, 110)
