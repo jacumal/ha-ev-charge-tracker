@@ -774,7 +774,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const item = this._vehicleCatalog.find(vehicle => vehicle.id === id);
     if (!item) return;
     const next = { ...this._config, vehicle_visual: { ...(this._config.vehicle_visual || {}) } };
-    Object.assign(next.vehicle_visual, { visual_brand: item.brand, visual_model: item.model, visual_body_style: item.body, visual_image: item.image || "" });
+    Object.assign(next.vehicle_visual, { visual_brand: item.brand, visual_model: item.model, visual_body_style: item.body, visual_image: item.image || "", visual_port_x: item.port_x ?? 67, visual_port_y: item.port_y ?? 44 });
     for (const key of ["visual_image_credit","visual_image_license","visual_image_license_url","visual_image_page","visual_image_source"]) delete next.vehicle_visual[key];
     next.vehicle_visual_override = true;
     this._config = next;
