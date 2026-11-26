@@ -16,14 +16,14 @@ def test_manifest_is_beta9():
 def test_catalog_contains_only_models_with_bundled_vehicle_images():
     catalog = json.loads((PACKAGE / "vehicle_catalog.json").read_text(encoding="utf-8"))
     vehicles = catalog["vehicles"]
-    assert catalog["source_row_count"] == 18
-    assert len(vehicles) == 18
-    assert len({vehicle["id"] for vehicle in vehicles}) == 18
+    assert catalog["source_row_count"] == 26
+    assert len(vehicles) == 26
+    assert len({vehicle["id"] for vehicle in vehicles}) == 26
     assert all(vehicle["image"] for vehicle in vehicles)
     assert all(vehicle["image"].startswith("/ev_charge_tracker/vehicle-images/") for vehicle in vehicles)
     assert {vehicle["label"] for vehicle in vehicles} >= {
         "Leapmotor C10", "Tesla Model Y", "Tesla Model 3",
-        "BYD Dolphin", "BYD Dolphin Surf", "BYD Seagull", "Leapmotor B10", "Xiaomi SU7", "XPeng Mona M03",
+        "BYD Dolphin", "BYD Dolphin Surf", "BYD Seagull", "Leapmotor B10", "Xiaomi SU7", "XPeng Mona M03",\n        "Mercedes-Benz EQA", "BMW iX1", "Audi Q4 e-tron", "Skoda Enyaq", "Cupra Born",\n        "Volkswagen ID.3", "Renault 4 E-Tech", "Renault 5 E-Tech",
     }
     assets = PACKAGE / "brand" / "vehicle-images"
     from PIL import Image
@@ -95,7 +95,7 @@ def test_card_resource_uses_stable_url_and_local_asset_route():
     assert 'StaticPathConfig(VEHICLE_IMAGES_URL' in init
     assert 'VEHICLE_CATALOG_URL = "/ev_charge_tracker/vehicle-catalog.json"' in init
     assert 'StaticPathConfig(VEHICLE_CATALOG_URL' in init
-    assert len(json.loads((PACKAGE / "vehicle_catalog.json").read_text(encoding="utf-8"))["vehicles"]) == 18
+    assert len(json.loads((PACKAGE / "vehicle_catalog.json").read_text(encoding="utf-8"))["vehicles"]) == 26
 
 
 def test_brand_assets_keep_marketplace_ready_dimensions():

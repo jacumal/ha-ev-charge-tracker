@@ -7,7 +7,7 @@
 - El selector ya no necesita clasificar modelos por tecnología ni cargar una base de datos extensa.
 
 ## Imágenes incluidas
-- Se mantiene la galería local de 18 modelos con render propio y la imagen genérica.
+- Se mantiene la galería local de 26 modelos con render propio y la imagen genérica.
 - Los renders se sirven desde Home Assistant; no dependen de enlaces a páginas externas.
 - La procedencia y los derechos de redistribución de las imágenes suministradas deben quedar confirmados antes de publicar la release.
 

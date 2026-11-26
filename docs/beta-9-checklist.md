@@ -13,7 +13,7 @@
 - [x] Restauración de la imagen predeterminada o limpieza de la imagen personal.
 - [x] Recursos estáticos locales para la tarjeta, galería y catálogo reducido.\n- [x] `dark_logo.png` actualizado para usar la identidad gráfica ChargeTrack vigente y mantener coherencia con `logo.png`.
 - [x] Pruebas automáticas de inventario, existencia de imágenes, transparencia, endpoint y rutas.
-- [ ] Verificar y, cuando proceda, normalizar los 18 renders incluidos a un lienzo común de 1200 × 675 y escala visual uniforme.
+- [ ] Verificar y, cuando proceda, normalizar los 26 renders incluidos a un lienzo común de 1200 × 675 y escala visual uniforme.
 - [ ] Confirmar la procedencia y derechos de redistribución de cada render suministrado antes de publicar la release.
 - [ ] Revisar el ZIP HACS generado y comprobar que incluye todos los módulos y recursos.
 
