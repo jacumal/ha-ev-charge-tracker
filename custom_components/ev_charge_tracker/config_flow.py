@@ -195,8 +195,6 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                 return await self.async_step_profile()
             if user_input["section"] == "tariffs":
                 return await self.async_step_tariffs()
-            if user_input["section"] == "vehicle":
-                return await self.async_step_vehicle_visual()
             return await self.async_step_units()
         schema = vol.Schema({
             vol.Required("section", default="profile"): selector.SelectSelector(
@@ -205,7 +203,6 @@ class EVChargeTrackerOptionsFlow(config_entries.OptionsFlow):
                         {"value": "profile", "label": "Sensores y comportamiento"},
                         {"value": "tariffs", "label": "Tarifas eléctricas"},
                         {"value": "units", "label": "Unidades y moneda"},
-                        {"value": "vehicle", "label": "Identidad visual del vehículo"},
                     ],
                     mode=selector.SelectSelectorMode.LIST,
                 )
