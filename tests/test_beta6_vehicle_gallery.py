@@ -109,7 +109,7 @@ def test_brand_assets_keep_marketplace_ready_dimensions():
     dark_icon = (brand / "dark_icon.png").read_bytes()
     dark_logo = (brand / "dark_logo.png").read_bytes()
     for image in (icon, logo, dark_icon, dark_logo):
-        assert image[:8] == b"\\x89PNG\\r\\n\\x1a\\n"
+        assert image[:8] == b"\x89PNG\r\n\x1a\n"
     assert struct.unpack(">II", icon[16:24]) == (128, 128)
     assert struct.unpack(">II", dark_icon[16:24]) == (256, 256)
     logo_width, logo_height = struct.unpack(">II", logo[16:24])
