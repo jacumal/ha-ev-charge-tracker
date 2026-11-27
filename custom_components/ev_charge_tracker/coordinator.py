@@ -208,6 +208,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         elif action == "stop":
             self._stop_session()
             self._try_finalize()
+        self._refresh_source_diagnostic()
         if action != "preserve":
             if had_restored_session and self.data.get("session") is not None:
                 # A restart is a new observation point: do not carry a pre-restart
