@@ -152,6 +152,19 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         saved = await self.store.async_load()
         if isinstance(saved, dict):
             self.data.update(saved)
+        self.data.setdefault("source_diagnostics", {})
+        # Migrate the single-string diagnostic used by Beta 11. Keep it only
+        # while the referenced source is still genuinely unavailable.
+        legacy_diagnostic = self.data.get("diagnostic", "")
+        prefix = "Lectura no disponible: "
+        if isinstance(legacy_diagnostic, str) and legacy_diagnostic.startswith(prefix):
+            legacy_entity = legacy_diagnostic[len(prefix):].strip()
+            legacy_state = self.hass.states.get(legacy_entity) if legacy_entity else None
+            if legacy_state is None or legacy_state.state in ("unknown", "unavailable"):
+                self.data["source_diagnostics"][legacy_entity] = legacy_diagnostic
+            else:
+                self.data["diagnostic"] = "Telemetría recuperada"
+        self.data.setdefault("diagnostic_before_source", self.data.get("diagnostic"))
         entities = [
             self.config[CONF_CHARGING_ENTITY],
             self.config[CONF_ENERGY_ENTITY],
@@ -165,6 +178,14 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         self._unsub.append(
             async_track_state_change_event(self.hass, entities, self._handle_state_change)
         )
+        # Reconcile persisted source warnings against the current HA state on
+        # startup so a warning from before a restart cannot remain indefinitely.
+        for entity_id in entities:
+            state = self.hass.states.get(entity_id)
+            if state is None or state.state in ("unknown", "unavailable"):
+                self._set_source_diagnostic(entity_id)
+            else:
+                self._clear_source_diagnostic(entity_id)
 
         # Reconcile persisted state only when the charger reports a definitive state.
         had_restored_session = self.data.get("session") is not None
@@ -202,7 +223,31 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         self._try_finalize()
         if previous_session is not None and self.data.get("session") is None:
             await self._async_save()
+        self._refresh_source_diagnostic()
         return self.data
+
+    def _set_source_diagnostic(self, entity_id: str) -> None:
+        """Keep an entity-specific warning active only while its source is unavailable."""
+        diagnostics = self.data.setdefault("source_diagnostics", {})
+        if not diagnostics:
+            self.data["diagnostic_before_source"] = self.data.get("diagnostic")
+        diagnostics[entity_id] = f"Lectura no disponible: {entity_id}"
+        self._refresh_source_diagnostic()
+
+    def _clear_source_diagnostic(self, entity_id: str) -> None:
+        """Clear only the recovered source and preserve warnings for other entities."""
+        diagnostics = self.data.setdefault("source_diagnostics", {})
+        diagnostics.pop(entity_id, None)
+        self._refresh_source_diagnostic()
+
+    def _refresh_source_diagnostic(self) -> None:
+        """Expose active source warnings, otherwise restore the operational diagnostic."""
+        diagnostics = self.data.setdefault("source_diagnostics", {})
+        if diagnostics:
+            self.data["diagnostic"] = " · ".join(diagnostics.values())
+        elif str(self.data.get("diagnostic", "")).startswith("Lectura no disponible:"):
+            previous = self.data.pop("diagnostic_before_source", None)
+            self.data["diagnostic"] = previous or "Telemetría recuperada"
 
     @callback
     def _handle_state_change(self, event) -> None:
@@ -212,10 +257,12 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         if new_state is None or new_state.state in ("unknown", "unavailable"):
             if self.data.get("session") is not None and self._is_tariff_price_entity(entity_id):
                 self._append_tariff_price_sample(entity_id, None)
-            self.data["diagnostic"] = f"Lectura no disponible: {entity_id}"
+            self._set_source_diagnostic(entity_id)
             self.async_set_updated_data(self.data)
             self.hass.async_create_task(self._async_save())
             return
+
+        self._clear_source_diagnostic(entity_id)
 
         if entity_id == self.config[CONF_CHARGING_ENTITY]:
             action = _session_recovery_action(new_state.state, self.data.get("session"))
@@ -237,6 +284,7 @@ class EVChargeCoordinator(DataUpdateCoordinator):
             self._capture_measurements(entity_id, new_state.state)
 
         self._try_finalize()
+        self._refresh_source_diagnostic()
         self.async_set_updated_data(self.data)
         self.hass.async_create_task(self._async_save())
 
