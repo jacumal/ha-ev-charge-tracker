@@ -20,6 +20,7 @@ class ConfigEntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
         )
         self.hass = SimpleNamespace(
             data={},
+            http=SimpleNamespace(register_view=Mock()),
             config_entries=SimpleNamespace(
                 async_entries=Mock(return_value=[]),
                 async_forward_entry_setups=AsyncMock(),
@@ -80,6 +81,8 @@ class ConfigEntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertTrue(result)
         self.assertIs(self.hass.data[DOMAIN][self.entry.entry_id], self.coordinator)
+        self.hass.http.register_view.assert_called_once()
+        self.assertTrue(self.hass.data[DOMAIN]["_vehicle_image_view_registered"])
         self.coordinator.async_shutdown.assert_not_awaited()
         self.entry.async_on_unload.assert_called_once()
 
