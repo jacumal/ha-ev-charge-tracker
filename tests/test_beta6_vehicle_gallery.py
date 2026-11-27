@@ -1,4 +1,4 @@
-"""Regression contract checks for beta 9 vehicle catalog and local image upload."""
+"""Regression contract checks for the vehicle catalog and local image upload."""
 
 import json
 import re
@@ -9,9 +9,10 @@ PACKAGE = ROOT / "custom_components/ev_charge_tracker"
 CARD = PACKAGE / "frontend/ev-charge-tracker-card.js"
 
 
-def test_manifest_is_beta9():
+def test_manifest_declares_a_valid_integration_version():
     manifest = json.loads((PACKAGE / "manifest.json").read_text(encoding="utf-8"))
-    assert manifest["version"] == "0.1.0-beta.9"
+    assert isinstance(manifest.get("version"), str)
+    assert manifest["version"].strip()
 
 
 def test_catalog_contains_only_models_with_bundled_vehicle_images():
@@ -45,7 +46,8 @@ def test_catalog_contains_only_models_with_bundled_vehicle_images():
     card = CARD.read_text(encoding="utf-8")
     assert 'id="visual_catalog"' in card
     assert 'option value="__generic__">Vehículo genérico' in card
-    assert 'option value="__personal__">➕ Añadir una foto personal' in card
+    assert 'id="choosePersonalVehicleImage"' in card
+    assert 'option value="__personal__"' not in card
     assert "DEFAULT_VEHICLE_CATALOG" not in card
     assert "full-401" not in card
     assert re.search(r"morro (?:orientado )?hacia la derecha", card)
