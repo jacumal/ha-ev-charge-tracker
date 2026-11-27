@@ -1014,7 +1014,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const visual = this._config.vehicle_visual || {};
     const profile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
     const catalog = this.shadowRoot.getElementById("visual_catalog");
-    if (catalog && catalog.dataset.catalogVersion !== "images-only-v2-" + this._vehicleCatalog.length) {
+    if (catalog && catalog.dataset.catalogVersion !== "beta11-images-only-v3-" + this._vehicleCatalog.length) {
       const available = this._vehicleCatalog
         .filter(item => Boolean(item.image))
         .sort((a, b) => a.brand.localeCompare(b.brand, "es") || a.model.localeCompare(b.model, "es"));
@@ -1026,7 +1026,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
           this._esc([item.brand, item.model].filter(Boolean).join(" ")) + '</option>'
         ).join("") + '</optgroup>';
       }).join("");
-      catalog.innerHTML = '<option value="">Selecciona un vehículo…</option>' + options +
+      catalog.innerHTML = '<option value="" disabled selected>Selecciona un vehículo…</option>' + options +
         '<option value="__generic__">Vehículo genérico</option>' +
         '';
       catalog.dataset.catalogVersion = "beta11-images-only-v3-" + this._vehicleCatalog.length;
