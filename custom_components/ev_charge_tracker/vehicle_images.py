@@ -45,7 +45,7 @@ class VehicleImageUploadView(HomeAssistantView):
             from PIL import Image, UnidentifiedImageError
         except ImportError as err:
             raise web.HTTPInternalServerError(
-                text="El validador de imágenes no está disponible."
+                text="Falta Pillow. Reinicia Home Assistant para instalar las dependencias de ChargeTrack."
             ) from err
 
         try:
