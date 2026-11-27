@@ -164,7 +164,10 @@ class EVChargeCoordinator(DataUpdateCoordinator):
                 self.data["source_diagnostics"][legacy_entity] = legacy_diagnostic
             else:
                 self.data["diagnostic"] = "Telemetría recuperada"
-        self.data.setdefault("diagnostic_before_source", self.data.get("diagnostic"))
+        if str(self.data.get("diagnostic", "")).startswith(prefix):
+            self.data.setdefault("diagnostic_before_source", "Telemetría recuperada")
+        else:
+            self.data.setdefault("diagnostic_before_source", self.data.get("diagnostic"))
         entities = [
             self.config[CONF_CHARGING_ENTITY],
             self.config[CONF_ENERGY_ENTITY],
