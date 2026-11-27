@@ -490,10 +490,12 @@ test("editor selector tracks the catalog model while keeping image choice per ve
   assert.match(source, /next\.vehicle_visuals = \{ \.\.\.\(next\.vehicle_visuals \|\| \{\}\), \[visualKey\]: \{ \.\.\.next\.vehicle_visual \} \}/);
 });
 
-test("beta 9 replaces new gallery selection with the catalog while retaining legacy Commons compatibility", () => {
+test("beta 11 keeps personal image upload outside the vehicle selector", () => {
   assert.doesNotMatch(source, /Galería gratuita de vehículos/);
   assert.match(source, /this\._vehicleCatalog/);
-  assert.match(source, /__personal__/);
+  assert.doesNotMatch(source, /value="__personal__"/);
+  assert.match(source, /id="choosePersonalVehicleImage"/);
+  assert.match(source, /id="personalVehicleImage"/);
   assert.match(source, /https:\/\/commons\.wikimedia\.org\/w\/api\.php/);
   assert.match(source, /LicenseShortName/);
 });
