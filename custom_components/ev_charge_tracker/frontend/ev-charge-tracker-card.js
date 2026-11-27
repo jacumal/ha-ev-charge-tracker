@@ -665,7 +665,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       .hint{font-size:12px;color:var(--secondary-text-color);margin:7px 0 12px;line-height:1.45}
       .profile{margin:12px 0 18px;padding:15px;border:1px solid var(--divider-color);border-radius:16px;background:var(--secondary-background-color)}
       .vehicle-preview{display:flex;align-items:center;gap:12px;margin:12px 0;padding:12px;border-radius:14px;background:var(--card-background-color);min-height:62px}
-      .preview-stage{position:relative;width:112px;height:58px;flex:0 0 112px}.preview-stage img{width:100%;height:100%;object-fit:contain}.vehicle-preview .preview-fallback{width:100%;height:100%;border-radius:12px;background:linear-gradient(145deg,var(--secondary-background-color),var(--divider-color));display:grid;place-items:center;font-size:25px}.preview-port{position:absolute;width:9px;height:9px;border:2px solid var(--primary-color);border-radius:50%;background:var(--card-background-color);transform:translate(-50%,-50%);pointer-events:none}
+      .preview-stage{position:relative;width:112px;height:58px;flex:0 0 112px}.preview-stage img{width:100%;height:100%;object-fit:contain}.vehicle-actions{display:flex;gap:8px;flex-wrap:wrap}.secondary{background:var(--secondary-background-color);color:var(--primary-text-color);border:1px solid var(--divider-color)}.charge-port-settings{margin-top:16px;padding-top:12px;border-top:1px solid var(--divider-color)}.charge-port-settings h3{font-size:14px;margin:0 0 6px}.port-preview{position:relative;height:130px;max-width:260px;margin:12px auto;background:var(--secondary-background-color);border-radius:12px;overflow:hidden}.port-preview img{width:100%;height:100%;object-fit:contain}.charge-port-settings output{float:right;color:var(--secondary-text-color);font-size:12px}.vehicle-preview .preview-fallback{width:100%;height:100%;border-radius:12px;background:linear-gradient(145deg,var(--secondary-background-color),var(--divider-color));display:grid;place-items:center;font-size:25px}.preview-port{position:absolute;width:9px;height:9px;border:2px solid var(--primary-color);border-radius:50%;background:var(--card-background-color);transform:translate(-50%,-50%);pointer-events:none}
       .vehicle-preview strong{display:block;font-size:13px}.vehicle-preview small{display:block;margin-top:4px;color:var(--secondary-text-color);font-size:11px}
       .hidden{display:none}
       .gallery{margin:14px 0;padding:12px;border:1px solid var(--divider-color);border-radius:14px;background:var(--card-background-color)}
@@ -690,19 +690,22 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         <select id="profileSelect"></select>
         <div id="profileHint" class="hint"></div>
         <div id="vehiclePreview" class="vehicle-preview" aria-live="polite"></div>
-        <details id="vehicleEditor"><summary>Personalizar identidad y puerto de carga</summary>
-          <p class="hint">El selector solo muestra modelos con una imagen incluida en ChargeTrack. Si tu coche no aparece, elige «Vehículo genérico» o sube una foto personal. Para que el coche, el puerto y el cable animado encajen bien, prepara una imagen con estas características: vista exterior frontal de tres cuartos (se vean el frontal y un lateral), morro orientado hacia la derecha, vehículo completo sin recortar, centrado y ocupando aproximadamente el 80–90 % del ancho del lienzo, fondo realmente transparente (canal alfa, no un damero), PNG de 1200 × 675 px. Usa una escala y altura de ruedas parecidas a los renders incluidos y, si es posible, deja visible el puerto de carga. Evita fondos, sombras duras, textos, marcas de agua y perspectivas desde arriba. La imagen se guarda únicamente en este Home Assistant.</p>
-          <label class="field">Modelo del vehículo<select id="visual_catalog"><option value="">Vehículo personalizado / no catalogado</option></select></label>
-          <label class="field">Marca<input id="visual_brand" maxlength="40"></label>
-          <label class="field">Modelo<input id="visual_model" maxlength="50"></label>
-          <label class="field">Generación<input id="visual_generation" maxlength="40"></label>
-          <label class="field">Año<input id="visual_year" maxlength="12"></label>
-          <label class="field">Acabado<input id="visual_trim" maxlength="40"></label>
-          <label class="field">Color<input id="visual_color" type="color"></label>
-          <label class="field">Carrocería<select id="visual_body_style"><option value="suv">SUV</option><option value="sedan">Berlina</option><option value="hatchback">Compacto</option><option value="van">Furgoneta</option><option value="pickup">Pick-up</option></select></label>
-          <label class="field">Añadir fotografía personal<input id="personalVehicleImage" type="file" accept="image/png,image/webp"></label><p class="hint">Admite PNG o WebP con transparencia real, hasta 8 MB. ChargeTrack recorta el espacio transparente sobrante, centra el coche y lo normaliza a PNG de 1200 × 675 px. No se envía a ningún servicio externo.</p><input id="visual_image" type="hidden"><button id="restoreVehicleImage" type="button">Restaurar imagen predeterminada</button>
-          <label class="field">Puerto horizontal (0-100)<input id="visual_port_x" type="number" min="0" max="100"></label>
-          <label class="field">Puerto vertical (0-100)<input id="visual_port_y" type="number" min="0" max="100"></label>
+        <details id="vehicleEditor"><summary>Identidad visual y punto de carga</summary>
+          <p class="hint">Selecciona tu modelo para aplicar su imagen y la posición recomendada del puerto. También puedes utilizar una fotografía propia.</p>
+          <label class="field">Modelo del vehículo<select id="visual_catalog"><option value="">Selecciona un vehículo…</option></select></label>
+          <button id="choosePersonalVehicleImage" type="button">Usar fotografía personal</button>
+          <button id="restoreVehicleImage" type="button" class="secondary">Usar imagen del catálogo</button>
+          <input id="personalVehicleImage" type="file" accept="image/png,image/webp" hidden>
+          <p class="hint">Fotografía PNG o WebP con transparencia real, máximo 8 MB. Se guarda únicamente en este Home Assistant.</p>
+          <input id="visual_brand" type="hidden"><input id="visual_model" type="hidden"><input id="visual_generation" type="hidden"><input id="visual_year" type="hidden"><input id="visual_trim" type="hidden"><input id="visual_color" type="hidden" value="#71869A"><input id="visual_body_style" type="hidden" value="suv"><input id="visual_image" type="hidden">
+          <section class="charge-port-settings">
+            <h3>Configuración del punto de carga</h3>
+            <p class="hint">Ajusta dónde está el puerto de carga en la imagen del vehículo. ChargeTrack conectará visualmente el cable en ese punto. No afecta a la carga eléctrica ni al cargador.</p>
+            <div id="portPreview" class="port-preview"></div>
+            <label class="field">Posición horizontal <output id="visual_port_x_value"></output><input id="visual_port_x" type="range" min="0" max="100" step="1"></label>
+            <label class="field">Posición vertical <output id="visual_port_y_value"></output><input id="visual_port_y" type="range" min="0" max="100" step="1"></label>
+            <p class="hint">Los modelos del catálogo incluyen una posición inicial recomendada. Puedes afinarla viendo el punto en la previsualización.</p>
+          </section>
         </details>
         <div id="editorFeedback" class="hint" role="status" aria-live="polite"></div>
         <button id="refreshProfiles" type="button">Actualizar perfiles</button>
@@ -729,8 +732,10 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     });
     this.shadowRoot.getElementById("refreshProfiles").addEventListener("click", () => this._loadProfiles(true));
     this.shadowRoot.getElementById("visual_catalog").addEventListener("change", event => this._selectCatalogVehicle(event.target.value));
+    this.shadowRoot.getElementById("choosePersonalVehicleImage").addEventListener("click", () => this.shadowRoot.getElementById("personalVehicleImage").click());
     this.shadowRoot.getElementById("personalVehicleImage").addEventListener("change", event => this._uploadPersonalVehicleImage(event.target.files?.[0]));
     this.shadowRoot.getElementById("restoreVehicleImage").addEventListener("click", () => this._restoreCatalogVehicleImage());
+    ["visual_port_x","visual_port_y"].forEach(id => this.shadowRoot.getElementById(id).addEventListener("input", () => this._updateConfig()));
     this.shadowRoot.getElementById("manualToggle").addEventListener("click", () => {
       this._manualMode = !this._manualMode;
       this._syncControls();
@@ -767,7 +772,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const item = this._vehicleCatalog.find(vehicle => vehicle.id === id);
     if (!item) return;
     const next = { ...this._config, vehicle_visual: { ...(this._config.vehicle_visual || {}) } };
-    Object.assign(next.vehicle_visual, { visual_brand: item.brand, visual_model: item.model, visual_body_style: item.body, visual_image: item.image || "" });
+    Object.assign(next.vehicle_visual, { visual_brand: item.brand, visual_model: item.model, visual_body_style: item.body, visual_image: item.image || "", visual_port_x: item.port_x ?? 67, visual_port_y: item.port_y ?? 44 });
     for (const key of ["visual_image_credit","visual_image_license","visual_image_license_url","visual_image_page","visual_image_source"]) delete next.vehicle_visual[key];
     next.vehicle_visual_override = true;
     this._config = next;
@@ -798,8 +803,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     if (feedback) feedback.textContent = isGeneric
       ? "Imagen genérica restaurada."
       : item?.image
-        ? "Imagen predeterminada del modelo restaurada."
-        : "Se ha quitado la imagen personal. Este modelo todavía no tiene un render predeterminado incluido.";
+        ? "Imagen del catálogo aplicada."
+        : "No hay imagen de catálogo para este modelo.";
   }
 
   async _uploadPersonalVehicleImage(file) {
@@ -1009,7 +1014,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
     const visual = this._config.vehicle_visual || {};
     const profile = this._profiles.find(item => item.entry_id === this._config.profile_entry_id);
     const catalog = this.shadowRoot.getElementById("visual_catalog");
-    if (catalog && catalog.dataset.catalogVersion !== "images-only-v2-" + this._vehicleCatalog.length) {
+    if (catalog && catalog.dataset.catalogVersion !== "beta11-images-only-v3-" + this._vehicleCatalog.length) {
       const available = this._vehicleCatalog
         .filter(item => Boolean(item.image))
         .sort((a, b) => a.brand.localeCompare(b.brand, "es") || a.model.localeCompare(b.model, "es"));
@@ -1021,10 +1026,10 @@ class EVChargeTrackerCardEditor extends HTMLElement {
           this._esc([item.brand, item.model].filter(Boolean).join(" ")) + '</option>'
         ).join("") + '</optgroup>';
       }).join("");
-      catalog.innerHTML = '<option value="">Selecciona un vehículo…</option>' + options +
+      catalog.innerHTML = '<option value="" disabled selected>Selecciona un vehículo…</option>' + options +
         '<option value="__generic__">Vehículo genérico</option>' +
-        '<option value="__personal__">➕ Añadir una foto personal</option>';
-      catalog.dataset.catalogVersion = "images-only-v2-" + this._vehicleCatalog.length;
+        '';
+      catalog.dataset.catalogVersion = "beta11-images-only-v3-" + this._vehicleCatalog.length;
     }
     const matchingCatalog = this._vehicleCatalog.find(item =>
       item.brand.toLowerCase() === String(visual.visual_brand || "").toLowerCase() &&
@@ -1092,6 +1097,15 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         preview.lastElementChild.appendChild(credit);
       }
       const imageNode = preview.querySelector("img");
+      const portPreview = this.shadowRoot.getElementById("portPreview");
+      if (portPreview) portPreview.innerHTML = image ? '<img src="' + this._esc(image) + '" alt="' + this._esc(label) + '"><i class="preview-port" style="left:' + portX + '%;top:' + portY + '%"></i>' : '<div class="preview-fallback">Selecciona un vehículo</div>';
+      ["visual_port_x","visual_port_y"].forEach(id => {
+        const field = this.shadowRoot.getElementById(id);
+        const output = this.shadowRoot.getElementById(id + "_value");
+        const value = id.endsWith("_x") ? portX : portY;
+        if (field && field !== this.shadowRoot.activeElement) field.value = String(value);
+        if (output) output.textContent = value + " %";
+      });
       if (imageNode) imageNode.addEventListener("error", () => {
         const fallback = document.createElement("div");
         fallback.className = "preview-fallback";
