@@ -693,10 +693,11 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         <details id="vehicleEditor"><summary>Identidad visual y punto de carga</summary>
           <p class="hint">Selecciona tu modelo para aplicar su imagen y la posición recomendada del puerto. También puedes utilizar una fotografía propia.</p>
           <label class="field">Modelo del vehículo<select id="visual_catalog"><option value="">Selecciona un vehículo…</option></select></label>
-          <button id="choosePersonalVehicleImage" type="button">Usar fotografía personal</button>
+          <button id="choosePersonalVehicleImage" type="button">Usar imagen propia</button>
           <button id="restoreVehicleImage" type="button" class="secondary">Usar imagen del catálogo</button>
           <input id="personalVehicleImage" type="file" accept="image/png,image/webp" hidden>
-          <p class="hint">Fotografía PNG o WebP con transparencia real, máximo 8 MB. Se guarda únicamente en este Home Assistant.</p>
+          <p class="hint">Imagen PNG o WebP con fondo transparente, máximo 8 MB. Se guarda únicamente en este Home Assistant.</p>
+          <div id="vehicleImageFeedback" class="hint" role="status" aria-live="polite"></div>
           <input id="visual_brand" type="hidden"><input id="visual_model" type="hidden"><input id="visual_generation" type="hidden"><input id="visual_year" type="hidden"><input id="visual_trim" type="hidden"><input id="visual_color" type="hidden" value="#71869A"><input id="visual_body_style" type="hidden" value="suv"><input id="visual_image" type="hidden">
           <section class="charge-port-settings">
             <h3>Configuración del punto de carga</h3>
@@ -808,7 +809,8 @@ class EVChargeTrackerCardEditor extends HTMLElement {
   }
 
   async _uploadPersonalVehicleImage(file) {
-    const feedback = this.shadowRoot.getElementById("editorFeedback");
+    const feedback = this.shadowRoot.getElementById("vehicleImageFeedback") ||
+      this.shadowRoot.getElementById("editorFeedback");
     const input = this.shadowRoot.getElementById("personalVehicleImage");
     if (!file) return;
     if (!["image/png","image/webp"].includes(file.type) || file.size > 8 * 1024 * 1024) {
@@ -868,8 +870,18 @@ class EVChargeTrackerCardEditor extends HTMLElement {
         method: "POST",
         headers: { Authorization: "Bearer " + token, "Content-Type": "image/png" },
         body: blob,
+        credentials: "same-origin",
       });
-      if (!response.ok) throw new Error((await response.text()) || ("HTTP " + response.status));
+      if (!response.ok) {
+        const detail = (await response.text()).trim();
+        if (response.status === 404) {
+          throw new Error("Home Assistant no encuentra el servicio de subida de ChargeTrack (404). Comprueba que Beta 12 está instalada y reinicia Home Assistant.");
+        }
+        if (response.status === 401 || response.status === 403) {
+          throw new Error("La sesión de Home Assistant ha caducado o no tiene permisos. Recarga la página e inténtalo de nuevo.");
+        }
+        throw new Error(detail || ("No se pudo subir la imagen (HTTP " + response.status + ")."));
+      }
       const result = await response.json();
       if (!/^\/local\/ev-charge-tracker\/custom\/[a-f0-9]{64}\.png$/.test(result.path || "")) {
         throw new Error("Home Assistant devolvió una ruta de imagen no válida.");
@@ -881,7 +893,7 @@ class EVChargeTrackerCardEditor extends HTMLElement {
       next.vehicle_visual_override = true;
       this._config = next;
       this._updateConfig();
-      if (feedback) feedback.textContent = "Imagen guardada en este Home Assistant y aplicada a la vista previa. Para verla en el dashboard, pulsa Guardar en el editor del panel.";
+      if (feedback) feedback.textContent = "✓ Imagen guardada y aplicada. Pulsa Guardar en el editor del panel para conservar el cambio.";
     } catch (error) {
       if (feedback) feedback.textContent = error?.message || "No se pudo guardar la imagen.";
     } finally {

@@ -500,6 +500,15 @@ test("beta 11 keeps personal image upload outside the vehicle selector", () => {
   assert.match(source, /LicenseShortName/);
 });
 
+
+test("personal image upload gives visible local feedback and actionable HTTP errors", () => {
+  assert.match(source, /id="vehicleImageFeedback"/);
+  assert.match(source, /getElementById\("vehicleImageFeedback"\)/);
+  assert.match(source, /Home Assistant no encuentra el servicio de subida de ChargeTrack \(404\)/);
+  assert.match(source, /La sesión de Home Assistant ha caducado o no tiene permisos/);
+  assert.match(source, /credentials: "same-origin"/);
+});
+
 test("only local images or HTTPS Wikimedia Commons uploads are accepted", () => {
   const card = createCardInstance();
   assert.equal(card._validVehicleImage("/local/ev-charge-tracker/c10.webp"), true);

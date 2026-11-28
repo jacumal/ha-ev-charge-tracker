@@ -12,7 +12,6 @@ from .const import DOMAIN, PLATFORMS
 from .coordinator import EVChargeCoordinator
 from .profile_registry import build_profile_registry
 from .websocket import async_register as async_register_websocket
-from .vehicle_images import async_register as async_register_vehicle_image
 
 EVChargeConfigEntry = ConfigEntry[EVChargeCoordinator]
 REGISTRY_DATA_KEY = "_profile_registry"
@@ -33,7 +32,6 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     hass.data.setdefault(DOMAIN, {})
     _refresh_profile_registry(hass)
     async_register_websocket(hass)
-    async_register_vehicle_image(hass)
     card_path = Path(__file__).parent / "frontend" / "ev-charge-tracker-card.js"
     vehicle_images_path = Path(__file__).parent / "brand" / "vehicle-images"
     vehicle_catalog_path = Path(__file__).parent / "vehicle_catalog.json"
@@ -51,6 +49,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: EVChargeConfigEntry) -> 
     """Set up a configured vehicle/charger profile."""
     coordinator = EVChargeCoordinator(hass, entry)
     hass.data.setdefault(DOMAIN, {})
+    # Register the authenticated upload route when the config entry is active.
+    # This also makes setup order explicit for installations with multiple profiles.
+    if not hass.data[DOMAIN].get("_vehicle_image_view_registered"):
+        from .vehicle_images import async_register as async_register_vehicle_image
+        async_register_vehicle_image(hass)
+        hass.data[DOMAIN]["_vehicle_image_view_registered"] = True
     platform_setup_started = False
     try:
         await coordinator.async_setup()

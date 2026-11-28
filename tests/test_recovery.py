@@ -9,6 +9,7 @@ from custom_components.ev_charge_tracker.coordinator import (
     _session_recovery_action,
     _state_is_fresh,
     _state_updated_at_or_after,
+    EVChargeCoordinator,
 )
 
 
@@ -49,6 +50,39 @@ class SessionRecoveryGuardTests(unittest.TestCase):
         after = self.state(updated=stopped_at + timedelta(seconds=1))
         self.assertFalse(_state_updated_at_or_after(before, stopped_at))
         self.assertTrue(_state_updated_at_or_after(after, stopped_at))
+
+    def test_source_diagnostic_clears_when_entity_recovers(self):
+        coordinator = object.__new__(EVChargeCoordinator)
+        coordinator.data = {
+            "diagnostic": "Sesión iniciada",
+            "diagnostic_before_source": "Sesión iniciada",
+            "source_diagnostics": {},
+        }
+        coordinator._set_source_diagnostic("sensor.odometer")
+        self.assertEqual(
+            coordinator.data["diagnostic"],
+            "Lectura no disponible: sensor.odometer",
+        )
+        coordinator._clear_source_diagnostic("sensor.odometer")
+        self.assertEqual(coordinator.data["diagnostic"], "Sesión iniciada")
+        self.assertEqual(coordinator.data["source_diagnostics"], {})
+
+    def test_multiple_source_diagnostics_clear_independently(self):
+        coordinator = object.__new__(EVChargeCoordinator)
+        coordinator.data = {
+            "diagnostic": "Sesión iniciada",
+            "diagnostic_before_source": "Sesión iniciada",
+            "source_diagnostics": {},
+        }
+        coordinator._set_source_diagnostic("sensor.odometer")
+        coordinator._set_source_diagnostic("sensor.energy")
+        coordinator._clear_source_diagnostic("sensor.odometer")
+        self.assertEqual(
+            coordinator.data["diagnostic"],
+            "Lectura no disponible: sensor.energy",
+        )
+        coordinator._clear_source_diagnostic("sensor.energy")
+        self.assertEqual(coordinator.data["diagnostic"], "Sesión iniciada")
 
     def test_meter_counter_reset_never_creates_negative_energy(self):
         self.assertIsNone(_energy_delta(12.5, 0.2))

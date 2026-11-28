@@ -20,6 +20,7 @@ class ConfigEntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
         )
         self.hass = SimpleNamespace(
             data={},
+            http=SimpleNamespace(register_view=Mock()),
             config_entries=SimpleNamespace(
                 async_entries=Mock(return_value=[]),
                 async_forward_entry_setups=AsyncMock(),
@@ -80,6 +81,11 @@ class ConfigEntryLifecycleTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertTrue(result)
         self.assertIs(self.hass.data[DOMAIN][self.entry.entry_id], self.coordinator)
+        self.hass.http.register_view.assert_called_once()
+        view = self.hass.http.register_view.call_args.args[0]
+        self.assertEqual(view.url, "/api/ev_charge_tracker/vehicle-image")
+        self.assertTrue(view.requires_auth)
+        self.assertTrue(self.hass.data[DOMAIN]["_vehicle_image_view_registered"])
         self.coordinator.async_shutdown.assert_not_awaited()
         self.entry.async_on_unload.assert_called_once()
 
