@@ -31,6 +31,8 @@ class FakeAlpha:
 class FakeImage:
     format = "PNG"
     size = (1200, 675)
+    width = 1200
+    height = 675
 
     def __init__(self, valid_alpha=True):
         self.valid_alpha = valid_alpha
