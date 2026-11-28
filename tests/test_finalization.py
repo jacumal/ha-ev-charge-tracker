@@ -11,6 +11,8 @@ from custom_components.ev_charge_tracker.coordinator import EVChargeCoordinator
 class SessionFinalizationTests(unittest.TestCase):
     def make_coordinator(self, session):
         coordinator = object.__new__(EVChargeCoordinator)
+        from custom_components.ev_charge_tracker.const import CONF_FINALIZATION, FINALIZE_IMMEDIATE
+        coordinator.config = {CONF_FINALIZATION: FINALIZE_IMMEDIATE}
         coordinator.data = {
             "status": "pending_finalization",
             "session": session,
@@ -36,6 +38,8 @@ class SessionFinalizationTests(unittest.TestCase):
             "soc_end": None,
         }
         coordinator = self.make_coordinator(session)
+        from custom_components.ev_charge_tracker.const import CONF_FINALIZATION, FINALIZE_ODOMETER
+        coordinator.config[CONF_FINALIZATION] = FINALIZE_ODOMETER
 
         coordinator._finalize()
 
@@ -64,7 +68,8 @@ class SessionFinalizationTests(unittest.TestCase):
             "soc_last_at": "2026-11-19T10:20:00+00:00",
         })
 
-        coordinator.config = {}
+        from custom_components.ev_charge_tracker.const import CONF_FINALIZATION, FINALIZE_ODOMETER
+        coordinator.config[CONF_FINALIZATION] = FINALIZE_ODOMETER
         coordinator._finalize()
 
         self.assertEqual(coordinator.data["latest"]["soc_end"], 91.5)
