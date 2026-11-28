@@ -44,11 +44,30 @@ class SessionFinalizationTests(unittest.TestCase):
         self.assertEqual(len(coordinator.data["history"]), 1)
         self.assertEqual(coordinator.data["latest"]["energy_kwh"], 12.5)
         self.assertEqual(coordinator.data["latest"]["cost"], 2.5)
-        self.assertEqual(coordinator.data["latest"]["soc_end"], 77.0)
+        self.assertEqual(coordinator.data["latest"]["soc_end"], 80.0)
         self.assertEqual(
             coordinator.data["latest"]["session_id"],
             "2026-11-19T10:00:00+00:00",
         )
+
+    def test_odometer_workflow_uses_maximum_soc_not_last_stale_sample(self):
+        coordinator = self.make_coordinator({
+            "started_at": "2026-11-19T10:00:00+00:00",
+            "ended_at": "2026-11-19T11:00:00+00:00",
+            "energy_kwh": 8.0,
+            "energy_valid": True,
+            "price_per_kwh": 0.2,
+            "cost_complete": True,
+            "tariff_breakdown": {},
+            "soc_max": 91.5,
+            "soc_last": 84.0,
+            "soc_last_at": "2026-11-19T10:20:00+00:00",
+        })
+
+        coordinator.config = {}
+        coordinator._finalize()
+
+        self.assertEqual(coordinator.data["latest"]["soc_end"], 91.5)
 
     def test_soc_reported_during_finalization_grace_is_saved(self):
         coordinator = self.make_coordinator({
