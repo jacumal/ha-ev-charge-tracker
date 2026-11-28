@@ -155,7 +155,7 @@ class EVChargeTrackerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_FINALIZATION, default=FINALIZE_ODOMETER): selector.SelectSelector(
                     selector.SelectSelectorConfig(
                         options=[
-                            {"value": FINALIZE_ODOMETER, "label": "Cuando aumente el odómetro"},
+                            {"value": FINALIZE_ODOMETER, "label": "V2C · Odómetro aumentado + SOC máximo"},
                             {"value": FINALIZE_IMMEDIATE, "label": "Al terminar la carga"},
                             {"value": FINALIZE_MANUAL, "label": "Confirmación manual desde un botón"},
                         ],
