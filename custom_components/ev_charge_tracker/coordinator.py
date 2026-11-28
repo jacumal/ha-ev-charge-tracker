@@ -704,25 +704,32 @@ class EVChargeCoordinator(DataUpdateCoordinator):
         session = self.data.get("session")
         if session is None:
             return
-        # Keep the last SOC only if it was refreshed close to charge completion.
-        # A parked/sleeping vehicle can otherwise leave a plausible stale value.
-        soc_last_at = session.get("soc_last_at")
-        ended_at = session.get("ended_at")
-        soc_end = None
-        if soc_last_at and ended_at:
-            try:
-                soc_age = (
-                    datetime.fromisoformat(ended_at)
-                    - datetime.fromisoformat(soc_last_at)
-                ).total_seconds()
-                # Allow a delayed vehicle update during the post-charge grace
-                # period, but reject readings that are more than 10 minutes
-                # away from the actual charging stop in either direction.
-                if abs(soc_age) <= 600:
-                    soc_end = session.get("soc_last")
-            except (TypeError, ValueError):
-                pass
-        session["soc_end"] = soc_end
+        # The odometer workflow mirrors the user's proven V2C automation:
+        # keep the maximum valid SOC observed during charging and while waiting
+        # for the odometer to advance. Do not replace it with a stale last sample.
+        strategy = self.config.get(CONF_FINALIZATION, FINALIZE_ODOMETER)
+        if strategy == FINALIZE_ODOMETER:
+            soc_max = session.get("soc_max")
+            session["soc_end"] = (
+                soc_max if soc_max is not None and 0 < soc_max <= 100 else None
+            )
+        else:
+            # Other finalization modes use the latest SOC only when it is close
+            # enough to the stop time to avoid persisting stale vehicle telemetry.
+            soc_last_at = session.get("soc_last_at")
+            ended_at = session.get("ended_at")
+            soc_end = None
+            if soc_last_at and ended_at:
+                try:
+                    soc_age = (
+                        datetime.fromisoformat(ended_at)
+                        - datetime.fromisoformat(soc_last_at)
+                    ).total_seconds()
+                    if abs(soc_age) <= 600:
+                        soc_end = session.get("soc_last")
+                except (TypeError, ValueError):
+                    pass
+            session["soc_end"] = soc_end
         price = session.get("price_per_kwh")
         energy = session.get("energy_kwh")
         buckets = session.get("tariff_breakdown") or {}
