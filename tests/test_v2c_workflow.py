@@ -58,7 +58,10 @@ class V2CWorkflowTests(unittest.TestCase):
         coordinator._allocate_tariff_delta.assert_called_once()
 
     def test_soc_max_continues_to_update_while_waiting_for_odometer(self):
-        config = {CONF_SOC_ENTITY: "sensor.vehicle_soc"}
+        config = {
+            CONF_SOC_ENTITY: "sensor.vehicle_soc",
+            CONF_ENERGY_ENTITY: "sensor.evse_energy",
+        }
         session = {
             "status": "pending_finalization",
             "ended_at": "2026-11-28T08:00:00+00:00",
@@ -77,7 +80,10 @@ class V2CWorkflowTests(unittest.TestCase):
         self.assertEqual(session["soc_last"], 92.5)
 
     def test_soc_max_ignores_invalid_or_lower_values_while_pending(self):
-        config = {CONF_SOC_ENTITY: "sensor.vehicle_soc"}
+        config = {
+            CONF_SOC_ENTITY: "sensor.vehicle_soc",
+            CONF_ENERGY_ENTITY: "sensor.evse_energy",
+        }
         session = {
             "status": "pending_finalization",
             "ended_at": "2026-11-28T08:00:00+00:00",
@@ -116,6 +122,7 @@ class V2CWorkflowTests(unittest.TestCase):
         config = {
             CONF_CHARGING_ENTITY: "binary_sensor.charger",
             CONF_ODOMETER_ENTITY: "sensor.odometer",
+            CONF_ENERGY_ENTITY: "sensor.evse_energy",
             CONF_FINALIZATION: FINALIZE_ODOMETER,
         }
         coordinator = self.make_coordinator(
@@ -152,6 +159,7 @@ class V2CWorkflowTests(unittest.TestCase):
         config = {
             CONF_CHARGING_ENTITY: "binary_sensor.charger",
             CONF_ODOMETER_ENTITY: "sensor.odometer",
+            CONF_ENERGY_ENTITY: "sensor.evse_energy",
             CONF_FINALIZATION: FINALIZE_ODOMETER,
         }
         coordinator = self.make_coordinator(
