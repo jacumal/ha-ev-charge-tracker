@@ -45,7 +45,7 @@ class VehicleImageUploadView(HomeAssistantView):
             from PIL import Image, UnidentifiedImageError
         except ImportError as err:
             raise web.HTTPInternalServerError(
-                text="Falta Pillow. Reinicia Home Assistant para instalar las dependencias de ChargeTrack."
+                text="El entorno de Home Assistant no tiene disponible el decodificador PNG (Pillow). Actualiza o repara la instalación de Home Assistant."
             ) from err
 
         try:
